@@ -117,7 +117,7 @@ class MusicController extends GetxController {
       currentMusic.value = music;
       if (media.value?.id != value.mediaItem().id && value.url != null && value.url != "") {
         if ((value.lyric?.length ?? 0) > 50) {
-          lyricModel.value = LyricsModelBuilder.create().bindLyricToMain(value.lyric ?? "").getModel();
+          lyricModel.value = LyricsModelBuilder.create().bindLyricToMain(value.lyric?.replaceAll(":00]", ".00]") ?? "").getModel();
         } else {
           lyric.value = "暂无歌词";
           lyricModel.value = LyricsModelBuilder.create().bindLyricToMain("暂无歌词").getModel();
@@ -127,6 +127,7 @@ class MusicController extends GetxController {
         }
         isBuffering.value = true;
         Player.playMediaItem(music.mediaItem()).catchError((e) {
+          print(e);
           isBuffering.value = false;
           media.value = null;
           showError("播放失败");
@@ -143,8 +144,8 @@ class MusicController extends GetxController {
         }
       }
     }).catchError((e) {
-      print(e);
       isBuffering.value = false;
+      print(e);
       showError('${music.title} 获取地址失败:$e');
     });
   }

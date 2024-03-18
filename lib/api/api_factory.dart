@@ -54,8 +54,8 @@ class ApiFactory {
     });
   }
 
-  static reFreshPlugins({required String pluginRoot}) async {
-    await getSystemPlugins(rootDir: pluginRoot).then((value) {
+  static reFreshPlugins() async {
+    await getSystemPlugins(rootDir: _pluginRoot).then((value) {
       _plugins.clear();
       _plugins.addAll(value);
       _plugins.forEach((element) async {
@@ -99,16 +99,16 @@ class ApiFactory {
 
     var datas = value
         .map((e) {
-          e.forEach((element) {
-            print('${element.site}  ${element.title}>>${name}  ${element.subTitle}>>${artist}');
-          });
-          var data = e.firstWhereOrNull((element) =>
-              (element.title.toString().replaceAll(" ", "").toLowerCase().startsWith(name.toString().replaceAll(" ", "").toLowerCase()) ||
-                  name.toString().replaceAll(" ", "").toLowerCase().startsWith(element.title.toString().replaceAll(" ", "").toLowerCase())) &&
-              ((element.subTitle.toString().replaceAll(" ", "").toLowerCase().contains(artist?.replaceAll(" ", "").toLowerCase() ?? "")) ||
-                  (artist ?? "").toString().replaceAll(" ", "").toLowerCase().contains(element.subTitle.replaceAll(" ", "").toLowerCase() ?? "")));
-          return data;
-        })
+      e.forEach((element) {
+        print('${element.site}  ${element.title}>>${name}  ${element.subTitle}>>${artist}');
+      });
+      var data = e.firstWhereOrNull((element) =>
+      (element.title.toString().replaceAll(" ", "").toLowerCase().startsWith(name.toString().replaceAll(" ", "").toLowerCase()) ||
+          name.toString().replaceAll(" ", "").toLowerCase().startsWith(element.title.toString().replaceAll(" ", "").toLowerCase())) &&
+          ((element.subTitle.toString().replaceAll(" ", "").toLowerCase().contains(artist?.replaceAll(" ", "").toLowerCase() ?? "")) ||
+              (artist ?? "").toString().replaceAll(" ", "").toLowerCase().contains(element.subTitle.replaceAll(" ", "").toLowerCase() ?? "")));
+      return data;
+    })
         .where((element) => element != null)
         .toList();
     // datas.forEach((element) {

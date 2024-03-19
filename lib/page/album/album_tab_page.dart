@@ -62,6 +62,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
         itemBuilder: (BuildContext context, int index) {
           var item = albumList[index];
           return ListTile(
+
             leading: AppImage(url: item.pic ?? ""),
             title: Text("${item.title}", maxLines: 1),
             subtitle: Text("${item.subTitle}", maxLines: 1),
@@ -82,7 +83,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
         albumList.clear();
         refreshController.finishRefresh();
       }
-      refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success);
+      refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success, true);
 
       if (pageEntity.value != null) {
         albumList.addAll(value.data ?? []);
@@ -90,9 +91,9 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
       // showComplete("操作成功");
     }).catchError((e) {
       if (page == 0) {
-        refreshController.finishRefresh(IndicatorResult.fail);
+        refreshController.finishRefresh(IndicatorResult.fail, true);
       } else {
-        refreshController.finishLoad(IndicatorResult.fail);
+        refreshController.finishLoad(IndicatorResult.fail, true);
       }
       showError(e);
     });

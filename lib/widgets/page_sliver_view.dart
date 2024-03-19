@@ -5,15 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class PageListView extends StatefulWidget {
-  PageListView({
+class PageSliverView extends StatefulWidget {
+  PageSliverView({
     Key? key,
-    required this.itemCount,
-    required this.itemBuilder,
+    required this.slivers,
     this.onRefresh,
     this.onLoad,
-    this.padding,
-    this.itemExtent,
     this.shrinkWrap,
     required this.controller,
     this.scrollController,
@@ -21,22 +18,19 @@ class PageListView extends StatefulWidget {
 
   final FutureOr Function()? onRefresh;
   final FutureOr Function()? onLoad;
-  final int itemCount;
 
   EasyRefreshController controller;
   ScrollController? scrollController;
 
-  final IndexedWidgetBuilder itemBuilder;
+  final List<Widget> slivers;
 
-  final EdgeInsetsGeometry? padding;
-  final double? itemExtent;
   final bool? shrinkWrap;
 
   @override
-  State<PageListView> createState() => _PageListViewState();
+  State<PageSliverView> createState() => _PageSliverViewState();
 }
 
-class _PageListViewState extends State<PageListView> {
+class _PageSliverViewState extends State<PageSliverView> {
   @override
   Widget build(BuildContext context) {
     return EasyRefresh(
@@ -54,16 +48,11 @@ class _PageListViewState extends State<PageListView> {
         controller: widget.controller,
         onRefresh: widget.onRefresh,
         onLoad: widget.onLoad,
-        child: ListView.builder(
+        child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           controller: widget.scrollController,
           shrinkWrap: widget.shrinkWrap ?? false,
-          itemCount: widget.itemCount,
-          padding: widget.padding ?? const EdgeInsets.only(top: 0),
-          itemExtent: widget.itemExtent,
-          itemBuilder: (BuildContext context, int index) {
-            return widget.itemBuilder(context, index);
-          },
+          slivers: widget.slivers,
         ));
   }
 }

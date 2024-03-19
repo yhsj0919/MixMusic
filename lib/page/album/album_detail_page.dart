@@ -81,7 +81,7 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: const Text('关于'),
-                            content: Text('${album.value?.desc}'),
+                            content: Text(album.value?.desc ?? ""),
                             actions: <Widget>[
                               TextButton(
                                 onPressed: () {
@@ -183,7 +183,7 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
         songList.clear();
         refreshController.finishRefresh();
       }
-      refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success);
+      refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success, true);
 
       var songs = value.data?.songs ?? [];
       album.value?.songs = null;
@@ -197,9 +197,9 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
     }).catchError((e) {
       print(e);
       if (page == 0) {
-        refreshController.finishRefresh(IndicatorResult.fail);
+        refreshController.finishRefresh(IndicatorResult.fail, true);
       } else {
-        refreshController.finishLoad(IndicatorResult.fail);
+        refreshController.finishLoad(IndicatorResult.fail, true);
       }
       showError(e);
     });

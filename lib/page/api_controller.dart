@@ -7,10 +7,12 @@ import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_album_type.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
+import 'package:mix_music/entity/mix_rank.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../api/mix_api.dart';
+import '../entity/mix_rank_type.dart';
 import '../entity/plugins_info.dart';
 
 class ApiController extends GetxController {
@@ -90,6 +92,16 @@ class ApiController extends GetxController {
   ///专辑详情
   Future<AppRespEntity<MixAlbum>> albumInfo({required String site, required MixAlbum album, int page = 0, int size = 20}) async {
     return ApiFactory.api(site: site)!.albumInfo(album: album, page: page, size: size);
+  }
+
+  ///榜单
+  Future<AppRespEntity<List<MixRankType>>> rankList({required String site}) async {
+    return ApiFactory.api(site: site)!.rankList();
+  }
+
+  ///榜单详情
+  Future<AppRespEntity<MixRank>> rankInfo({required String site, required MixRank rank, int page = 0, int size = 20}) async {
+    return ApiFactory.api(site: site)!.rankInfo(rank: rank, page: page, size: size);
   }
 
   Future<String> invokeMethod({required PluginsInfo plugin, required String method, List<String> params = const []}) async {

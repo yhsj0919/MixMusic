@@ -4,40 +4,40 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/entity/mix_play_list.dart';
+import 'package:mix_music/entity/mix_rank.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/app_image.dart';
-import 'package:mix_music/widgets/page_list_view.dart';
 
 import '../../entity/page_entity.dart';
 import '../../player/music_controller.dart';
 import '../../widgets/message.dart';
+import '../../widgets/page_list_view.dart';
 import '../api_controller.dart';
 
-class PlayListDetailPage extends StatefulWidget {
-  PlayListDetailPage({super.key, required this.playlist});
+class RankDetailPage extends StatefulWidget {
+  RankDetailPage({super.key, required this.rank});
 
-  MixPlaylist? playlist;
+  MixRank? rank;
 
   @override
-  State<PlayListDetailPage> createState() => _PlayListDetailPageState();
+  State<RankDetailPage> createState() => _RankDetailPageState();
 }
 
-class _PlayListDetailPageState extends State<PlayListDetailPage> {
+class _RankDetailPageState extends State<RankDetailPage> {
   late EasyRefreshController refreshController;
   MusicController music = Get.put(MusicController());
   RxList<MixSong> songList = RxList();
   ApiController api = Get.put(ApiController());
   Rxn<PageEntity> pageEntity = Rxn();
-  Rxn<MixPlaylist> playlist = Rxn();
+  Rxn<MixRank> rank = Rxn();
 
   @override
   void initState() {
     super.initState();
-    playlist.value = widget.playlist;
-    refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
-    getPlayListInfo();
+    rank.value = widget.rank;
+    refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
+    getRankInfo();
   }
 
   @override
@@ -52,7 +52,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
               expandedHeight: 200,
               flexibleSpace: FlexibleSpaceBar(
                   title: Text(
-                    playlist.value?.title ?? "歌单",
+                    rank.value?.title ?? "榜单",
                     style: TextStyle(color: Theme.of(context).textTheme.titleMedium?.color),
                     maxLines: f ? 1 : null,
                     overflow: TextOverflow.ellipsis,
@@ -61,7 +61,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                   background: Stack(
                     children: [
                       AppImage(
-                        url: playlist.value?.pic ?? "",
+                        url: rank.value?.pic ?? "",
                         width: MediaQuery.of(context).size.width,
                         height: MediaQuery.of(context).size.width,
                         animationDuration: 0,
@@ -81,7 +81,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: const Text('关于'),
-                            content: Text(playlist.value?.desc??""),
+                            content: Text(rank.value?.desc ?? ""),
                             actions: <Widget>[
                               TextButton(
                                 onPressed: () {
@@ -113,7 +113,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                                 music.playList(list: songList, index: 0);
                               },
                               child: const Text("播放全部")),
-                          Obx(() => Text("${songList.length}/${playlist.value?.songCount ?? "0"}")),
+                          Obx(() => Text("${songList.length}/${rank.value?.songCount ?? "0"}")),
                         ],
                       ),
                     ))),
@@ -125,63 +125,72 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
         },
         onlyOneScrollInBody: true,
         // physics: NeverScrollableScrollPhysics(),
-        body: Obx(() => PageListView(
-              controller: refreshController,
-              onRefresh: () {
-                return getPlayListInfo();
-              },
-              onLoad: () {
-                return getPlayListInfo(page: pageEntity.value?.page ?? 0);
-              },
-              itemCount: songList.length,
-              itemBuilder: (BuildContext context, int index) {
-                var song = songList[index];
-                return Obx(() => ListTile(
-                      selected: music.currentMusic.value?.id == song.id,
-                      leading: AppImage(url: song.pic ?? ""),
-                      title: Row(
-                        children: [
-                          Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
-                          song.vip == 1
-                              ? Container(
-                                  alignment: Alignment.center,
-                                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-                                    border: Border.all(width: 1, color: Colors.green),
-                                  ),
-                                  child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
-                                )
-                              : Container(),
-                        ],
-                      ),
-                      subtitle: Text(song.subTitle ?? "", overflow: TextOverflow.ellipsis, maxLines: 1),
-                      onTap: () {
-                        music.playList(list: songList, index: index);
-                      },
-                    ));
-              },
-            )),
+        body: Obx(
+          () => PageListView(
+            controller: refreshController,
+            onRefresh: () {
+              return getRankInfo();
+            },
+            onLoad: () {
+              return getRankInfo(page: pageEntity.value?.page ?? 0);
+            },
+            itemCount: songList.length,
+            itemBuilder: (BuildContext context, int index) {
+              var song = songList[index];
+              return Obx(() => ListTile(
+                    selected: music.currentMusic.value?.id == song.id,
+                    leading: AppImage(url: song.pic ?? ""),
+                    title: Row(
+                      children: [
+                        Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        song.vip == 1
+                            ? Container(
+                                alignment: Alignment.center,
+                                margin: const EdgeInsets.symmetric(horizontal: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+                                  border: Border.all(width: 1, color: Colors.green),
+                                ),
+                                child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
+                              )
+                            : Container(),
+                      ],
+                    ),
+                    subtitle: Text(
+                      song.subTitle ?? "",
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    onTap: () {
+                      music.playList(list: songList, index: index);
+                    },
+                  ));
+            },
+          ),
+        ),
       ),
     );
   }
 
-  ///获取歌单
-  Future<void> getPlayListInfo({int page = 0}) {
-    return api.playListInfo(site: playlist.value?.site ?? "", playlist: playlist.value!, page: page).then((value) {
+  ///获取专辑
+  Future<void> getRankInfo({int page = 0}) {
+    return api.rankInfo(site: rank.value?.site ?? "", rank: rank.value!, page: page).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
+        rank.value = value.data;
         songList.clear();
         refreshController.finishRefresh();
       }
       refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success, true);
 
-      if (pageEntity.value != null) {
-        songList.addAll(value.data?.songs ?? []);
-      }
+      var songs = value.data?.songs ?? [];
+      songList.addAll(songs);
+      rank.value?.songs = null;
+
       // showComplete("操作成功");
     }).catchError((e) {
+      print(e);
       if (page == 0) {
         refreshController.finishRefresh(IndicatorResult.fail, true);
       } else {

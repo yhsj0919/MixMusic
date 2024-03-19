@@ -45,7 +45,7 @@ class AppPlayListPage extends StatelessWidget {
                   var song = music.musicList[index];
                   return Obx(
                     () => ListTile(
-                      selected: music.musicIndex.value == index,
+                      selected: music.currentMusic.value?.id == song.id,
                       leading: AppImage(url: song.pic ?? ""),
                       title: Row(
                         children: [

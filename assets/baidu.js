@@ -455,26 +455,13 @@ function albumList(type, page = 0, size = 20) {
             let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
 
             // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /"[\u4e00-\u9fa5]+"。/g;
-            let pattern2 = /""[\u4e00-\u9fa5]+"[\u4e00-\u9fa5]+/g;
-            let pattern3 = /"[\u4e00-\u9fa5]+"[^,}\]]/g;
+            let pattern = /"[^:,{\[]"[\u4e00-\u9fa5]+"[^,}\]]/g;
 
             // 使用正则表达式的 exec() 方法来执行匹配
             let matches = str.match(pattern);
-            let matches2 = str.match(pattern2);
-            let matches3 = str.match(pattern3);
+
             if (matches !== null) {
                 matches.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-            if (matches2 !== null) {
-                matches2.forEach(function (element) {
-                    str = str.replaceAll(element.substring(1), element.substring(1).replaceAll("\"", "”"))
-                });
-            }
-            if (matches3 !== null) {
-                matches3.forEach(function (element) {
                     str = str.replaceAll(element, element.replaceAll("\"", "”"))
                 });
             }
@@ -555,29 +542,17 @@ function albumInfo(album, page = 0, size = 20) {
             let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
 
             // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /"[\u4e00-\u9fa5]+"。/g;
-            let pattern2 = /""[\u4e00-\u9fa5]+"[\u4e00-\u9fa5]+/g;
-            let pattern3 = /"[\u4e00-\u9fa5]+"[^,}\]]/g;
+            let pattern = /"[^:,{\[]"[\u4e00-\u9fa5]+"[^,}\]]/g;
 
             // 使用正则表达式的 exec() 方法来执行匹配
             let matches = str.match(pattern);
-            let matches2 = str.match(pattern2);
-            let matches3 = str.match(pattern3);
+
             if (matches !== null) {
                 matches.forEach(function (element) {
                     str = str.replaceAll(element, element.replaceAll("\"", "”"))
                 });
             }
-            if (matches2 !== null) {
-                matches2.forEach(function (element) {
-                    str = str.replaceAll(element.substring(1), element.substring(1).replaceAll("\"", "”"))
-                });
-            }
-            if (matches3 !== null) {
-                matches3.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
+
             console.log(str)
 
             respData = JSON.parse(str)
@@ -640,6 +615,179 @@ function albumInfo(album, page = 0, size = 20) {
                 number: newArray.length,
                 totalPages: 1,
                 totalSize: newArray.length
+            }
+        };
+        return JSON.stringify(resp);
+    });
+}
+
+
+//排行榜
+function rankList() {
+    // 定义查询参数
+    const params = {
+        timestamp: Date.now(),
+        appid: 16073360,
+    };
+
+    params['sign'] = paramsSign(params);
+
+    return axios.get('https://api-qianqian.taihe.com/v1/bd/category', {
+        params
+    }, {
+        headers: headers
+    }).then(function (data) {
+        console.log(data)
+        let respData
+        if (typeof data["data"] === "object") {
+            respData = data["data"]
+        } else {
+            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
+
+            let pattern = /"[^:,{\[]"[\u4e00-\u9fa5]+"[^,}\]]/g;
+
+            // 使用正则表达式的 exec() 方法来执行匹配
+            let matches = str.match(pattern);
+
+            if (matches !== null) {
+                matches.forEach(function (element) {
+                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
+                });
+            }
+
+
+            respData = JSON.parse(str)
+        }
+
+        console.log(JSON.stringify(respData))
+
+        if (respData["errno"] !== 22000) {
+            const resp = {
+                code: 500,
+                msg: data["errmsg"],
+                data: null
+            };
+            return JSON.stringify(resp);
+        }
+
+
+        const newArray = respData["data"].map(function (element) {
+            return {
+                site: 'baidu',
+                id: element['bdid'],
+                pic: `${element["pic"]}@w_200,h_200`,
+                title: element['title'],
+            };
+        });
+        const type = [
+            {
+                site: 'baidu',
+                title: '官方榜',
+                rankList: newArray,
+            }
+        ]
+
+
+        const resp = {
+            code: 200,
+            msg: '操作成功',
+            data: type
+        };
+        return JSON.stringify(resp);
+    });
+}
+
+// 专辑详情
+function rankInfo(rank, page = 0, size = 20) {
+
+    const myRank = JSON.parse(rank);
+    // 定义查询参数
+    const params = {
+        bdid: myRank["id"],
+        pageNo: parseInt(page) + 1,
+        pageSize: size,
+        timestamp: Date.now(),
+        appid: 16073360
+    };
+
+    params['sign'] = paramsSign(params);
+
+    return axios.get('https://api-qianqian.taihe.com/v1/bd/list', {
+        params
+    }, {
+        headers: headers
+    }).then(function (data) {
+
+        let respData
+        if (typeof data["data"] === "object") {
+            respData = data["data"]
+        } else {
+            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
+
+            // 正则表达式来匹配一些包含在文字中的引号
+            let pattern = /"[^:,{\[]"[\u4e00-\u9fa5]+"[^,}\]]/g;
+
+            // 使用正则表达式的 exec() 方法来执行匹配
+            let matches = str.match(pattern);
+
+            if (matches !== null) {
+                matches.forEach(function (element) {
+                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
+                });
+            }
+            console.log(str)
+            respData = JSON.parse(str)
+        }
+        console.log(JSON.stringify(respData))
+        if (respData["errno"] !== 22000) {
+            const resp = {
+                code: 500,
+                msg: data["errmsg"],
+                data: null
+            };
+            return JSON.stringify(resp);
+        }
+
+
+        const result = respData["data"]
+
+        const newAlbum = {
+            site: 'baidu',
+            id: result['bdid'],
+            pic: `${myRank["pic"]}`,
+            title: result['title'],
+            songCount: result['total']
+        }
+        const newArray = result["result"].map(function (element) {
+            return {
+                site: 'baidu',
+                id: element['assetId'],
+                pic: `${element["pic"]}@w_200,h_200`,
+                title: element['title'],
+                subTitle: element["artist"].map(function (ar) {
+                    return ar["name"]
+                }).join(","),
+                vip: element["isVip"],
+                artist: element["artist"].map(function (ar) {
+                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}@w_200,h_200`}
+                }),
+            };
+        });
+
+        newAlbum['songs'] = newArray
+
+        const resp = {
+            code: 200,
+            msg: '操作成功',
+            data: newAlbum,
+            page: {
+                first: parseInt(page) === 0,
+                last: result["haveMore"] !== 1,
+                page: parseInt(page) + 1,
+                size: parseInt(size),
+                number: newArray.length,
+                totalPages: Math.floor(result["total"] / parseInt(size)),
+                totalSize: result["total"]
             }
         };
         return JSON.stringify(resp);

@@ -74,6 +74,19 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Row(
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        Get.toNamed(Routes.rank, id: Routes.key);
+                      },
+                      icon: const Icon(Icons.align_vertical_top_rounded)),
+                ],
+              ),
+            ),
+
             // Container(
             //   padding: const EdgeInsets.symmetric(horizontal: 16),
             //   alignment: Alignment.center,

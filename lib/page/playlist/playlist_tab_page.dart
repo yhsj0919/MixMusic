@@ -80,7 +80,7 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
         playlist.clear();
         refreshController.finishRefresh();
       }
-      refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success);
+      refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success, true);
 
       if (pageEntity.value != null) {
         playlist.addAll(value.data ?? []);
@@ -88,9 +88,9 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
       // showComplete("操作成功");
     }).catchError((e) {
       if (page == 0) {
-        refreshController.finishRefresh(IndicatorResult.fail);
+        refreshController.finishRefresh(IndicatorResult.fail, true);
       } else {
-        refreshController.finishLoad(IndicatorResult.fail);
+        refreshController.finishLoad(IndicatorResult.fail, true);
       }
       showError(e);
     });

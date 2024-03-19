@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/entity/mix_album.dart';
+import 'package:mix_music/entity/mix_rank.dart';
 import 'package:mix_music/page/album/album_detail_page.dart';
 import 'package:mix_music/page/album/album_page.dart';
 import 'package:mix_music/page/app_main/app_main_page.dart';
 import 'package:mix_music/page/app_playing/app_playing_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
 import 'package:mix_music/page/home/home_page.dart';
-import 'package:mix_music/page/mine/mine_page.dart';
 import 'package:mix_music/page/permission/permission_page.dart';
 import 'package:mix_music/page/playlist/play_list_detail_page.dart';
 import 'package:mix_music/page/playlist/playlist_page.dart';
 import 'package:mix_music/page/plugins/plugins_page.dart';
+import 'package:mix_music/page/rank/rank_detail_page.dart';
+import 'package:mix_music/page/rank/rank_page.dart';
 import 'package:mix_music/page/search/search_page.dart';
 
 import '../entity/mix_play_list.dart';
@@ -34,6 +36,9 @@ class Routes {
   static const String matchSite = "/matchSite";
   static const String album = "/album";
   static const String albumDetail = "/albumDetail";
+
+  static const String rank = "/rank";
+  static const String rankDetail = "/rankDetail";
 
   static List<GetPage> routes = [
     GetPage(name: main, page: () => AppMainPage()),
@@ -62,6 +67,10 @@ class Routes {
         return GetPageRoute(settings: settings, page: () => const AlbumPage());
       case albumDetail:
         return GetPageRoute(settings: settings, page: () => AlbumDetailPage(album: arguments as MixAlbum?));
+      case rank:
+        return GetPageRoute(settings: settings, page: () => const RankPage());
+      case rankDetail:
+        return GetPageRoute(settings: settings, page: () => RankDetailPage(rank: arguments as MixRank?));
 
       default:
         return GetPageRoute(settings: settings, page: () => Center(child: Text("404", style: Theme.of(Get.context!).textTheme.displayLarge)));

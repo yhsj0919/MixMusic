@@ -1,19 +1,20 @@
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/page/album/album_tab_page.dart';
 import 'package:mix_music/page/api_controller.dart';
 
-class AlbumPage extends StatefulWidget {
-  const AlbumPage({super.key});
+import 'rank_tab_page.dart';
+
+class RankPage extends StatefulWidget {
+  const RankPage({super.key});
 
   @override
-  _AlbumPageState createState() => _AlbumPageState();
+  _RankPageState createState() => _RankPageState();
 }
 
-class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
+class _RankPageState extends State<RankPage> with TickerProviderStateMixin {
   ApiController api = Get.put(ApiController());
-  AlbumPageController controller = AlbumPageController();
+  RankPageController controller = RankPageController();
 
   late TabController tabController;
   final double bottomBarHeight = 46;
@@ -35,30 +36,20 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
           headerSliverBuilder: (BuildContext c, bool f) {
             return [
               SliverAppBar(
-                title: const Text('专辑'),
+                title: const Text('榜单'),
                 forceElevated: f,
                 pinned: true,
                 bottom: PreferredSize(
                     preferredSize: Size.fromHeight(bottomBarHeight),
-                    child: Row(
-                      children: [
-                        Expanded(
-                            child: TabBar(
-                          isScrollable: true,
-                          controller: tabController,
-                          tabs: api.playListPlugins
-                              .map((item) => Tab(
-                                    text: item.name,
-                                    // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
-                                  ))
-                              .toList(),
-                        )),
-                        IconButton(
-                            onPressed: () {
-                              controller.open(api.playListPlugins[tabController.index].site);
-                            },
-                            icon: const Icon(Icons.filter_list))
-                      ],
+                    child: TabBar(
+                      isScrollable: true,
+                      controller: tabController,
+                      tabs: api.playListPlugins
+                          .map((item) => Tab(
+                                text: item.name,
+                                // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
+                              ))
+                          .toList(),
                     )),
               )
             ];
@@ -79,7 +70,7 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
   Widget _buildTabBarView() {
     return TabBarView(
       controller: tabController,
-      children: api.playListPlugins.map((element) => AlbumTabPage(plugin: element, controller: controller)).toList(),
+      children: api.playListPlugins.map((element) => RankTabPage(plugin: element, controller: controller)).toList(),
     );
   }
 }

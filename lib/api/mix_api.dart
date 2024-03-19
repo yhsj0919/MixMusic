@@ -13,9 +13,11 @@ import 'package:mix_music/entity/mix_banner.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
 import 'package:mix_music/entity/mix_song.dart';
-import 'package:mix_music/entity/mix_top_list.dart';
+import 'package:mix_music/entity/mix_rank.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/utils/plugins_ext.dart';
+
+import '../entity/mix_rank_type.dart';
 
 class MixApi extends MusicApi {
   PluginsInfo plugins;
@@ -103,8 +105,12 @@ class MixApi extends MusicApi {
 
   @override
   Future<String> invokeMethod({required String method, List<dynamic> params = const []}) {
+    var ddd = current?.evaluate("typeof $method === 'function'");
+    if (ddd?.rawResult == false) {
+      return Future.error("${plugins.name}尚未实现此功能");
+    }
     var ss = "$method(${params.map((e) => "'$e'").join(",")})";
-    print(ss);
+    print("当前请求:$ss");
     return current!.invokeMethod("$method(${params.map((e) => "'$e'").join(",")})");
   }
 
@@ -137,6 +143,31 @@ class MixApi extends MusicApi {
   Future<AppRespEntity<List<MixAlbumType>>> albumType() {
     return invokeMethod(method: "albumType", params: []).then((value) {
       AppRespEntity<List<MixAlbumType>> data = AppRespEntity.fromJson(json.decode(value));
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<MixRank>> rankInfo({required MixRank rank, required int page, required int size}) {
+    var ss = JsonMapper.serialize(rank).replaceAll("\n", "");
+    return invokeMethod(method: "rankInfo", params: [ss, page, size]).then((value) {
+      AppRespEntity<MixRank> data = AppRespEntity.fromJson(json.decode(value));
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixRankType>>> rankList() {
+    return invokeMethod(method: "rankList", params: []).then((value) {
+      AppRespEntity<List<MixRankType>> data = AppRespEntity.fromJson(json.decode(value));
       if (data.code == 200) {
         return Future(() => data);
       } else {

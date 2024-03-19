@@ -66,7 +66,7 @@ class _SearchTabPageState extends State<SearchTabPage> with AutomaticKeepAliveCl
         itemBuilder: (BuildContext context, int index) {
           var song = songList[index];
           return Obx(() => ListTile(
-                selected: music.musicIndex.value == index,
+                selected: music.currentMusic.value?.id == song.id,
                 leading: AppImage(url: song.pic ?? ""),
                 title: Row(
                   children: [
@@ -105,7 +105,7 @@ class _SearchTabPageState extends State<SearchTabPage> with AutomaticKeepAliveCl
         songList.clear();
         refreshController.finishRefresh();
       }
-      refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success);
+      refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success, true);
 
       if (pageEntity.value != null) {
         songList.addAll(value.data ?? []);
@@ -113,9 +113,9 @@ class _SearchTabPageState extends State<SearchTabPage> with AutomaticKeepAliveCl
       // showComplete("操作成功");
     }).catchError((e) {
       if (page == 0) {
-        refreshController.finishRefresh(IndicatorResult.fail);
+        refreshController.finishRefresh(IndicatorResult.fail, true);
       } else {
-        refreshController.finishLoad(IndicatorResult.fail);
+        refreshController.finishLoad(IndicatorResult.fail, true);
       }
       showError(e);
     });

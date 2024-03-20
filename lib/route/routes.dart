@@ -21,6 +21,7 @@ import 'package:mix_music/page/search/search_page.dart';
 import '../entity/mix_play_list.dart';
 import '../page/artist/artist_detail_page.dart';
 import '../page/setting/match_site_page.dart';
+import '../page/welcome/welcome_page.dart';
 
 class Routes {
   Routes._();
@@ -28,6 +29,7 @@ class Routes {
   static const key = 1;
   static const String permission = "/permission";
   static const String plugins = "/plugins";
+  static const String welcome = "/welcome";
 
   static const String main = "/main";
   static const String appPlaying = "/appPlaying";
@@ -46,6 +48,7 @@ class Routes {
   static const String artistDetail = "/artistDetail";
 
   static List<GetPage> routes = [
+    GetPage(name: welcome, page: () => const WelcomePage()),
     GetPage(name: main, page: () => AppMainPage()),
     GetPage(name: permission, page: () => const PermissionPage()),
     GetPage(name: plugins, page: () => const PluginsPage()),
@@ -76,7 +79,7 @@ class Routes {
         return GetPageRoute(settings: settings, page: () => const RankPage());
       case rankDetail:
         return GetPageRoute(settings: settings, page: () => RankDetailPage(rank: arguments as MixRank?));
-        case artist:
+      case artist:
         return GetPageRoute(settings: settings, page: () => const ArtistPage());
       case artistDetail:
         return GetPageRoute(settings: settings, page: () => ArtistDetailPage(artist: arguments as MixArtist?));

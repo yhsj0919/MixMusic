@@ -30,6 +30,10 @@ class ApiController extends GetxController {
   Future<void> onInit() async {
     super.onInit();
 
+    initPlugins();
+  }
+
+  initPlugins() async {
     if (Platform.isAndroid) {
       pluginRoot = "storage/emulated/0/MixMusic/plugins";
     } else {

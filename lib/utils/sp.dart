@@ -4,6 +4,7 @@ class Sp {
   static late SharedPreferences _prefs;
   static String KEY_MATCH_VIP = "KEY_MATCH_VIP";
   static String KEY_MATCH_SITE = "KEY_MATCH_SITE";
+  static String KEY_FIRST_IN = "KEY_FIRST_IN";
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();

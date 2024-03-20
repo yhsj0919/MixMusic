@@ -6,9 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:mix_music/page/home/home_page.dart';
+import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/message.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import '../../route/routes.dart';
+import '../api_controller.dart';
 
 class PermissionPage extends StatefulWidget {
   const PermissionPage({super.key});
@@ -18,6 +22,8 @@ class PermissionPage extends StatefulWidget {
 }
 
 class _PermissionPageState extends State<PermissionPage> {
+  ApiController api = Get.put(ApiController());
+
   Rx<bool> storageStatus = Rx(false);
   Rx<bool> manageStatus = Rx(false);
   Rx<bool> dirExists = Rx(false);
@@ -184,8 +190,10 @@ class _PermissionPageState extends State<PermissionPage> {
             const SizedBox(height: 32),
             Obx(() => ElevatedButton(
                 onPressed: storageStatus.value && manageStatus.value && dirExists.value
-                    ? () {
-                        Get.off(const HomePage());
+                    ? () async {
+                        await api.initPlugins();
+                        await Sp.setBool(Sp.KEY_FIRST_IN, false);
+                        Get.offAndToNamed(Routes.main);
                       }
                     : null,
                 child: const Text("去首页")))

@@ -21,8 +21,9 @@ class AppController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      currentRoute.listen((p0) {
+
+    currentRoute.listen((p0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         if (p0 == Routes.home) {
           showNav.value = true;
         } else {

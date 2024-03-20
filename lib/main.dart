@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
       // builder: appRootWidget,
       //2.注册路由观察者
       getPages: Routes.routes,
-      initialRoute: Routes.main,
+      initialRoute: Routes.welcome,
       localizationsDelegates: const [
         //此处
         GlobalMaterialLocalizations.delegate, // uses `flutter_localizations`

@@ -22,7 +22,7 @@ class _RankPageState extends State<RankPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: api.playListPlugins.length, vsync: this);
+    tabController = TabController(length: api.rankPlugins.length, vsync: this);
   }
 
   @override
@@ -44,7 +44,7 @@ class _RankPageState extends State<RankPage> with TickerProviderStateMixin {
                     child: TabBar(
                       isScrollable: true,
                       controller: tabController,
-                      tabs: api.playListPlugins
+                      tabs: api.rankPlugins
                           .map((item) => Tab(
                                 text: item.name,
                                 // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
@@ -70,7 +70,7 @@ class _RankPageState extends State<RankPage> with TickerProviderStateMixin {
   Widget _buildTabBarView() {
     return TabBarView(
       controller: tabController,
-      children: api.playListPlugins.map((element) => RankTabPage(plugin: element, controller: controller)).toList(),
+      children: api.rankPlugins.map((element) => RankTabPage(plugin: element, controller: controller)).toList(),
     );
   }
 }

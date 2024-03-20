@@ -5,7 +5,7 @@
 // @author       yhsj
 // @icon         https://music.taihe.com/favicon.ico
 // @webSite      https://music.taihe.com
-// @method       ["searchMusic","playUrl","playList","playListType","playListInfo"]
+// @method       ["searchMusic","playUrl","playList","playListType","playListInfo","rankList","rankInfo","artistList","artistType","artistInfo","artistSong","artistAlbum"]
 // ==/PluginsInfo==
 
 
@@ -64,7 +64,7 @@ function searchMusic(key, page = 0, size = 20) {
                 }).join(","),
                 vip: element["isVip"],
                 artist: element["artist"].map(function (ar) {
-                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}@w_200,h_200`}
+                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
                 }),
                 album: {
                     site: "baidu",
@@ -384,7 +384,7 @@ function playListInfo(playlist, page = 0, size = 20) {
                 }).join(","),
                 vip: element["isVip"],
                 artist: element["artist"].map(function (ar) {
-                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}@w_200,h_200`}
+                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
                 }),
                 album: {
                     site: "baidu",
@@ -415,7 +415,6 @@ function playListInfo(playlist, page = 0, size = 20) {
         return JSON.stringify(resp);
     });
 }
-
 
 //专辑分类
 function albumType() {
@@ -455,8 +454,7 @@ function albumList(type, page = 0, size = 20) {
             let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
 
             // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /"[^:,{\[]"[\u4e00-\u9fa5]+"[^,}\]]/g;
-
+            let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
             // 使用正则表达式的 exec() 方法来执行匹配
             let matches = str.match(pattern);
 
@@ -493,7 +491,7 @@ function albumList(type, page = 0, size = 20) {
                     return ar["name"]
                 }).join(","),
                 artist: element["artist"].map(function (ar) {
-                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}@w_200,h_200`}
+                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
                 }),
                 songCount: element['trackCount'],
             };
@@ -542,7 +540,7 @@ function albumInfo(album, page = 0, size = 20) {
             let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
 
             // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /"[^:,{\[]"[\u4e00-\u9fa5]+"[^,}\]]/g;
+            let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
 
             // 使用正则表达式的 exec() 方法来执行匹配
             let matches = str.match(pattern);
@@ -579,7 +577,7 @@ function albumInfo(album, page = 0, size = 20) {
                 return ar["name"]
             }).join(","),
             artist: result["artist"].map(function (ar) {
-                return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}@w_200,h_200`}
+                return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
             }),
             desc: result["introduce"],
 
@@ -595,7 +593,7 @@ function albumInfo(album, page = 0, size = 20) {
                 }).join(","),
                 vip: element["isVip"],
                 artist: result["artist"].map(function (ar) {
-                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}@w_200,h_200`}
+                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
                 }),
             };
         });
@@ -621,7 +619,6 @@ function albumInfo(album, page = 0, size = 20) {
     });
 }
 
-
 //排行榜
 function rankList() {
     // 定义查询参数
@@ -644,7 +641,7 @@ function rankList() {
         } else {
             let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
 
-            let pattern = /"[^:,{\[]"[\u4e00-\u9fa5]+"[^,}\]]/g;
+            let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
 
             // 使用正则表达式的 exec() 方法来执行匹配
             let matches = str.match(pattern);
@@ -697,7 +694,7 @@ function rankList() {
     });
 }
 
-// 专辑详情
+// 排行榜详情
 function rankInfo(rank, page = 0, size = 20) {
 
     const myRank = JSON.parse(rank);
@@ -725,7 +722,7 @@ function rankInfo(rank, page = 0, size = 20) {
             let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
 
             // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /"[^:,{\[]"[\u4e00-\u9fa5]+"[^,}\]]/g;
+            let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
 
             // 使用正则表达式的 exec() 方法来执行匹配
             let matches = str.match(pattern);
@@ -769,7 +766,7 @@ function rankInfo(rank, page = 0, size = 20) {
                 }).join(","),
                 vip: element["isVip"],
                 artist: element["artist"].map(function (ar) {
-                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}@w_200,h_200`}
+                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
                 }),
             };
         });
@@ -783,6 +780,455 @@ function rankInfo(rank, page = 0, size = 20) {
             page: {
                 first: parseInt(page) === 0,
                 last: result["haveMore"] !== 1,
+                page: parseInt(page) + 1,
+                size: parseInt(size),
+                number: newArray.length,
+                totalPages: Math.floor(result["total"] / parseInt(size)),
+                totalSize: result["total"]
+            }
+        };
+        return JSON.stringify(resp);
+    });
+}
+
+//歌手分类
+function artistType() {
+
+    const newArray = [
+        {
+            site: 'baidu',
+            id: "artistFristLetter",
+            name: '首字母',
+            subType: [
+                {site: 'baidu', id: "", name: '全部'},
+                {site: 'baidu', id: 'A', name: 'A'},
+                {site: 'baidu', id: 'B', name: 'B'},
+                {site: 'baidu', id: 'C', name: 'C'},
+                {site: 'baidu', id: 'D', name: 'D'},
+                {site: 'baidu', id: 'E', name: 'E'},
+                {site: 'baidu', id: 'F', name: 'F'},
+                {site: 'baidu', id: 'G', name: 'G'},
+                {site: 'baidu', id: 'H', name: 'H'},
+                {site: 'baidu', id: 'I', name: 'I'},
+                {site: 'baidu', id: 'J', name: 'J'},
+                {site: 'baidu', id: 'K', name: 'K'},
+                {site: 'baidu', id: 'L', name: 'L'},
+                {site: 'baidu', id: 'M', name: 'M'},
+                {site: 'baidu', id: 'N', name: 'N'},
+                {site: 'baidu', id: 'O', name: 'O'},
+                {site: 'baidu', id: 'P', name: 'P'},
+                {site: 'baidu', id: 'Q', name: 'Q'},
+                {site: 'baidu', id: 'R', name: 'R'},
+                {site: 'baidu', id: 'S', name: 'S'},
+                {site: 'baidu', id: 'T', name: 'T'},
+                {site: 'baidu', id: 'U', name: 'U'},
+                {site: 'baidu', id: 'V', name: 'V'},
+                {site: 'baidu', id: 'W', name: 'W'},
+                {site: 'baidu', id: 'X', name: 'X'},
+                {site: 'baidu', id: 'Y', name: 'Y'},
+                {site: 'baidu', id: 'Z', name: 'Z'},
+                {site: 'baidu', id: 'other', name: '#'},
+            ]
+        },
+        {
+            site: 'baidu',
+            id: "artistGender",
+            name: '性别',
+            subType: [
+                {site: 'baidu', id: "", name: '全部'},
+                {site: 'baidu', id: '男', name: '男'},
+                {site: 'baidu', id: '女', name: '女'},
+                {site: 'baidu', id: '组合', name: '组合'},
+                {site: 'baidu', id: '乐队', name: '乐队'}]
+        },
+        {
+            site: 'baidu',
+            id: "artistRegion",
+            name: '地区',
+            subType: [
+                {site: 'baidu', id: "", name: '全部'},
+                {site: 'baidu', id: '内地', name: '内地'},
+                {site: 'baidu', id: '港台', name: '港台'},
+                {site: 'baidu', id: '欧美', name: '欧美'},
+                {site: 'baidu', id: '韩国', name: '韩国'},
+                {site: 'baidu', id: '日本', name: '日本'},
+                {site: 'baidu', id: '其他', name: '其他'}]
+        }];
+    const resp = {
+        code: 200,
+        msg: '操作成功',
+        data: newArray
+    };
+    return JSON.stringify(resp);
+}
+
+//根据分类获取歌手
+function artistList(type, page = 0, size = 20) {
+
+    const params = JSON.parse(type ?? "{}");
+
+    params["pageNo"] = parseInt(page) + 1
+    params["pageSize"] = size
+    params["timestamp"] = Date.now()
+    params["appid"] = 16073360
+
+    console.log(type)
+
+
+    params['sign'] = paramsSign(params);
+    https://music.91q.com/v1/artist/list?sign=24942010ce9864df0e507f1ec15411f8&pageNo=1&artistFristLetter=A&artistRegion=&artistGender=&pageSize=48&appid=16073360&timestamp=1710912762
+        return axios.get('https://api-qianqian.taihe.com/v1/artist/list', {
+            params
+        }, {
+            headers: headers
+        }).then(function (data) {
+
+            let respData
+            if (typeof data["data"] === "object") {
+                respData = data["data"]
+            } else {
+                let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
+
+                let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
+
+                // 使用正则表达式的 exec() 方法来执行匹配
+                let matches = str.match(pattern);
+
+                if (matches !== null) {
+                    matches.forEach(function (element) {
+                        str = str.replaceAll(element, element.replaceAll("\"", "”"))
+                    });
+                }
+                console.log(str)
+
+                respData = JSON.parse(str)
+            }
+
+            if (respData["errno"] !== 22000) {
+                const resp = {
+                    code: 500,
+                    msg: data["errmsg"],
+                    data: null
+                };
+                return JSON.stringify(resp);
+            }
+
+            const result = respData["data"]
+
+
+            const newArray = result["result"].map(function (element) {
+                return {
+                    site: 'baidu',
+                    id: element['artistCode'],
+                    pic: element["pic"],
+                    name: element['name'],
+                };
+            });
+            const resp = {
+                code: 200,
+                msg: '操作成功',
+                data: newArray,
+                page: {
+                    first: page === 0,
+                    last: result["haveMore"] !== 1,
+                    page: parseInt(page) + 1,
+                    size: parseInt(size),
+                    number: newArray.length,
+                    totalPages: Math.floor(result["total"] / parseInt(size)),
+                    totalSize: result["total"]
+                }
+            };
+            return JSON.stringify(resp);
+        });
+}
+
+// 歌手详情
+function artistInfo(artist, page = 0, size = 20) {
+
+    const myPlaylist = JSON.parse(artist);
+    // 定义查询参数
+    const params = {
+        id: myPlaylist["id"],
+        pageNo: parseInt(page) + 1,
+        pageSize: size,
+        timestamp: Date.now(),
+        appid: 16073360
+    };
+
+    params['sign'] = paramsSign(params);
+
+    return axios.get('https://api-qianqian.taihe.com/v1/tracklist/info', {
+        params
+    }, {
+        headers: headers
+    }).then(function (data) {
+
+        let respData
+        if (typeof data["data"] === "object") {
+            respData = data["data"]
+        } else {
+            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
+
+            // 正则表达式来匹配一些包含在文字中的引号
+            let pattern = /"[\u4e00-\u9fa5]+"。/g;
+            let pattern2 = /""[\u4e00-\u9fa5]+"[\u4e00-\u9fa5]+/g;
+            let pattern3 = /"[\u4e00-\u9fa5]+"[^,}\]]/g;
+
+            // 使用正则表达式的 exec() 方法来执行匹配
+            let matches = str.match(pattern);
+            let matches2 = str.match(pattern2);
+            let matches3 = str.match(pattern3);
+            if (matches !== null) {
+                matches.forEach(function (element) {
+                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
+                });
+            }
+            if (matches2 !== null) {
+                matches2.forEach(function (element) {
+                    str = str.replaceAll(element.substring(1), element.substring(1).replaceAll("\"", "”"))
+                });
+            }
+            if (matches3 !== null) {
+                matches3.forEach(function (element) {
+                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
+                });
+            }
+            console.log(str)
+
+            respData = JSON.parse(str)
+        }
+
+        if (respData["errno"] !== 22000) {
+            const resp = {
+                code: 500,
+                msg: data["errmsg"],
+                data: null
+            };
+            return JSON.stringify(resp);
+        }
+
+
+        const result = respData["data"]
+
+        const newPlaylist = {
+            site: 'baidu',
+            id: result['id'],
+            title: result['title'],
+            subTitle: result['desc'],
+            desc: result['desc'],
+            songCount: result['trackCount'],
+        }
+
+
+        const newArray = result["trackList"].map(function (element) {
+            return {
+                site: 'baidu',
+                id: element['assetId'],
+                pic: `${element["pic"]}@w_200,h_200`,
+                title: element['title'],
+                subTitle: element["artist"].map(function (ar) {
+                    return ar["name"]
+                }).join(","),
+                vip: element["isVip"],
+                artist: element["artist"].map(function (ar) {
+                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                }),
+                album: {
+                    site: "baidu",
+                    id: element["albumAssetCode"],
+                    title: element["albumTitle"],
+                    pic: `${element["pic"]}@w_200,h_200`,
+                },
+                lyric: element["lyric"],
+            };
+        });
+
+        newPlaylist['songs'] = newArray
+
+        const resp = {
+            code: 200,
+            msg: '操作成功',
+            data: newPlaylist,
+            page: {
+                first: page === 0,
+                last: result["haveMore"] !== 1,
+                page: parseInt(page) + 1,
+                size: parseInt(size),
+                number: newArray.length,
+                totalPages: Math.floor(result["trackCount"] / parseInt(size)),
+                totalSize: result["trackCount"]
+            }
+        };
+        return JSON.stringify(resp);
+    });
+}
+
+// 歌手歌曲
+function artistSong(artist, page = 0, size = 20) {
+
+    const myArtist = JSON.parse(artist);
+    // 定义查询参数
+    const params = {
+        artistCode: myArtist["id"],
+        pageNo: parseInt(page) + 1,
+        pageSize: size,
+        timestamp: Date.now(),
+        appid: 16073360
+    };
+
+    params['sign'] = paramsSign(params);
+
+    return axios.get('https://api-qianqian.taihe.com/v1/artist/song', {
+        params
+    }, {
+        headers: headers
+    }).then(function (data) {
+
+        let respData
+        if (typeof data["data"] === "object") {
+            respData = data["data"]
+        } else {
+            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
+
+            // 正则表达式来匹配一些包含在文字中的引号
+            let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
+
+            // 使用正则表达式的 exec() 方法来执行匹配
+            let matches = str.match(pattern);
+
+            if (matches !== null) {
+                matches.forEach(function (element) {
+                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
+                });
+            }
+            console.log(str)
+            respData = JSON.parse(str)
+        }
+        console.log(JSON.stringify(respData))
+        if (respData["errno"] !== 22000) {
+            const resp = {
+                code: 500,
+                msg: data["errmsg"],
+                data: null
+            };
+            return JSON.stringify(resp);
+        }
+
+
+        const result = respData["data"]
+
+        const newArray = result["result"].map(function (element) {
+            return {
+                site: 'baidu',
+                id: element['assetId'],
+                pic: `${element["pic"]}@w_200,h_200`,
+                title: element['title'],
+                subTitle: element["artist"].map(function (ar) {
+                    return ar["name"]
+                }).join(","),
+                vip: element["isVip"],
+                artist: element["artist"].map(function (ar) {
+                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                }),
+            };
+        });
+
+
+        const resp = {
+            code: 200,
+            msg: '操作成功',
+            data: newArray,
+            page: {
+                first: parseInt(page) === 0,
+                last: (parseInt(page) + 1) * parseInt(size) > result["total"],
+                page: parseInt(page) + 1,
+                size: parseInt(size),
+                number: newArray.length,
+                totalPages: Math.floor(result["total"] / parseInt(size)),
+                totalSize: result["total"]
+            }
+        };
+        return JSON.stringify(resp);
+    });
+}
+
+// 歌手专辑
+function artistAlbum(artist, page = 0, size = 20) {
+
+    const myArtist = JSON.parse(artist);
+    // 定义查询参数
+    const params = {
+        artistCode: myArtist["id"],
+        pageNo: parseInt(page) + 1,
+        pageSize: size,
+        timestamp: Date.now(),
+        appid: 16073360
+    };
+
+    params['sign'] = paramsSign(params);
+
+    return axios.get('https://api-qianqian.taihe.com/v1/artist/album', {
+        params
+    }, {
+        headers: headers
+    }).then(function (data) {
+
+        let respData
+        if (typeof data["data"] === "object") {
+            respData = data["data"]
+        } else {
+            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
+
+            // 正则表达式来匹配一些包含在文字中的引号
+            let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
+
+            // 使用正则表达式的 exec() 方法来执行匹配
+            let matches = str.match(pattern);
+
+            if (matches !== null) {
+                matches.forEach(function (element) {
+                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
+                });
+            }
+            console.log(str)
+            respData = JSON.parse(str)
+        }
+        console.log(JSON.stringify(respData))
+        if (respData["errno"] !== 22000) {
+            const resp = {
+                code: 500,
+                msg: data["errmsg"],
+                data: null
+            };
+            return JSON.stringify(resp);
+        }
+
+        const result = respData["data"]
+
+        const newArray = result["result"].map(function (element) {
+            return {
+                site: 'baidu',
+                id: element['albumAssetCode'],
+                pic: `${element["pic"]}@w_200,h_200`,
+                title: element['title'],
+                subTitle: element["artist"].map(function (ar) {
+                    return ar["name"]
+                }).join(","),
+                artist: element["artist"].map(function (ar) {
+                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                }),
+                desc: element['introduce'],
+            };
+        });
+
+
+        const resp = {
+            code: 200,
+            msg: '操作成功',
+            data: newArray,
+            page: {
+                first: parseInt(page) === 0,
+                last: (parseInt(page) + 1) * parseInt(size) > result["total"],
                 page: parseInt(page) + 1,
                 size: parseInt(size),
                 number: newArray.length,

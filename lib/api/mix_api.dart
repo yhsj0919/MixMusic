@@ -9,6 +9,7 @@ import 'package:mix_music/entity/app_resp_entity.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_album_type.dart';
 import 'package:mix_music/entity/mix_artist.dart';
+import 'package:mix_music/entity/mix_artist_type.dart';
 import 'package:mix_music/entity/mix_banner.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
@@ -168,6 +169,71 @@ class MixApi extends MusicApi {
   Future<AppRespEntity<List<MixRankType>>> rankList() {
     return invokeMethod(method: "rankList", params: []).then((value) {
       AppRespEntity<List<MixRankType>> data = AppRespEntity.fromJson(json.decode(value));
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<MixArtist>> artistInfo({required MixArtist artist}) {
+    var ss = JsonMapper.serialize(artistInfo).replaceAll("\n", "");
+
+    return invokeMethod(method: "artistInfo", params: [ss]).then((value) {
+      AppRespEntity<MixArtist> data = AppRespEntity.fromJson(json.decode(value));
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixArtist>>> artistList({Map<String, String?>? type, required int page, required int size}) {
+    var ss = json.encode(type);
+    return invokeMethod(method: "artistList", params: [ss, page, size]).then((value) {
+      AppRespEntity<List<MixArtist>> data = AppRespEntity.fromJson(json.decode(value));
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixArtistType>>> artistType() {
+    return invokeMethod(method: "artistType", params: []).then((value) {
+      AppRespEntity<List<MixArtistType>> data = AppRespEntity.fromJson(json.decode(value));
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixAlbum>>> artistAlbum({required MixArtist artist, required int page, required int size}) {
+    var ss = JsonMapper.serialize(artist).replaceAll("\n", "");
+    return invokeMethod(method: "artistAlbum", params: [ss, page, size]).then((value) {
+      AppRespEntity<List<MixAlbum>> data = AppRespEntity.fromJson(json.decode(value));
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixSong>>> artistSong({required MixArtist artist, required int page, required int size}) {
+    var ss = JsonMapper.serialize(artist).replaceAll("\n", "");
+    return invokeMethod(method: "artistSong", params: [ss, page, size]).then((value) {
+      AppRespEntity<List<MixSong>> data = AppRespEntity.fromJson(json.decode(value));
       if (data.code == 200) {
         return Future(() => data);
       } else {

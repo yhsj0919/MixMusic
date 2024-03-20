@@ -83,6 +83,11 @@ class _HomePageState extends State<HomePage> {
                         Get.toNamed(Routes.rank, id: Routes.key);
                       },
                       icon: const Icon(Icons.align_vertical_top_rounded)),
+                  IconButton(
+                      onPressed: () {
+                        Get.toNamed(Routes.artist, id: Routes.key);
+                      },
+                      icon: const Icon(Icons.person)),
                 ],
               ),
             ),

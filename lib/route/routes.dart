@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/entity/mix_album.dart';
+import 'package:mix_music/entity/mix_artist.dart';
 import 'package:mix_music/entity/mix_rank.dart';
 import 'package:mix_music/page/album/album_detail_page.dart';
 import 'package:mix_music/page/album/album_page.dart';
 import 'package:mix_music/page/app_main/app_main_page.dart';
 import 'package:mix_music/page/app_playing/app_playing_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
+import 'package:mix_music/page/artist/artist_page.dart';
 import 'package:mix_music/page/home/home_page.dart';
 import 'package:mix_music/page/permission/permission_page.dart';
 import 'package:mix_music/page/playlist/play_list_detail_page.dart';
@@ -17,6 +19,7 @@ import 'package:mix_music/page/rank/rank_page.dart';
 import 'package:mix_music/page/search/search_page.dart';
 
 import '../entity/mix_play_list.dart';
+import '../page/artist/artist_detail_page.dart';
 import '../page/setting/match_site_page.dart';
 
 class Routes {
@@ -39,6 +42,8 @@ class Routes {
 
   static const String rank = "/rank";
   static const String rankDetail = "/rankDetail";
+  static const String artist = "/artist";
+  static const String artistDetail = "/artistDetail";
 
   static List<GetPage> routes = [
     GetPage(name: main, page: () => AppMainPage()),
@@ -71,6 +76,10 @@ class Routes {
         return GetPageRoute(settings: settings, page: () => const RankPage());
       case rankDetail:
         return GetPageRoute(settings: settings, page: () => RankDetailPage(rank: arguments as MixRank?));
+        case artist:
+        return GetPageRoute(settings: settings, page: () => const ArtistPage());
+      case artistDetail:
+        return GetPageRoute(settings: settings, page: () => ArtistDetailPage(artist: arguments as MixArtist?));
 
       default:
         return GetPageRoute(settings: settings, page: () => Center(child: Text("404", style: Theme.of(Get.context!).textTheme.displayLarge)));

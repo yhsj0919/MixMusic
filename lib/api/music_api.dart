@@ -1,4 +1,5 @@
 import 'package:mix_music/entity/app_resp_entity.dart';
+import 'package:mix_music/entity/mix_artist_type.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
 
 import '../entity/mix_album.dart';
@@ -40,6 +41,19 @@ abstract class MusicApi {
 
   ///获取榜单详情
   Future<AppRespEntity<MixRank>> rankInfo({required MixRank rank, required int page, required int size});
+
+  ///歌手
+  Future<AppRespEntity<List<MixArtist>>> artistList({Map<String, String?>? type, required int page, required int size});
+
+  ///歌手分类
+  Future<AppRespEntity<List<MixArtistType>>> artistType();
+
+  ///获取歌手详情
+  Future<AppRespEntity<MixArtist>> artistInfo({required MixArtist artist});
+
+  Future<AppRespEntity<List<MixSong>>> artistSong({required MixArtist artist, required int page, required int size});
+
+  Future<AppRespEntity<List<MixAlbum>>> artistAlbum({required MixArtist artist, required int page, required int size});
 
   Future<String> invokeMethod({required String method, List<String> params = const []});
 }

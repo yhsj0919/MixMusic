@@ -5,6 +5,8 @@ import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/app_resp_entity.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_album_type.dart';
+import 'package:mix_music/entity/mix_artist.dart';
+import 'package:mix_music/entity/mix_artist_type.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
 import 'package:mix_music/entity/mix_rank.dart';
@@ -20,6 +22,8 @@ class ApiController extends GetxController {
   RxList<PluginsInfo> playListPlugins = RxList();
   RxList<PluginsInfo> searchPlugins = RxList();
   RxList<PluginsInfo> albumPlugins = RxList();
+  RxList<PluginsInfo> rankPlugins = RxList();
+  RxList<PluginsInfo> artistPlugins = RxList();
   var pluginRoot = "";
 
   @override
@@ -41,12 +45,36 @@ class ApiController extends GetxController {
     return plugins[index];
   }
 
+  PluginsInfo getPluginWithSite(String site) {
+    return plugins.firstWhere((element) => element.site == site);
+  }
+
+  List<String> getArtistDetailMethod(String? site) {
+    var plugin = plugins.firstWhere((element) => element.site == site);
+
+    var method = <String>[];
+    if (plugin.method?.contains("artistSong") == true) {
+      method.add("artistSong");
+    }
+
+    if (plugin.method?.contains("artistAlbum") == true) {
+      method.add("artistAlbum");
+    }
+    if (plugin.method?.contains("artistMv") == true) {
+      method.add("artistMv");
+    }
+
+    return method;
+  }
+
   ///获取插件
   void getPlugins() {
     plugins.addAll(ApiFactory.getPlugins());
     playListPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("playList") == true));
     searchPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("searchMusic") == true));
     albumPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("albumList") == true));
+    rankPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("rankList") == true));
+    artistPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("artistList") == true));
   }
 
   ///搜索音乐
@@ -102,6 +130,29 @@ class ApiController extends GetxController {
   ///榜单详情
   Future<AppRespEntity<MixRank>> rankInfo({required String site, required MixRank rank, int page = 0, int size = 20}) async {
     return ApiFactory.api(site: site)!.rankInfo(rank: rank, page: page, size: size);
+  }
+
+  ///歌手分类
+  Future<AppRespEntity<List<MixArtistType>>> artistType({required String site}) async {
+    return ApiFactory.api(site: site)!.artistType();
+  }
+
+  ///歌单
+  Future<AppRespEntity<List<MixArtist>>> artistList({required String site, Map<String, String?>? type, int page = 0, int size = 20}) async {
+    return ApiFactory.api(site: site)!.artistList(type: type, page: page, size: size);
+  }
+
+  ///歌单详情
+  Future<AppRespEntity<MixArtist>> artistInfo({required String site, required MixArtist artist}) async {
+    return ApiFactory.api(site: site)!.artistInfo(artist: artist);
+  }
+
+  Future<AppRespEntity<List<MixSong>>> artistSong({required String site, required MixArtist artist, int page = 0, int size = 20}) async {
+    return ApiFactory.api(site: site)!.artistSong(artist: artist, page: page, size: size);
+  }
+
+  Future<AppRespEntity<List<MixAlbum>>> artistAlbum({required String site, required MixArtist artist, int page = 0, int size = 20}) async {
+    return ApiFactory.api(site: site)!.artistAlbum(artist: artist, page: page, size: size);
   }
 
   Future<String> invokeMethod({required PluginsInfo plugin, required String method, List<String> params = const []}) async {

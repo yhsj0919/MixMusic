@@ -58,6 +58,7 @@ class ApiFactory {
   static reFreshPlugins() async {
     await getSystemPlugins(rootDir: _pluginRoot).then((value) {
       _plugins.clear();
+      _apis.clear();
       _plugins.addAll(value);
       _plugins.forEach((element) async {
         var api = await MixApi.api(plugins: element);

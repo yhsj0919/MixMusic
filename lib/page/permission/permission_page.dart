@@ -64,7 +64,7 @@ class _PermissionPageState extends State<PermissionPage> {
     if (Platform.isAndroid) {
       pluginRoot = "storage/emulated/0/MixMusic/plugins";
     } else {
-      pluginRoot = "${(await getApplicationDocumentsDirectory()).path} /MixMusic/plugins";
+      pluginRoot = "${(await getApplicationDocumentsDirectory()).path}/MixMusic/plugins";
     }
     Directory myFolder = Directory(pluginRoot);
     if (!(await myFolder.exists())) {

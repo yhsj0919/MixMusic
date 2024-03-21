@@ -46,14 +46,21 @@ class _AppPlayingPageState extends State<AppPlayingPage> {
           child: Stack(
             children: [
               Visibility(
-                  //这里解决播放条和播放页重叠导致的点击失效
-                  visible: app.position.value > 0.4,
-                  child: AppImage(url: music.media.value?.artUri?.toString() ?? "", width: context.width, height: context.height, animationDuration: 1000)),
-              BlurRectWidget(
+                visible: app.position.value == 1,
+                child: AppImage(
+                  url: music.media.value?.artUri?.toString() ?? "",
+                  width: context.width,
+                  height: context.height,
+                  animationDuration: 1000,
+                ),
+              ),
+          Visibility(
+            visible: app.position.value == 1,
+            child:BlurRectWidget(
                 sigmaX: 300,
                 sigmaY: 60,
                 color: Theme.of(context).brightness == Brightness.light ? Colors.white38 : Colors.black38,
-              ),
+              )),
               Scaffold(
                 backgroundColor: Colors.transparent,
                 endDrawerEnableOpenDragGesture: false,
@@ -135,7 +142,7 @@ class _AppPlayingPageState extends State<AppPlayingPage> {
             Expanded(child: Container()),
           ],
         )),
-        Expanded(child: buildLrc()),
+        Expanded(child: app.position.value == 1?buildLrc():Container()),
       ],
     );
   }
@@ -148,7 +155,7 @@ class _AppPlayingPageState extends State<AppPlayingPage> {
           () => AppImage(url: music.currentMusic.value?.pic?.toString() ?? "", width: 250, height: 250),
         ),
         Container(height: 16),
-        Expanded(child: buildLrc()),
+        Expanded(child: app.position.value == 1?buildLrc():Container()),
         buildControllerButton(),
         Container(height: 32),
       ],

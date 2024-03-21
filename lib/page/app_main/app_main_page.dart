@@ -54,7 +54,7 @@ class _AppMainPageState extends State<AppMainPage> {
           ),
           body: Obx(() => PageView(
                 controller: pageController,
-                physics: app.showNav.value ? null : const NeverScrollableScrollPhysics(),
+                physics: (app.showNav.value && app.position.value == 0) ? null : const NeverScrollableScrollPhysics(),
                 onPageChanged: (index) {
                   app.navBarIndex.value = index;
                 },

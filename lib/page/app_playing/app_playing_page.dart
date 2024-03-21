@@ -54,13 +54,13 @@ class _AppPlayingPageState extends State<AppPlayingPage> {
                   animationDuration: 1000,
                 ),
               ),
-          Visibility(
-            visible: app.position.value == 1,
-            child:BlurRectWidget(
-                sigmaX: 300,
-                sigmaY: 60,
-                color: Theme.of(context).brightness == Brightness.light ? Colors.white38 : Colors.black38,
-              )),
+              Visibility(
+                  visible: app.position.value == 1,
+                  child: BlurRectWidget(
+                    sigmaX: 300,
+                    sigmaY: 60,
+                    color: Theme.of(context).brightness == Brightness.light ? Colors.white38 : Colors.black38,
+                  )),
               Scaffold(
                 backgroundColor: Colors.transparent,
                 endDrawerEnableOpenDragGesture: false,
@@ -142,7 +142,7 @@ class _AppPlayingPageState extends State<AppPlayingPage> {
             Expanded(child: Container()),
           ],
         )),
-        Expanded(child: app.position.value == 1?buildLrc():Container()),
+        Expanded(child: app.position.value == 1 ? buildLrc() : Container()),
       ],
     );
   }
@@ -155,7 +155,7 @@ class _AppPlayingPageState extends State<AppPlayingPage> {
           () => AppImage(url: music.currentMusic.value?.pic?.toString() ?? "", width: 250, height: 250),
         ),
         Container(height: 16),
-        Expanded(child: app.position.value == 1?buildLrc():Container()),
+        Expanded(child: app.position.value == 1 ? buildLrc() : Container()),
         buildControllerButton(),
         Container(height: 32),
       ],

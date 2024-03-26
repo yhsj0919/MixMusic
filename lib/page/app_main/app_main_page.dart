@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/page/api_controller.dart';
@@ -52,19 +53,46 @@ class _AppMainPageState extends State<AppMainPage> {
               child: AppPlayListPage(inPanel: false),
             ),
           ),
-          body: Obx(() => PageView(
-                controller: pageController,
-                physics: (app.showNav.value && app.position.value == 0) ? null : const NeverScrollableScrollPhysics(),
-                onPageChanged: (index) {
-                  app.navBarIndex.value = index;
-                },
-                children: [
-                  buildMain(),
-                  const MinePage(),
-                ],
-              )),
+          body: Row(
+            children: [
+              Obx(() => context.isLandscape
+                  ? AnimatedContainer(
+                      width: 80 - 80 * app.position.value,
+                      duration: const Duration(milliseconds: 0),
+                      child: app.position.value > 0
+                          ? Container()
+                          : NavigationRail(
+                              destinations: const [
+                                NavigationRailDestination(icon: Icon(Icons.home_filled), label: Text("首页")),
+                                NavigationRailDestination(icon: Icon(Icons.person), label: Text("我的")),
+                              ],
+                              selectedIndex: app.navBarIndex.value,
+                              onDestinationSelected: (index) {
+                                app.navBarIndex.value = index;
+                                pageController.animateToPage(
+                                  index,
+                                  duration: const Duration(milliseconds: 400),
+                                  curve: Curves.easeInOut,
+                                );
+                              },
+                            ))
+                  : Container()),
+              Expanded(
+                  child: Obx(() => PageView(
+                        controller: pageController,
+                        physics: (app.showNav.value && app.position.value == 0) ? null : const NeverScrollableScrollPhysics(),
+                        onPageChanged: (index) {
+                          app.navBarIndex.value = index;
+                        },
+                        children: [
+                          SafeArea(child: buildMain()),
+                          const MinePage(),
+                        ],
+                      )))
+            ],
+          ),
           bottomNavigationBar: Obx(
-            () => app.showNav.value
+            () => context.isPortrait&&app.showNav.value
                 ? AnimatedContainer(
                     height: 60 - 60 * app.position.value,
                     duration: const Duration(milliseconds: 0),

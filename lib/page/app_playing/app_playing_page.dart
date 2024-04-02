@@ -1,8 +1,7 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/page/app_main/app_controller.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
@@ -11,7 +10,6 @@ import 'package:mix_music/player/ui_mix.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/app_image.dart';
-import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:mix_music/widgets/ext.dart';
 
 class AppPlayingPage extends StatefulWidget {
@@ -64,45 +62,6 @@ class _AppPlayingPageState extends State<AppPlayingPage> {
               Scaffold(
                 backgroundColor: Colors.transparent,
                 endDrawerEnableOpenDragGesture: false,
-                appBar: AppBar(
-                  backgroundColor: Colors.transparent,
-                  leading: IconButton(
-                    icon: Transform.rotate(
-                      angle: 270 * (3.14 / 180), // 将角度转换为弧度
-                      child: const Icon(Icons.arrow_back_ios_rounded), // 要旋转的控件
-                    ),
-                    onPressed: () {
-                      app.panelController.close();
-                    },
-                  ),
-                  actions: [Container()],
-                  title: Obx(
-                    () => Column(
-                      mainAxisSize: MainAxisSize.max,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(music.currentMusic.value?.title ?? "N/A", style: Theme.of(context).textTheme.titleLarge, maxLines: 1, overflow: TextOverflow.ellipsis),
-                            music.currentMusic.value?.album != null
-                                ? TextButton(
-                                    onPressed: () {
-                                      if (music.currentMusic.value?.album != null) {
-                                        app.panelController.close();
-                                        Get.toNamed(Routes.albumDetail, id: Routes.key, arguments: music.currentMusic.value?.album);
-                                      }
-                                    },
-                                    child: Text("${music.currentMusic.value?.album?.title}", maxLines: 1, overflow: TextOverflow.ellipsis))
-                                : Container()
-                          ],
-                        ),
-                        Text(music.currentMusic.value?.subTitle ?? "N/A", style: Theme.of(context).textTheme.bodyMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      ],
-                    ),
-                  ),
-                  centerTitle: true,
-                ),
                 onEndDrawerChanged: (ch) {
                   app.panelController.tempDisableSlide(ch);
                 },
@@ -128,21 +87,69 @@ class _AppPlayingPageState extends State<AppPlayingPage> {
   }
 
   Widget buildTablet() {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-            child: Column(
-          children: [
-            Expanded(child: Container()),
-            Obx(
-              () => AppImage(url: music.currentMusic.value?.pic?.toString() ?? "", width: 150, height: 150),
+        ListTile(
+          title: Text(music.currentMusic.value?.title ?? "N/A", style: Theme.of(context).textTheme.titleLarge, maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  music.currentMusic.value?.artist?.isNotEmpty == true
+                      ? Row(
+                          children: music.currentMusic.value?.artist?.map((e) {
+                                return TextButton(
+                                    onPressed: () {
+                                      if (e.id != null) {
+                                        app.panelController.close();
+                                        Get.toNamed(Routes.artistDetail, id: Routes.key, arguments: e);
+                                      }
+                                    },
+                                    child: Text(e.name ?? "", maxLines: 1, overflow: TextOverflow.ellipsis));
+                              }).toList() ??
+                              [],
+                        )
+                      : Container(),
+                  music.currentMusic.value?.album != null
+                      ? TextButton(
+                          onPressed: () {
+                            if (music.currentMusic.value?.album != null) {
+                              app.panelController.close();
+                              Get.toNamed(Routes.albumDetail, id: Routes.key, arguments: music.currentMusic.value?.album);
+                            }
+                          },
+                          child: Text("${music.currentMusic.value?.album?.title}", maxLines: 1, overflow: TextOverflow.ellipsis))
+                      : Container()
+                ],
+              )),
+          leading: IconButton(
+            icon: Transform.rotate(
+              angle: 270 * (3.14 / 180), // 将角度转换为弧度
+              child: const Icon(Icons.arrow_back_ios_rounded), // 要旋转的控件
             ),
-            Expanded(child: Container()),
-            buildControllerButton(),
-            Expanded(child: Container()),
+            onPressed: () {
+              app.panelController.close();
+            },
+          ),
+        ),
+        Expanded(
+            child: Row(
+          children: [
+            Expanded(
+                child: Column(
+              children: [
+                Expanded(child: Container()),
+                Obx(
+                  () => AppImage(url: music.currentMusic.value?.pic?.toString() ?? "", width: 250, height: 250),
+                ),
+                Expanded(child: Container()),
+                buildControllerButton(),
+                Expanded(child: Container()),
+              ],
+            )),
+            Expanded(child: app.position.value == 1 ? buildLrc() : Container()),
           ],
-        )),
-        Expanded(child: app.position.value == 1 ? buildLrc() : Container()),
+        ))
       ],
     );
   }
@@ -150,6 +157,50 @@ class _AppPlayingPageState extends State<AppPlayingPage> {
   Widget buildPhone() {
     return Column(
       children: [
+        ListTile(
+          title: Text(music.currentMusic.value?.title ?? "N/A", style: Theme.of(context).textTheme.titleLarge, maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                music.currentMusic.value?.artist?.isNotEmpty == true
+                    ? Row(
+                        children: music.currentMusic.value?.artist?.map((e) {
+                              return TextButton(
+                                  onPressed: () {
+                                    if (e.id != null) {
+                                      app.panelController.close();
+                                      Get.toNamed(Routes.artistDetail, id: Routes.key, arguments: e);
+                                    }
+                                  },
+                                  child: Text(e.name ?? "", maxLines: 1, overflow: TextOverflow.ellipsis));
+                            }).toList() ??
+                            [],
+                      )
+                    : Container(),
+                music.currentMusic.value?.album != null
+                    ? TextButton(
+                        onPressed: () {
+                          if (music.currentMusic.value?.album != null) {
+                            app.panelController.close();
+                            Get.toNamed(Routes.albumDetail, id: Routes.key, arguments: music.currentMusic.value?.album);
+                          }
+                        },
+                        child: Text("${music.currentMusic.value?.album?.title}", maxLines: 1, overflow: TextOverflow.ellipsis))
+                    : Container()
+              ],
+            ),
+          ),
+          leading: IconButton(
+            icon: Transform.rotate(
+              angle: 270 * (3.14 / 180), // 将角度转换为弧度
+              child: const Icon(Icons.arrow_back_ios_rounded), // 要旋转的控件
+            ),
+            onPressed: () {
+              app.panelController.close();
+            },
+          ),
+        ),
         Container(height: 40),
         Obx(
           () => AppImage(url: music.currentMusic.value?.pic?.toString() ?? "", width: 250, height: 250),

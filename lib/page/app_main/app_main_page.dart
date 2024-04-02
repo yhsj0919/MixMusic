@@ -55,9 +55,10 @@ class _AppMainPageState extends State<AppMainPage> {
           ),
           body: Row(
             children: [
-              Obx(() => context.isLandscape
-                  ? AnimatedContainer(
+              context.isLandscape
+                  ? Obx(() => AnimatedContainer(
                       width: 80 - 80 * app.position.value,
+                      height: double.infinity,
                       duration: const Duration(milliseconds: 0),
                       child: app.position.value > 0
                           ? Container()
@@ -75,8 +76,8 @@ class _AppMainPageState extends State<AppMainPage> {
                                   curve: Curves.easeInOut,
                                 );
                               },
-                            ))
-                  : Container()),
+                            )))
+                  : Container(),
               Expanded(
                   child: Obx(() => PageView(
                         controller: pageController,
@@ -85,39 +86,39 @@ class _AppMainPageState extends State<AppMainPage> {
                           app.navBarIndex.value = index;
                         },
                         children: [
-                          SafeArea(child: buildMain()),
+                          buildMain(),
                           const MinePage(),
                         ],
                       )))
             ],
           ),
-          bottomNavigationBar: Obx(
-            () => context.isPortrait&&app.showNav.value
-                ? AnimatedContainer(
-                    height: 60 - 60 * app.position.value,
-                    duration: const Duration(milliseconds: 0),
-                    child: app.position.value > 0
-                        ? Container()
-                        : NavigationBar(
-                            selectedIndex: app.navBarIndex.value,
-                            onDestinationSelected: (index) {
-                              app.navBarIndex.value = index;
-                              pageController.animateToPage(
-                                index,
-                                duration: const Duration(milliseconds: 400),
-                                curve: Curves.easeInOut,
-                              );
-                            },
-                            destinations: const [
-                              NavigationDestination(icon: Icon(Icons.home_filled), label: "首页"),
-                              NavigationDestination(icon: Icon(Icons.person), label: "我的"),
-                            ],
-                          ),
-                  )
-                : Container(
-                    height: 0,
-                  ),
-          ),
+          bottomNavigationBar: !context.isLandscape
+              ? Obx(
+                  () => app.showNav.value
+                      ? AnimatedContainer(
+                          height: 60 - 60 * app.position.value,
+                          duration: const Duration(milliseconds: 0),
+                          child: app.position.value > 0
+                              ? Container()
+                              : NavigationBar(
+                                  selectedIndex: app.navBarIndex.value,
+                                  onDestinationSelected: (index) {
+                                    app.navBarIndex.value = index;
+                                    pageController.animateToPage(
+                                      index,
+                                      duration: const Duration(milliseconds: 400),
+                                      curve: Curves.easeInOut,
+                                    );
+                                  },
+                                  destinations: const [
+                                    NavigationDestination(icon: Icon(Icons.home_filled), label: "首页"),
+                                    NavigationDestination(icon: Icon(Icons.person), label: "我的"),
+                                  ],
+                                ),
+                        )
+                      : Container(height: 0),
+                )
+              : null,
         ));
   }
 
@@ -126,7 +127,7 @@ class _AppMainPageState extends State<AppMainPage> {
       () => SlidingUpPanel(
         backdropEnabled: true,
         backdropTapClosesPanel: true,
-        bottomOffset: app.showNav.value ? 60 : 0,
+        bottomOffset: context.isPortrait && app.showNav.value ? 60 : 0,
         isDraggable: music.currentMusic.value != null,
         controller: app.panelController,
         scrollController: app.panelScrollController,

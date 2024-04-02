@@ -896,6 +896,11 @@ function artistList(type, page = 0, size = 20) {
 
                 if (matches !== null) {
                     matches.forEach(function (element) {
+                        console.log(element)
+                        if (element.endsWith('""')) {
+                            element = element.slice(0, -1)
+                        }
+                        console.log(element)
                         str = str.replaceAll(element, element.replaceAll("\"", "”"))
                     });
                 }

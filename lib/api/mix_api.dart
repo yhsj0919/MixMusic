@@ -78,6 +78,8 @@ class MixApi extends MusicApi {
 
   @override
   Future<MixSong> playUrl(MixSong song) {
+    var lyric = song.lyric;
+
     if (song.lyric?.contains("[") == true || song.lyric?.contains("]") == true) {
       song.lyric = null;
     }
@@ -85,6 +87,8 @@ class MixApi extends MusicApi {
     return invokeMethod(method: "playUrl", params: [ss]).then((value) {
       AppRespEntity<MixSong> data = AppRespEntity.fromJson(json.decode(value));
       if (data.code == 200) {
+        data.data?.lyric ??= lyric;
+
         return Future(() => data.data!);
       } else {
         return Future.error(data.msg ?? "操作失败");

@@ -50,7 +50,7 @@ dependencies:
   #播放器相关
   audio_service: ^0.18.12
   audio_session: ^0.1.18
-  audioplayers: ^5.2.1
+  audioplayers: ^6.0.0
   audio_video_progress_bar: ^2.0.2
   extended_image: ^8.2.0
   cached_network_image: ^3.3.1

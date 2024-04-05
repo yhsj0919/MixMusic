@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dart_json_mapper/dart_json_mapper.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:mix_music/api/music_api.dart';
 import 'package:mix_music/entity/app_resp_entity.dart';
@@ -10,11 +9,10 @@ import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_album_type.dart';
 import 'package:mix_music/entity/mix_artist.dart';
 import 'package:mix_music/entity/mix_artist_type.dart';
-import 'package:mix_music/entity/mix_banner.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
-import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/entity/mix_rank.dart';
+import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/utils/plugins_ext.dart';
 
@@ -65,9 +63,10 @@ class MixApi extends MusicApi {
 
   @override
   Future<AppRespEntity<MixPlaylist>> playListInfo({required MixPlaylist playlist, required int page, required int size}) {
-    var ss = JsonMapper.serialize(playlist).replaceAll("\n", "");
+    var ss = JsonMapper.serialize(playlist).replaceAll("\n","").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
     return invokeMethod(method: "playListInfo", params: [ss, page, size]).then((value) {
       AppRespEntity<MixPlaylist> data = AppRespEntity.fromJson(json.decode(value));
+
       if (data.code == 200) {
         return Future(() => data);
       } else {
@@ -83,7 +82,7 @@ class MixApi extends MusicApi {
     if (song.lyric?.contains("[") == true || song.lyric?.contains("]") == true) {
       song.lyric = null;
     }
-    var ss = JsonMapper.serialize(song).replaceAll("\n", "");
+    var ss = JsonMapper.serialize(song).replaceAll("\n","").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
     return invokeMethod(method: "playUrl", params: [ss]).then((value) {
       AppRespEntity<MixSong> data = AppRespEntity.fromJson(json.decode(value));
       if (data.code == 200) {
@@ -121,7 +120,7 @@ class MixApi extends MusicApi {
 
   @override
   Future<AppRespEntity<MixAlbum>> albumInfo({required MixAlbum album, required int page, required int size}) {
-    var ss = JsonMapper.serialize(album).replaceAll("\n", "");
+    var ss = JsonMapper.serialize(album).replaceAll("\n","").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
     return invokeMethod(method: "albumInfo", params: [ss, page, size]).then((value) {
       AppRespEntity<MixAlbum> data = AppRespEntity.fromJson(json.decode(value));
       if (data.code == 200) {
@@ -158,7 +157,7 @@ class MixApi extends MusicApi {
 
   @override
   Future<AppRespEntity<MixRank>> rankInfo({required MixRank rank, required int page, required int size}) {
-    var ss = JsonMapper.serialize(rank).replaceAll("\n", "");
+    var ss = JsonMapper.serialize(rank).replaceAll("\n","").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
     return invokeMethod(method: "rankInfo", params: [ss, page, size]).then((value) {
       AppRespEntity<MixRank> data = AppRespEntity.fromJson(json.decode(value));
       if (data.code == 200) {
@@ -183,7 +182,7 @@ class MixApi extends MusicApi {
 
   @override
   Future<AppRespEntity<MixArtist>> artistInfo({required MixArtist artist}) {
-    var ss = JsonMapper.serialize(artistInfo).replaceAll("\n", "");
+    var ss = JsonMapper.serialize(artistInfo).replaceAll("\n","").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
 
     return invokeMethod(method: "artistInfo", params: [ss]).then((value) {
       AppRespEntity<MixArtist> data = AppRespEntity.fromJson(json.decode(value));
@@ -222,7 +221,7 @@ class MixApi extends MusicApi {
 
   @override
   Future<AppRespEntity<List<MixAlbum>>> artistAlbum({required MixArtist artist, required int page, required int size}) {
-    var ss = JsonMapper.serialize(artist).replaceAll("\n", "");
+    var ss = JsonMapper.serialize(artist).replaceAll("\n","").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
     return invokeMethod(method: "artistAlbum", params: [ss, page, size]).then((value) {
       AppRespEntity<List<MixAlbum>> data = AppRespEntity.fromJson(json.decode(value));
       if (data.code == 200) {
@@ -235,8 +234,44 @@ class MixApi extends MusicApi {
 
   @override
   Future<AppRespEntity<List<MixSong>>> artistSong({required MixArtist artist, required int page, required int size}) {
-    var ss = JsonMapper.serialize(artist).replaceAll("\n", "");
+    var ss = JsonMapper.serialize(artist).replaceAll("\n","").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
     return invokeMethod(method: "artistSong", params: [ss, page, size]).then((value) {
+      AppRespEntity<List<MixSong>> data = AppRespEntity.fromJson(json.decode(value));
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixAlbum>>> newAlbum() {
+    return invokeMethod(method: "newAlbum", params: []).then((value) {
+      AppRespEntity<List<MixAlbum>> data = AppRespEntity.fromJson(json.decode(value));
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixPlaylist>>> newPlayList() {
+    return invokeMethod(method: "newPlayList", params: []).then((value) {
+      AppRespEntity<List<MixPlaylist>> data = AppRespEntity.fromJson(json.decode(value));
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixSong>>> newSong() {
+    return invokeMethod(method: "newSong", params: []).then((value) {
       AppRespEntity<List<MixSong>> data = AppRespEntity.fromJson(json.decode(value));
       if (data.code == 200) {
         return Future(() => data);

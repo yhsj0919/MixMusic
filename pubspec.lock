@@ -449,10 +449,9 @@ packages:
   flutter_js:
     dependency: "direct main"
     description:
-      name: flutter_js
-      sha256: "5bf5db354fe78fe24cb90a5fa6b4423d38712440c88e3445c3dc88bc134c452f"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "modules/flutter_js"
+      relative: true
+    source: path
     version: "0.8.0"
   flutter_lints:
     dependency: "direct dev"

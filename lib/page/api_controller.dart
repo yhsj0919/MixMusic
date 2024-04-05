@@ -24,6 +24,7 @@ class ApiController extends GetxController {
   RxList<PluginsInfo> albumPlugins = RxList();
   RxList<PluginsInfo> rankPlugins = RxList();
   RxList<PluginsInfo> artistPlugins = RxList();
+  RxList<PluginsInfo> newPlugins = RxList();
   var pluginRoot = "";
 
   @override
@@ -79,6 +80,7 @@ class ApiController extends GetxController {
     albumPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("albumList") == true));
     rankPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("rankList") == true));
     artistPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("artistList") == true));
+    newPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("newPlayList") == true));
   }
 
   ///搜索音乐
@@ -99,6 +101,21 @@ class ApiController extends GetxController {
   ///歌单分类
   Future<AppRespEntity<List<MixPlaylistType>>> playListType({required String site}) async {
     return ApiFactory.api(site: site)!.playListType();
+  }
+
+  ///歌单
+  Future<AppRespEntity<List<MixPlaylist>>> newPlayList({required String site}) async {
+    return ApiFactory.api(site: site)!.newPlayList();
+  }
+
+  ///专辑
+  Future<AppRespEntity<List<MixAlbum>>> newAlbum({required String site}) async {
+    return ApiFactory.api(site: site)!.newAlbum();
+  }
+
+  ///新歌
+  Future<AppRespEntity<List<MixSong>>> newSong({required String site}) async {
+    return ApiFactory.api(site: site)!.newSong();
   }
 
   ///歌单

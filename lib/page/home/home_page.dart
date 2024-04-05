@@ -1,13 +1,14 @@
-import 'dart:io';
-
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/page/permission/permission_page.dart';
+import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:mix_music/widgets/app_image.dart';
+
+import '../../entity/mix_play_list.dart';
+import '../../widgets/message.dart';
+import '../api_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,40 +19,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   MusicController music = Get.put(MusicController());
+  ApiController api = Get.put(ApiController());
+  RxList<MixPlaylist> playlist = RxList();
+  RxList<MixAlbum> albumList = RxList();
 
   @override
   void initState() {
     super.initState();
-    getPermission();
-  }
-
-  Future<int> getSystemVersion() async {
-    if (Platform.isAndroid) {
-      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-
-      return androidInfo.version.sdkInt;
-    } else {
-      return 32;
-    }
-  }
-
-  Future<void> getPermission() async {
-    getSystemVersion().then((value) async {
-      if (value < 33) {
-        if ((await Permission.storage.status) != PermissionStatus.granted) {
-          Get.off(const PermissionPage());
-          return Future(() => null);
-        }
-      }
-      if (value >= 30) {
-        if ((await Permission.manageExternalStorage.status) == PermissionStatus.granted) {
-        } else {
-          Get.off(const PermissionPage());
-          return Future(() => null);
-        }
-      }
-    });
+    getNewPlayList();
+    getNewAlbum();
   }
 
   @override
@@ -126,38 +102,43 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
+
             Container(
               height: 80,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ListView(
-                physics: const BouncingScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                children: [
-                  BlurRectWidget(
-                    color: Colors.grey.withOpacity(0.2),
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    width: 80,
-                    margin: EdgeInsets.only(right: 8),
-                  ),
-                  BlurRectWidget(
-                    color: Colors.grey.withOpacity(0.2),
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    width: 80,
-                    margin: EdgeInsets.only(right: 8),
-                  ),
-                  BlurRectWidget(
-                    color: Colors.grey.withOpacity(0.2),
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    width: 80,
-                    margin: EdgeInsets.only(right: 8),
-                  ),
-                  BlurRectWidget(
-                    color: Colors.grey.withOpacity(0.2),
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    width: 80,
-                    margin: EdgeInsets.only(right: 8),
-                  ),
-                ],
+              child: Obx(
+                () => ListView.separated(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: playlist.length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (BuildContext context, int index) {
+                    var item = playlist[index];
+                    return InkWell(
+                      child: SizedBox(
+                        width: 80,
+                        height: 80,
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            AppImage(url: item.pic ?? "", width: 80, height: 80),
+                            BlurRectWidget(
+                              width: 80,
+                              height: 25,
+                              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8)),
+                              child: Center(
+                                child: Text(item.title ?? "", maxLines: 1),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      onTap: () {
+                        Get.toNamed(Routes.playListDetail, arguments: item, id: Routes.key);
+                      },
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 8),
+                ),
               ),
             ),
             ListTile(
@@ -175,36 +156,40 @@ class _HomePageState extends State<HomePage> {
             ),
             Container(
               height: 80,
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: ListView(
-                physics: const BouncingScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                children: [
-                  BlurRectWidget(
-                    color: Colors.grey.withOpacity(0.2),
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    width: 80,
-                    margin: EdgeInsets.only(right: 8),
-                  ),
-                  BlurRectWidget(
-                    color: Colors.grey.withOpacity(0.2),
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    width: 80,
-                    margin: EdgeInsets.only(right: 8),
-                  ),
-                  BlurRectWidget(
-                    color: Colors.grey.withOpacity(0.2),
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    width: 80,
-                    margin: EdgeInsets.only(right: 8),
-                  ),
-                  BlurRectWidget(
-                    color: Colors.grey.withOpacity(0.2),
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    width: 80,
-                    margin: EdgeInsets.only(right: 8),
-                  ),
-                ],
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Obx(
+                () => ListView.separated(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: albumList.length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (BuildContext context, int index) {
+                    var item = albumList[index];
+                    return InkWell(
+                      child: SizedBox(
+                        width: 80,
+                        height: 80,
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            AppImage(url: item.pic ?? "", width: 80, height: 80),
+                            BlurRectWidget(
+                              width: 80,
+                              height: 25,
+                              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8)),
+                              child: Center(
+                                child: Text(item.title ?? "", maxLines: 1),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      onTap: () {
+                        Get.toNamed(Routes.albumDetail, arguments: item, id: Routes.key);
+                      },
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 8),
+                ),
               ),
             ),
             ListTile(
@@ -239,5 +224,29 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  ///获取歌单
+  Future<void> getNewPlayList() {
+    return api.newPlayList(site: api.newPlugins.first.site ?? "").then((value) {
+      playlist.clear();
+      playlist.addAll(value.data ?? []);
+
+      // showComplete("操作成功");
+    }).catchError((e) {
+      showError(e);
+    });
+  }
+
+  ///获取专辑
+  Future<void> getNewAlbum() {
+    return api.newAlbum(site: api.newPlugins.first.site ?? "").then((value) {
+      albumList.clear();
+      albumList.addAll(value.data ?? []);
+
+      // showComplete("操作成功");
+    }).catchError((e) {
+      showError(e);
+    });
   }
 }

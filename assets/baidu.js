@@ -5,7 +5,7 @@
 // @author       yhsj
 // @icon         https://music.taihe.com/favicon.ico
 // @webSite      https://music.taihe.com
-// @method       ["searchMusic","playUrl","playList","playListType","playListInfo","rankList","rankInfo","artistList","artistType","artistInfo","artistSong","artistAlbum"]
+// @method       ["searchMusic","playUrl","newPlayList","newAlbum","newSong","playList","playListType","playListInfo","rankList","rankInfo","artistList","artistType","artistInfo","artistSong","artistAlbum"]
 // ==/PluginsInfo==
 
 
@@ -36,10 +36,10 @@ function searchMusic(key, page = 0, size = 20) {
     }).then(function (data) {
         let respData;
 
-        if (typeof data["data"] === 'string') {
-            respData = JSON.parse(data["data"].replaceAll("\n", ""))
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
         } else {
-            respData = data["data"]
+            respData = data.data
         }
 
         if (respData["errno"] !== 22000) {
@@ -112,18 +112,24 @@ function playUrl(song) {
         headers: headers
     }).then(async function (data) {
 
-        console.log(JSON.stringify(data))
+        let respData;
 
-        if (data["data"]["errno"] !== 22000) {
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
+        } else {
+            respData = data.data
+        }
+
+        if (respData["errno"] !== 22000) {
             const resp = {
                 code: 500,
-                msg: data["data"]["errmsg"],
+                msg: respData["errmsg"],
                 data: null
             };
             return JSON.stringify(resp);
         }
         try {
-            const path = data["data"]["data"]["lyric"];
+            const path = respData["data"]["lyric"];
             if (path != null && path !== "") {
                 const response = await axios.get(path);
                 mySong["lyric"] = response.data;
@@ -131,7 +137,7 @@ function playUrl(song) {
         } catch (error) {
             console.error('Error:', error);
         }
-        mySong["url"] = data["data"]["data"]["path"]
+        mySong["url"] = respData["data"]["path"]
 
 
         const resp = {
@@ -159,7 +165,13 @@ function playListType() {
         headers: headers
     }).then(function (data) {
 
-        const respData = data["data"]
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
+        } else {
+            respData = data.data
+        }
 
         if (respData["errno"] !== 22000) {
             const resp = {
@@ -196,6 +208,66 @@ function playListType() {
 }
 
 //根据分类获取歌单
+function newPlayList() {
+    // 定义查询参数
+    const params = {
+        timestamp: Date.now(),
+        appid: 16073360,
+    };
+
+    params['sign'] = paramsSign(params);
+
+    return axios.get('https://api-qianqian.taihe.com/v1/index', {
+        params
+    }, {
+        headers: headers
+    }).then(function (data) {
+
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
+        } else {
+            respData = data.data
+        }
+
+        if (respData["errno"] !== 22000) {
+            const resp = {
+                code: 500,
+                msg: data["errmsg"],
+                data: null
+            };
+            return JSON.stringify(resp);
+        }
+
+
+        const result = respData["data"].find(function (data) {
+            return data["type"] === "tracklist";
+        });
+
+
+        const newArray = result["result"].map(function (element) {
+            return {
+                site: 'baidu',
+                id: element['id'],
+                pic: `${element["pic"]}@w_200,h_200`,
+                title: element['title'],
+                subTitle: element['desc'],
+                desc: element['desc'],
+                songCount: element['trackCount'],
+            };
+        });
+        const resp = {
+            code: 200,
+            msg: '操作成功',
+            data: newArray
+        };
+        return JSON.stringify(resp);
+    });
+}
+
+
+//根据分类获取歌单
 function playList(type, page = 0, size = 20) {
     // 定义查询参数
     const params = {
@@ -218,39 +290,12 @@ function playList(type, page = 0, size = 20) {
         headers: headers
     }).then(function (data) {
 
-        let respData
-        if (typeof data["data"] === "object") {
-            respData = data["data"]
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
         } else {
-            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
-
-            // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /"[\u4e00-\u9fa5]+"。/g;
-            let pattern2 = /""[\u4e00-\u9fa5]+"[\u4e00-\u9fa5]+/g;
-            let pattern3 = /"[\u4e00-\u9fa5]+"[^,}\]]/g;
-
-            // 使用正则表达式的 exec() 方法来执行匹配
-            let matches = str.match(pattern);
-            let matches2 = str.match(pattern2);
-            let matches3 = str.match(pattern3);
-            if (matches !== null) {
-                matches.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-            if (matches2 !== null) {
-                matches2.forEach(function (element) {
-                    str = str.replaceAll(element.substring(1), element.substring(1).replaceAll("\"", "”"))
-                });
-            }
-            if (matches3 !== null) {
-                matches3.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-            console.log(str)
-
-            respData = JSON.parse(str)
+            respData = data.data
         }
 
         if (respData["errno"] !== 22000) {
@@ -298,6 +343,9 @@ function playList(type, page = 0, size = 20) {
 // 歌单详情
 function playListInfo(playlist, page = 0, size = 20) {
 
+    console.log(playlist)
+    console.log(typeof playlist)
+
     const myPlaylist = JSON.parse(playlist);
     // 定义查询参数
     const params = {
@@ -316,39 +364,12 @@ function playListInfo(playlist, page = 0, size = 20) {
         headers: headers
     }).then(function (data) {
 
-        let respData
-        if (typeof data["data"] === "object") {
-            respData = data["data"]
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
         } else {
-            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
-
-            // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /"[\u4e00-\u9fa5]+"。/g;
-            let pattern2 = /""[\u4e00-\u9fa5]+"[\u4e00-\u9fa5]+/g;
-            let pattern3 = /"[\u4e00-\u9fa5]+"[^,}\]]/g;
-
-            // 使用正则表达式的 exec() 方法来执行匹配
-            let matches = str.match(pattern);
-            let matches2 = str.match(pattern2);
-            let matches3 = str.match(pattern3);
-            if (matches !== null) {
-                matches.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-            if (matches2 !== null) {
-                matches2.forEach(function (element) {
-                    str = str.replaceAll(element.substring(1), element.substring(1).replaceAll("\"", "”"))
-                });
-            }
-            if (matches3 !== null) {
-                matches3.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-            console.log(str)
-
-            respData = JSON.parse(str)
+            respData = data.data
         }
 
         if (respData["errno"] !== 22000) {
@@ -427,6 +448,70 @@ function albumType() {
 }
 
 //根据分类获取专辑
+function newAlbum() {
+    // 定义查询参数
+    const params = {
+        timestamp: Date.now(),
+        appid: 16073360,
+    };
+
+    params['sign'] = paramsSign(params);
+
+    return axios.get('https://api-qianqian.taihe.com/v1/index', {
+        params
+    }, {
+        headers: headers
+    }).then(function (data) {
+
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
+        } else {
+            respData = data.data
+        }
+
+        if (respData["errno"] !== 22000) {
+            const resp = {
+                code: 500,
+                msg: data["errmsg"],
+                data: null
+            };
+            return JSON.stringify(resp);
+        }
+
+
+        const result = respData["data"].find(function (data) {
+            return data["type"] === "album";
+        });
+
+
+        const newArray = result["result"].map(function (element) {
+            return {
+                site: 'baidu',
+                id: element['albumAssetCode'],
+                pic: `${element["pic"]}@w_200,h_200`,
+                title: element['title'],
+                subTitle: element["artist"].map(function (ar) {
+                    return ar["name"]
+                }).join(","),
+                artist: element["artist"].map(function (ar) {
+                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                }),
+                songCount: element['trackCount'],
+            };
+        });
+        const resp = {
+            code: 200,
+            msg: '操作成功',
+            data: newArray,
+
+        };
+        return JSON.stringify(resp);
+    });
+}
+
+//根据分类获取专辑
 function albumList(type, page = 0, size = 20) {
     // 定义查询参数
     const params = {
@@ -447,25 +532,12 @@ function albumList(type, page = 0, size = 20) {
         headers: headers
     }).then(function (data) {
 
-        let respData
-        if (typeof data["data"] === "object") {
-            respData = data["data"]
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
         } else {
-            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
-
-            // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
-            // 使用正则表达式的 exec() 方法来执行匹配
-            let matches = str.match(pattern);
-
-            if (matches !== null) {
-                matches.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-            console.log(str)
-
-            respData = JSON.parse(str)
+            respData = data.data
         }
 
         if (respData["errno"] !== 22000) {
@@ -517,6 +589,9 @@ function albumList(type, page = 0, size = 20) {
 // 专辑详情
 function albumInfo(album, page = 0, size = 20) {
 
+    console.log(album)
+    console.log(typeof album)
+
     const myAlbum = JSON.parse(album);
     // 定义查询参数
     const params = {
@@ -533,27 +608,12 @@ function albumInfo(album, page = 0, size = 20) {
         headers: headers
     }).then(function (data) {
 
-        let respData
-        if (typeof data["data"] === "object") {
-            respData = data["data"]
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
         } else {
-            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
-
-            // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
-
-            // 使用正则表达式的 exec() 方法来执行匹配
-            let matches = str.match(pattern);
-
-            if (matches !== null) {
-                matches.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-
-            console.log(str)
-
-            respData = JSON.parse(str)
+            respData = data.data
         }
 
         if (respData["errno"] !== 22000) {
@@ -634,29 +694,13 @@ function rankList() {
     }, {
         headers: headers
     }).then(function (data) {
-        console.log(data)
-        let respData
-        if (typeof data["data"] === "object") {
-            respData = data["data"]
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
         } else {
-            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
-
-            let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
-
-            // 使用正则表达式的 exec() 方法来执行匹配
-            let matches = str.match(pattern);
-
-            if (matches !== null) {
-                matches.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-
-
-            respData = JSON.parse(str)
+            respData = data.data
         }
-
-        console.log(JSON.stringify(respData))
 
         if (respData["errno"] !== 22000) {
             const resp = {
@@ -715,27 +759,14 @@ function rankInfo(rank, page = 0, size = 20) {
         headers: headers
     }).then(function (data) {
 
-        let respData
-        if (typeof data["data"] === "object") {
-            respData = data["data"]
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
         } else {
-            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
-
-            // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
-
-            // 使用正则表达式的 exec() 方法来执行匹配
-            let matches = str.match(pattern);
-
-            if (matches !== null) {
-                matches.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-            console.log(str)
-            respData = JSON.parse(str)
+            respData = data.data
         }
-        console.log(JSON.stringify(respData))
+
         if (respData["errno"] !== 22000) {
             const resp = {
                 code: 500,
@@ -883,30 +914,12 @@ function artistList(type, page = 0, size = 20) {
             headers: headers
         }).then(function (data) {
 
-            let respData
-            if (typeof data["data"] === "object") {
-                respData = data["data"]
+            let respData;
+
+            if (typeof data.data === 'string') {
+                respData = JSON.parse(data.data)
             } else {
-                let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
-
-                let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
-
-                // 使用正则表达式的 exec() 方法来执行匹配
-                let matches = str.match(pattern);
-
-                if (matches !== null) {
-                    matches.forEach(function (element) {
-                        console.log(element)
-                        if (element.endsWith('""')) {
-                            element = element.slice(0, -1)
-                        }
-                        console.log(element)
-                        str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                    });
-                }
-                console.log(str)
-
-                respData = JSON.parse(str)
+                respData = data.data
             }
 
             if (respData["errno"] !== 22000) {
@@ -968,39 +981,12 @@ function artistInfo(artist, page = 0, size = 20) {
         headers: headers
     }).then(function (data) {
 
-        let respData
-        if (typeof data["data"] === "object") {
-            respData = data["data"]
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
         } else {
-            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
-
-            // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /"[\u4e00-\u9fa5]+"。/g;
-            let pattern2 = /""[\u4e00-\u9fa5]+"[\u4e00-\u9fa5]+/g;
-            let pattern3 = /"[\u4e00-\u9fa5]+"[^,}\]]/g;
-
-            // 使用正则表达式的 exec() 方法来执行匹配
-            let matches = str.match(pattern);
-            let matches2 = str.match(pattern2);
-            let matches3 = str.match(pattern3);
-            if (matches !== null) {
-                matches.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-            if (matches2 !== null) {
-                matches2.forEach(function (element) {
-                    str = str.replaceAll(element.substring(1), element.substring(1).replaceAll("\"", "”"))
-                });
-            }
-            if (matches3 !== null) {
-                matches3.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-            console.log(str)
-
-            respData = JSON.parse(str)
+            respData = data.data
         }
 
         if (respData["errno"] !== 22000) {
@@ -1089,27 +1075,13 @@ function artistSong(artist, page = 0, size = 20) {
         headers: headers
     }).then(function (data) {
 
-        let respData
-        if (typeof data["data"] === "object") {
-            respData = data["data"]
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
         } else {
-            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
-
-            // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
-
-            // 使用正则表达式的 exec() 方法来执行匹配
-            let matches = str.match(pattern);
-
-            if (matches !== null) {
-                matches.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-            console.log(str)
-            respData = JSON.parse(str)
+            respData = data.data
         }
-        console.log(JSON.stringify(respData))
         if (respData["errno"] !== 22000) {
             const resp = {
                 code: 500,
@@ -1178,27 +1150,13 @@ function artistAlbum(artist, page = 0, size = 20) {
         headers: headers
     }).then(function (data) {
 
-        let respData
-        if (typeof data["data"] === "object") {
-            respData = data["data"]
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
         } else {
-            let str = data["data"].replaceAll("。\"\",", "。\",").replaceAll("\n", "")
-
-            // 正则表达式来匹配一些包含在文字中的引号
-            let pattern = /[^,:{\[]"[\w\s\d\u4e00-\u9fa5]+"[^,}\]]/g;
-
-            // 使用正则表达式的 exec() 方法来执行匹配
-            let matches = str.match(pattern);
-
-            if (matches !== null) {
-                matches.forEach(function (element) {
-                    str = str.replaceAll(element, element.replaceAll("\"", "”"))
-                });
-            }
-            console.log(str)
-            respData = JSON.parse(str)
+            respData = data.data
         }
-        console.log(JSON.stringify(respData))
         if (respData["errno"] !== 22000) {
             const resp = {
                 code: 500,

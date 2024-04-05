@@ -40,7 +40,9 @@ dependencies:
   permission_handler: ^11.3.0
   path_provider: ^2.1.2
   #js插件处理
-  flutter_js: ^0.8.0
+#  flutter_js: ^0.8.0
+  flutter_js:
+    path: modules/flutter_js
   #文件路径处理
   path: ^1.8.3
   #json序列化

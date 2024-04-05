@@ -12,6 +12,12 @@ import '../entity/mix_song.dart';
 import '../entity/mix_rank.dart';
 
 abstract class MusicApi {
+  ///歌单推荐
+  Future<AppRespEntity<List<MixPlaylist>>> newPlayList();
+
+  ///新歌
+  Future<AppRespEntity<List<MixSong>>> newSong();
+
   ///歌单
   Future<AppRespEntity<List<MixPlaylist>>> playList({String? type, required int page, required int size});
 
@@ -29,6 +35,9 @@ abstract class MusicApi {
 
   ///专辑分类
   Future<AppRespEntity<List<MixAlbumType>>> albumType();
+
+  ///最新专辑
+  Future<AppRespEntity<List<MixAlbum>>> newAlbum();
 
   ///专辑
   Future<AppRespEntity<List<MixAlbum>>> albumList({String? type, required int page, required int size});

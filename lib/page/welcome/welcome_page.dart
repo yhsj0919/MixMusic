@@ -65,7 +65,7 @@ class _WelcomePageState extends State<WelcomePage> {
         title: Container(
           // padding: const EdgeInsets.all(8),
           alignment: Alignment.topRight,
-          child: Container(
+          child: SizedBox(
             height: 30,
             width: 30,
             child: Stack(

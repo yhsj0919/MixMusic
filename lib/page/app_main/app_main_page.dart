@@ -127,7 +127,7 @@ class _AppMainPageState extends State<AppMainPage> {
       () => SlidingUpPanel(
         backdropEnabled: true,
         backdropTapClosesPanel: true,
-        bottomOffset: context.isPortrait && app.showNav.value ? 60 : 0,
+        // bottomOffset: (context.isPortrait && app.showPlayBar.value) ? 60 : 0,
         isDraggable: music.currentMusic.value != null,
         controller: app.panelController,
         scrollController: app.panelScrollController,

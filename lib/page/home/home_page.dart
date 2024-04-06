@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/entity/mix_album.dart';
+import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
@@ -22,12 +23,14 @@ class _HomePageState extends State<HomePage> {
   ApiController api = Get.put(ApiController());
   RxList<MixPlaylist> playlist = RxList();
   RxList<MixAlbum> albumList = RxList();
+  RxList<MixSong> songList = RxList();
 
   @override
   void initState() {
     super.initState();
-    getNewPlayList();
-    getNewAlbum();
+    getPlayListRec();
+    getAlbumRec();
+    getSongRec();
   }
 
   @override
@@ -203,22 +206,40 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemCount: 10,
-              shrinkWrap: true,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  leading: BlurRectWidget(
-                    color: Colors.grey.withOpacity(0.2),
-                    borderRadius: const BorderRadius.all(Radius.circular(8)),
-                    width: 45,
-                    height: 45,
-                  ),
-                  title: Text("歌名$index"),
-                  subtitle: Text("歌手"),
-                );
-              },
+            Obx(
+              () => ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: songList.length,
+                shrinkWrap: true,
+                itemBuilder: (BuildContext context, int index) {
+                  var song = songList[index];
+                  return Obx(() => ListTile(
+                        selected: music.currentMusic.value?.id == song.id,
+                        leading: AppImage(url: song.pic ?? ""),
+                        title: Row(
+                          children: [
+                            Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            song.vip == 1
+                                ? Container(
+                                    alignment: Alignment.center,
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+                                      border: Border.all(width: 1, color: Colors.green),
+                                    ),
+                                    child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
+                                  )
+                                : Container(),
+                          ],
+                        ),
+                        subtitle: Text(song.subTitle ?? "", overflow: TextOverflow.ellipsis, maxLines: 1),
+                        onTap: () {
+                          music.playList(list: songList, index: index);
+                        },
+                      ));
+                },
+              ),
             ),
           ],
         ),
@@ -227,8 +248,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   ///获取歌单
-  Future<void> getNewPlayList() {
-    return api.newPlayList(site: api.newPlugins.first.site ?? "").then((value) {
+  Future<void> getPlayListRec() {
+    return api.playListRec(site: api.newPlugins.first.site ?? "").then((value) {
       playlist.clear();
       playlist.addAll(value.data ?? []);
 
@@ -239,10 +260,22 @@ class _HomePageState extends State<HomePage> {
   }
 
   ///获取专辑
-  Future<void> getNewAlbum() {
-    return api.newAlbum(site: api.newPlugins.first.site ?? "").then((value) {
+  Future<void> getAlbumRec() {
+    return api.albumRec(site: api.newPlugins.first.site ?? "").then((value) {
       albumList.clear();
       albumList.addAll(value.data ?? []);
+
+      // showComplete("操作成功");
+    }).catchError((e) {
+      showError(e);
+    });
+  }
+
+  ///获取新歌
+  Future<void> getSongRec() {
+    return api.songRec(site: api.newPlugins.first.site ?? "").then((value) {
+      songList.clear();
+      songList.addAll(value.data ?? []);
 
       // showComplete("操作成功");
     }).catchError((e) {

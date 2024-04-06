@@ -104,18 +104,18 @@ class ApiController extends GetxController {
   }
 
   ///歌单
-  Future<AppRespEntity<List<MixPlaylist>>> newPlayList({required String site}) async {
-    return ApiFactory.api(site: site)!.newPlayList();
+  Future<AppRespEntity<List<MixPlaylist>>> playListRec({required String site}) async {
+    return ApiFactory.api(site: site)!.playListRec();
   }
 
   ///专辑
-  Future<AppRespEntity<List<MixAlbum>>> newAlbum({required String site}) async {
-    return ApiFactory.api(site: site)!.newAlbum();
+  Future<AppRespEntity<List<MixAlbum>>> albumRec({required String site}) async {
+    return ApiFactory.api(site: site)!.albumRec();
   }
 
   ///新歌
-  Future<AppRespEntity<List<MixSong>>> newSong({required String site}) async {
-    return ApiFactory.api(site: site)!.newSong();
+  Future<AppRespEntity<List<MixSong>>> songRec({required String site}) async {
+    return ApiFactory.api(site: site)!.songRec();
   }
 
   ///歌单

@@ -126,7 +126,9 @@ class MusicController extends GetxController {
           showComplete('音频来自:${value.site}');
         }
         isBuffering.value = true;
-        Player.playMediaItem(music.mediaItem()).catchError((e) {
+        Player.playMediaItem(music.mediaItem()).then((value) {
+          isBuffering.value = false;
+        }).catchError((e) {
           print(e);
           isBuffering.value = false;
           media.value = null;

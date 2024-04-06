@@ -207,8 +207,8 @@ function playListType() {
     });
 }
 
-//根据分类获取歌单
-function newPlayList() {
+//歌单推荐
+function playListRec() {
     // 定义查询参数
     const params = {
         timestamp: Date.now(),
@@ -447,8 +447,8 @@ function albumType() {
     return JSON.stringify(resp);
 }
 
-//根据分类获取专辑
-function newAlbum() {
+//专辑推荐
+function albumRec() {
     // 定义查询参数
     const params = {
         timestamp: Date.now(),
@@ -1198,6 +1198,75 @@ function artistAlbum(artist, page = 0, size = 20) {
                 totalPages: Math.floor(result["total"] / parseInt(size)),
                 totalSize: result["total"]
             }
+        };
+        return JSON.stringify(resp);
+    });
+}
+
+//搜索音乐
+function songRec() {
+    // 定义查询参数
+    const params = {
+        timestamp: Date.now(),
+        appid: 16073360,
+    };
+
+    params['sign'] = paramsSign(params);
+
+    return axios.get('https://api-qianqian.taihe.com/v1/index', {
+        params
+    }, {
+        headers: headers
+    }).then(function (data) {
+
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
+        } else {
+            respData = data.data
+        }
+
+        if (respData["errno"] !== 22000) {
+            const resp = {
+                code: 500,
+                msg: data["errmsg"],
+                data: null
+            };
+            return JSON.stringify(resp);
+        }
+
+
+        const result = respData["data"].find(function (data) {
+            return data["type"] === "song";
+        });
+
+        const newArray = result["result"].map(function (element) {
+            return {
+                site: 'baidu',
+                id: element['assetId'],
+                pic: `${element["pic"]}@w_200,h_200`,
+                title: element['title'],
+                subTitle: element["artist"].map(function (ar) {
+                    return ar["name"]
+                }).join(","),
+                vip: element["isVip"],
+                artist: element["artist"].map(function (ar) {
+                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                }),
+                album: {
+                    site: "baidu",
+                    id: element["albumAssetCode"],
+                    title: element["albumTitle"],
+                    pic: `${element["pic"]}@w_200,h_200`,
+                },
+                lyric: element["lyric"],
+            };
+        });
+        const resp = {
+            code: 200,
+            msg: '操作成功',
+            data: newArray
         };
         return JSON.stringify(resp);
     });

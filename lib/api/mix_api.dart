@@ -246,8 +246,8 @@ class MixApi extends MusicApi {
   }
 
   @override
-  Future<AppRespEntity<List<MixAlbum>>> newAlbum() {
-    return invokeMethod(method: "newAlbum", params: []).then((value) {
+  Future<AppRespEntity<List<MixAlbum>>> albumRec() {
+    return invokeMethod(method: "albumRec", params: []).then((value) {
       AppRespEntity<List<MixAlbum>> data = AppRespEntity.fromJson(json.decode(value));
       if (data.code == 200) {
         return Future(() => data);
@@ -258,8 +258,8 @@ class MixApi extends MusicApi {
   }
 
   @override
-  Future<AppRespEntity<List<MixPlaylist>>> newPlayList() {
-    return invokeMethod(method: "newPlayList", params: []).then((value) {
+  Future<AppRespEntity<List<MixPlaylist>>> playListRec() {
+    return invokeMethod(method: "playListRec", params: []).then((value) {
       AppRespEntity<List<MixPlaylist>> data = AppRespEntity.fromJson(json.decode(value));
       if (data.code == 200) {
         return Future(() => data);
@@ -270,8 +270,8 @@ class MixApi extends MusicApi {
   }
 
   @override
-  Future<AppRespEntity<List<MixSong>>> newSong() {
-    return invokeMethod(method: "newSong", params: []).then((value) {
+  Future<AppRespEntity<List<MixSong>>> songRec() {
+    return invokeMethod(method: "songRec", params: []).then((value) {
       AppRespEntity<List<MixSong>> data = AppRespEntity.fromJson(json.decode(value));
       if (data.code == 200) {
         return Future(() => data);
@@ -280,4 +280,6 @@ class MixApi extends MusicApi {
       }
     });
   }
+
+
 }

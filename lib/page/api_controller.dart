@@ -24,7 +24,7 @@ class ApiController extends GetxController {
   RxList<PluginsInfo> albumPlugins = RxList();
   RxList<PluginsInfo> rankPlugins = RxList();
   RxList<PluginsInfo> artistPlugins = RxList();
-  RxList<PluginsInfo> newPlugins = RxList();
+  RxList<PluginsInfo> recPlugins = RxList();
   var pluginRoot = "";
 
   @override
@@ -80,7 +80,7 @@ class ApiController extends GetxController {
     albumPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("albumList") == true));
     rankPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("rankList") == true));
     artistPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("artistList") == true));
-    newPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("newPlayList") == true));
+    recPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("playListRec") == true));
   }
 
   ///搜索音乐
@@ -104,18 +104,18 @@ class ApiController extends GetxController {
   }
 
   ///歌单
-  Future<AppRespEntity<List<MixPlaylist>>> playListRec({required String site}) async {
-    return ApiFactory.api(site: site)!.playListRec();
+  Future<AppRespEntity<List<MixPlaylist>>?> playListRec({required String site}) async {
+    return ApiFactory.api(site: site)?.playListRec();
   }
 
   ///专辑
-  Future<AppRespEntity<List<MixAlbum>>> albumRec({required String site}) async {
-    return ApiFactory.api(site: site)!.albumRec();
+  Future<AppRespEntity<List<MixAlbum>>?> albumRec({required String site}) async {
+    return ApiFactory.api(site: site)?.albumRec();
   }
 
   ///新歌
-  Future<AppRespEntity<List<MixSong>>> songRec({required String site}) async {
-    return ApiFactory.api(site: site)!.songRec();
+  Future<AppRespEntity<List<MixSong>>?> songRec({required String site}) async {
+    return ApiFactory.api(site: site)?.songRec();
   }
 
   ///歌单

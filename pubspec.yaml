@@ -72,6 +72,8 @@ dependencies:
   #电池优化，防止通知被杀死
   disable_battery_optimization: ^1.1.1
 
+  drop_shadow: ^0.1.0
+
   shared_preferences: ^2.2.2
 dev_dependencies:
   flutter_test:

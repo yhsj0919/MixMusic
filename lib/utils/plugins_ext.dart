@@ -87,12 +87,14 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
   }
 
   ///启用文件插件
-  Future<JavascriptRuntime> enableFilePlugin({required String path}) async {
-    var file = File(path);
-    final plugin = await file.readAsString();
-    final evalFetchResult = evaluate(plugin);
-    if (kDebugMode) {
-      print('插件结果: $path : $evalFetchResult');
+  Future<JavascriptRuntime> enableFilePlugin({required String? path}) async {
+    if (path != null) {
+      var file = File(path);
+      final plugin = await file.readAsString();
+      final evalFetchResult = evaluate(plugin);
+      if (kDebugMode) {
+        print('插件结果: $path : $evalFetchResult');
+      }
     }
     return this;
   }

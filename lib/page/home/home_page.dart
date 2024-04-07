@@ -1,3 +1,5 @@
+import 'package:drop_shadow/drop_shadow.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/entity/mix_album.dart';
@@ -6,6 +8,7 @@ import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/ext.dart';
 
 import '../../entity/mix_play_list.dart';
 import '../../widgets/message.dart';
@@ -54,19 +57,49 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Row(
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Wrap(
+                alignment: WrapAlignment.start,
+                // spacing: 8,
+                // runSpacing: 8,
                 children: [
-                  IconButton(
-                      onPressed: () {
+                  DropShadow(
+                    blurRadius: 6,
+                    child: InkWell(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.amberAccent,
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        width: 140,
+                        height: 80,
+                        alignment: Alignment.center,
+                        child: const Text("排行榜"),
+                      ),
+                      onTap: () {
                         Get.toNamed(Routes.rank, id: Routes.key);
                       },
-                      icon: const Icon(Icons.align_vertical_top_rounded)),
-                  IconButton(
-                      onPressed: () {
+                    ),
+                  ),
+                  DropShadow(
+                    blurRadius: 6,
+                    child: InkWell(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        width: 140,
+                        height: 80,
+                        alignment: Alignment.center,
+                        child: const Text("歌手"),
+                      ),
+                      onTap: () {
                         Get.toNamed(Routes.artist, id: Routes.key);
                       },
-                      icon: const Icon(Icons.person)),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -93,7 +126,7 @@ class _HomePageState extends State<HomePage> {
             //   ),
             // ),
             ListTile(
-              title: const Text("歌单"),
+              title: Text("歌单", style: Theme.of(context).textTheme.titleLarge),
               contentPadding: const EdgeInsets.only(left: 16),
               trailing: IconButton(
                 onPressed: () {
@@ -107,7 +140,7 @@ class _HomePageState extends State<HomePage> {
             ),
 
             Container(
-              height: 80,
+              height: 140,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Obx(
                 () => ListView.separated(
@@ -119,17 +152,16 @@ class _HomePageState extends State<HomePage> {
                     return InkWell(
                       child: SizedBox(
                         width: 80,
-                        height: 80,
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
+                        height: 140,
+                        child: Column(
                           children: [
-                            AppImage(url: item.pic ?? "", width: 80, height: 80),
-                            BlurRectWidget(
-                              width: 80,
-                              height: 25,
-                              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8)),
-                              child: Center(
-                                child: Text(item.title ?? "", maxLines: 1),
+                            AppImage(url: item.pic ?? "", width: 80).expanded(),
+                            Container(
+                              height: 40,
+                              child: Text(
+                                item.title ?? "",
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             )
                           ],
@@ -140,12 +172,12 @@ class _HomePageState extends State<HomePage> {
                       },
                     );
                   },
-                  separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 8),
+                  separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 16),
                 ),
               ),
             ),
             ListTile(
-              title: const Text("专辑"),
+              title: Text("专辑", style: Theme.of(context).textTheme.titleLarge),
               contentPadding: const EdgeInsets.only(left: 16),
               trailing: IconButton(
                 onPressed: () {
@@ -158,7 +190,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Container(
-              height: 80,
+              height: 140,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Obx(
                 () => ListView.separated(
@@ -170,17 +202,16 @@ class _HomePageState extends State<HomePage> {
                     return InkWell(
                       child: SizedBox(
                         width: 80,
-                        height: 80,
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
+                        height: 140,
+                        child: Column(
                           children: [
-                            AppImage(url: item.pic ?? "", width: 80, height: 80),
-                            BlurRectWidget(
-                              width: 80,
-                              height: 25,
-                              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8)),
-                              child: Center(
-                                child: Text(item.title ?? "", maxLines: 1),
+                            AppImage(url: item.pic ?? "", width: 80).expanded(),
+                            Container(
+                              height: 40,
+                              child: Text(
+                                item.title ?? "",
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             )
                           ],
@@ -191,12 +222,12 @@ class _HomePageState extends State<HomePage> {
                       },
                     );
                   },
-                  separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 8),
+                  separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 16),
                 ),
               ),
             ),
             ListTile(
-              title: const Text("新歌"),
+              title: Text("新歌", style: Theme.of(context).textTheme.titleLarge),
               contentPadding: const EdgeInsets.only(left: 16),
               trailing: IconButton(
                 onPressed: () {},
@@ -249,9 +280,9 @@ class _HomePageState extends State<HomePage> {
 
   ///获取歌单
   Future<void> getPlayListRec() {
-    return api.playListRec(site: api.newPlugins.first.site ?? "").then((value) {
+    return api.playListRec(site: api.recPlugins.firstOrNull?.site ?? "").then((value) {
       playlist.clear();
-      playlist.addAll(value.data ?? []);
+      playlist.addAll(value?.data ?? []);
 
       // showComplete("操作成功");
     }).catchError((e) {
@@ -261,9 +292,9 @@ class _HomePageState extends State<HomePage> {
 
   ///获取专辑
   Future<void> getAlbumRec() {
-    return api.albumRec(site: api.newPlugins.first.site ?? "").then((value) {
+    return api.albumRec(site: api.recPlugins.firstOrNull?.site ?? "").then((value) {
       albumList.clear();
-      albumList.addAll(value.data ?? []);
+      albumList.addAll(value?.data ?? []);
 
       // showComplete("操作成功");
     }).catchError((e) {
@@ -273,9 +304,9 @@ class _HomePageState extends State<HomePage> {
 
   ///获取新歌
   Future<void> getSongRec() {
-    return api.songRec(site: api.newPlugins.first.site ?? "").then((value) {
+    return api.songRec(site: api.recPlugins.firstOrNull?.site ?? "").then((value) {
       songList.clear();
-      songList.addAll(value.data ?? []);
+      songList.addAll(value?.data ?? []);
 
       // showComplete("操作成功");
     }).catchError((e) {

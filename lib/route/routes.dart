@@ -10,6 +10,7 @@ import 'package:mix_music/page/app_playing/app_playing_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
 import 'package:mix_music/page/artist/artist_page.dart';
 import 'package:mix_music/page/home/home_page.dart';
+import 'package:mix_music/page/parse/parse_play_list.dart';
 import 'package:mix_music/page/permission/permission_page.dart';
 import 'package:mix_music/page/playlist/play_list_detail_page.dart';
 import 'package:mix_music/page/playlist/playlist_page.dart';
@@ -46,6 +47,7 @@ class Routes {
   static const String rankDetail = "/rankDetail";
   static const String artist = "/artist";
   static const String artistDetail = "/artistDetail";
+  static const String parsePlayList = "/parsePlayList";
 
   static List<GetPage> routes = [
     GetPage(name: welcome, page: () => const WelcomePage()),
@@ -83,6 +85,9 @@ class Routes {
         return GetPageRoute(settings: settings, page: () => const ArtistPage());
       case artistDetail:
         return GetPageRoute(settings: settings, page: () => ArtistDetailPage(artist: arguments as MixArtist?));
+
+      case parsePlayList:
+        return GetPageRoute(settings: settings, page: () => ParsePlayList());
 
       default:
         return GetPageRoute(settings: settings, page: () => Center(child: Text("404", style: Theme.of(Get.context!).textTheme.displayLarge)));

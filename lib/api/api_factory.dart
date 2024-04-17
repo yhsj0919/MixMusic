@@ -1,9 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter_js/quickjs/ffi.dart';
 import 'package:mix_music/api/mix_api.dart';
+import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/utils/plugins_ext.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../entity/mix_song.dart';
 import '../entity/plugins_info.dart';
@@ -96,6 +94,15 @@ class ApiFactory {
     }
   }
 
+  static Future<MixPlaylist?> _parsePlayList({required String site, required String? url}) async {
+    try {
+      var value = await ApiFactory.api(site: site)?.parsePlayList(url: url);
+      return value?.data;
+    } catch (e) {
+      return null;
+    }
+  }
+
   static Future<List<MixSong>> matchMusic({required List<String> sites, required String? name, required String? artist}) async {
     var value = await Future.wait(sites.map((e) => _searchMusic(site: e, name: name, artist: artist)));
 
@@ -113,9 +120,6 @@ class ApiFactory {
         })
         .where((element) => element != null)
         .toList();
-    // datas.forEach((element) {
-    //   print("${element?.site} ==> ${element?.title} ${element?.subTitle}");
-    // });
 
     try {
       var urls = (await Future.wait(datas.map((e) {
@@ -125,6 +129,18 @@ class ApiFactory {
           .toList();
 
       return urls;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  static Future<List<MixPlaylist?>> parsePlayList({required List<String> sites, required String? url}) async {
+    var value = await Future.wait(sites.map((e) => _parsePlayList(site: e, url: url)));
+
+    var datas = value.where((element) => element != null).toList();
+
+    try {
+      return datas;
     } catch (e) {
       return [];
     }

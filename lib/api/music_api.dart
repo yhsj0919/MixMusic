@@ -27,6 +27,9 @@ abstract class MusicApi {
   ///获取歌单详情
   Future<AppRespEntity<MixPlaylist>> playListInfo({required MixPlaylist playlist, required int page, required int size});
 
+  ///解析歌单
+  Future<AppRespEntity<MixPlaylist>> parsePlayList({required String? url});
+
   ///搜索歌曲
   Future<AppRespEntity<List<MixSong>>> searchSong({required String keyword, required int page, required int size});
 

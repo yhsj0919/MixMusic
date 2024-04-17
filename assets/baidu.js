@@ -5,7 +5,7 @@
 // @author       yhsj
 // @icon         https://music.taihe.com/favicon.ico
 // @webSite      https://music.taihe.com
-// @method       ["searchMusic","playUrl","playListRec","albumRec","songRec","playList","playListType","playListInfo","rankList","rankInfo","artistList","artistType","artistInfo","artistSong","artistAlbum"]
+// @method       ["searchMusic","playUrl","playListRec","albumRec","songRec","playList","playListType","playListInfo","rankList","rankInfo","artistList","artistType","artistInfo","artistSong","artistAlbum","parsePlayList"]
 // ==/PluginsInfo==
 
 
@@ -387,6 +387,7 @@ function playListInfo(playlist, page = 0, size = 20) {
         const newPlaylist = {
             site: 'baidu',
             id: result['id'],
+            pic: `${result["pic"]}@w_200,h_200`,
             title: result['title'],
             subTitle: result['desc'],
             desc: result['desc'],
@@ -1267,6 +1268,81 @@ function songRec() {
             code: 200,
             msg: '操作成功',
             data: newArray
+        };
+        return JSON.stringify(resp);
+    });
+}
+
+// 歌单详情
+function parsePlayList(url) {
+    console.log(url)
+    if (!url.toString().includes("music.91q.com") && !url.toString().includes("music.taihe.com")) {
+        return JSON.stringify({code: 500, msg: "暂不支持此链接"});
+    }
+    console.log(url)
+
+    var id
+
+    let pattern = /[/][\d]+[?]*/g;
+    // 使用正则表达式的 exec() 方法来执行匹配
+    let matches = url.toString().match(pattern);
+
+    if (matches !== null) {
+        id = matches[0].slice(1, -1)
+    }
+
+    console.log(url)
+    console.log(id)
+    //
+    // 定义查询参数
+    const params = {
+        id: id,
+        pageNo: 1,
+        pageSize: 10,
+        timestamp: Date.now(),
+        appid: 16073360
+    };
+
+    params['sign'] = paramsSign(params);
+
+    return axios.get('https://api-qianqian.taihe.com/v1/tracklist/info', {
+        params
+    }, {
+        headers: headers
+    }).then(function (data) {
+
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
+        } else {
+            respData = data.data
+        }
+
+        if (respData["errno"] !== 22000) {
+            const resp = {
+                code: 500,
+                msg: data["errmsg"],
+                data: null
+            };
+            return JSON.stringify(resp);
+        }
+
+        const result = respData["data"]
+        const newPlaylist = {
+            site: 'baidu',
+            id: result['id'],
+            pic: `${result["pic"]}@w_200,h_200`,
+            title: result['title'],
+            subTitle: result['desc'],
+            desc: result['desc'],
+            songCount: result['trackCount'],
+        }
+
+        const resp = {
+            code: 200,
+            msg: '操作成功',
+            data: newPlaylist,
         };
         return JSON.stringify(resp);
     });

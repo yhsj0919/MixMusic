@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/page/app_main/app_main_page.dart';
@@ -23,6 +24,8 @@ Future<void> main() async {
   await Sp.init();
   await Player.init();
   initializeJsonMapper();
+  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
   runApp(const MyApp());
 }
 

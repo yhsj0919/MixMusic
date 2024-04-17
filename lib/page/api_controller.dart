@@ -25,6 +25,7 @@ class ApiController extends GetxController {
   RxList<PluginsInfo> rankPlugins = RxList();
   RxList<PluginsInfo> artistPlugins = RxList();
   RxList<PluginsInfo> recPlugins = RxList();
+  RxList<PluginsInfo> parsePlugins = RxList();
   var pluginRoot = "";
 
   @override
@@ -81,6 +82,7 @@ class ApiController extends GetxController {
     rankPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("rankList") == true));
     artistPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("artistList") == true));
     recPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("playListRec") == true));
+    parsePlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("parsePlayList") == true));
   }
 
   ///搜索音乐
@@ -121,6 +123,11 @@ class ApiController extends GetxController {
   ///歌单
   Future<AppRespEntity<List<MixPlaylist>>> playList({required String site, String? type, int page = 0, int size = 20}) async {
     return ApiFactory.api(site: site)!.playList(type: type, page: page, size: size);
+  }
+
+  ///歌单
+  Future<List<MixPlaylist?>> parsePlayList({required List<String> sites, String? url}) async {
+    return ApiFactory.parsePlayList(sites: sites, url: url);
   }
 
   ///歌单详情

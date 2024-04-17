@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage> {
                     child: InkWell(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.amberAccent,
+                          color: Colors.amberAccent.withOpacity(0.4),
                           borderRadius: BorderRadius.circular(20.0),
                         ),
                         width: 140,
@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage> {
                     child: InkWell(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.blue,
+                          color: Colors.blue.withOpacity(0.4),
                           borderRadius: BorderRadius.circular(20.0),
                         ),
                         width: 140,
@@ -97,6 +97,24 @@ class _HomePageState extends State<HomePage> {
                       ),
                       onTap: () {
                         Get.toNamed(Routes.artist, id: Routes.key);
+                      },
+                    ),
+                  ),
+                  DropShadow(
+                    blurRadius: 6,
+                    child: InkWell(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.pinkAccent.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        width: 140,
+                        height: 80,
+                        alignment: Alignment.center,
+                        child: const Text("导入歌单"),
+                      ),
+                      onTap: () {
+                        Get.toNamed(Routes.parsePlayList, id: Routes.key);
                       },
                     ),
                   ),

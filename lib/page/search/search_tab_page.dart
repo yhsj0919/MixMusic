@@ -107,11 +107,10 @@ class _SearchTabPageState extends State<SearchTabPage> with AutomaticKeepAliveCl
       }
       refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success, true);
 
-      if (pageEntity.value != null) {
-        songList.addAll(value.data ?? []);
-      }
+      songList.addAll(value.data ?? []);
       // showComplete("操作成功");
     }).catchError((e) {
+      print(e);
       if (page == 0) {
         refreshController.finishRefresh(IndicatorResult.fail, true);
       } else {

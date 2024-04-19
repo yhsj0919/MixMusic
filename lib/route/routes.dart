@@ -18,6 +18,7 @@ import 'package:mix_music/page/plugins/plugins_page.dart';
 import 'package:mix_music/page/rank/rank_detail_page.dart';
 import 'package:mix_music/page/rank/rank_page.dart';
 import 'package:mix_music/page/search/search_page.dart';
+import 'package:mix_music/page/setting/home_site_page.dart';
 
 import '../entity/mix_play_list.dart';
 import '../page/artist/artist_detail_page.dart';
@@ -40,6 +41,7 @@ class Routes {
   static const String playList = "/playList";
   static const String playListDetail = "/playlistDetail";
   static const String matchSite = "/matchSite";
+  static const String homeSite = "/homeSite";
   static const String album = "/album";
   static const String albumDetail = "/albumDetail";
 
@@ -55,6 +57,7 @@ class Routes {
     GetPage(name: permission, page: () => const PermissionPage()),
     GetPage(name: plugins, page: () => const PluginsPage()),
     GetPage(name: matchSite, page: () => const MatchSitePage()),
+    GetPage(name: homeSite, page: () => const HomeSitePage()),
   ];
 
   static Route<dynamic> getRoute(RouteSettings settings) {

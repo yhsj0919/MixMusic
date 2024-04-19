@@ -30,9 +30,8 @@ function searchMusic(key, page = 0, size = 20) {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/search', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
         let respData;
 
@@ -107,9 +106,8 @@ function playUrl(song) {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/song/tracklink', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(async function (data) {
 
         let respData;
@@ -160,9 +158,8 @@ function playListType() {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/tracklist/category', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;
@@ -218,9 +215,8 @@ function playListRec() {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/index', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;
@@ -285,9 +281,8 @@ function playList(type, page = 0, size = 20) {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/tracklist/list', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;
@@ -359,9 +354,8 @@ function playListInfo(playlist, page = 0, size = 20) {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/tracklist/info', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;
@@ -459,9 +453,8 @@ function albumRec() {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/index', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;
@@ -528,9 +521,8 @@ function albumList(type, page = 0, size = 20) {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/album/list', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;
@@ -604,9 +596,8 @@ function albumInfo(album, page = 0, size = 20) {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/album/info', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;
@@ -691,9 +682,8 @@ function rankList() {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/bd/category', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
         let respData;
 
@@ -755,9 +745,8 @@ function rankInfo(rank, page = 0, size = 20) {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/bd/list', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;
@@ -977,9 +966,8 @@ function artistInfo(artist, page = 0, size = 20) {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/tracklist/info', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;
@@ -1071,9 +1059,8 @@ function artistSong(artist, page = 0, size = 20) {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/artist/song', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;
@@ -1146,9 +1133,8 @@ function artistAlbum(artist, page = 0, size = 20) {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/artist/album', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;
@@ -1215,9 +1201,8 @@ function songRec() {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/index', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;
@@ -1306,9 +1291,8 @@ function parsePlayList(url) {
     params['sign'] = paramsSign(params);
 
     return axios.get('https://api-qianqian.taihe.com/v1/tracklist/info', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         let respData;

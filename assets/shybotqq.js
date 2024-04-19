@@ -24,9 +24,8 @@ function searchMusic(key, page = 0, size = 20) {
     };
 
     return axios.get('https://shybot.top/api', {
-        params
-    }, {
-        headers: headers
+        headers: headers,
+        params: params
     }).then(function (data) {
 
         const result = data["data"]

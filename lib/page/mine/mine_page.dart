@@ -62,6 +62,14 @@ class _MinePageState extends State<MinePage> {
               Get.toNamed(Routes.matchSite);
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.home_work_rounded),
+            title: const Text("首页展示"),
+            subtitle: const Text("配置首页显示的数据"),
+            onTap: () {
+              Get.toNamed(Routes.homeSite);
+            },
+          ),
         ],
       ),
     );

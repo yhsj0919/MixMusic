@@ -1,12 +1,11 @@
 import 'package:drop_shadow/drop_shadow.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/route/routes.dart';
-import 'package:mix_music/widgets/BlurRectWidget.dart';
+import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/ext.dart';
 
@@ -28,9 +27,13 @@ class _HomePageState extends State<HomePage> {
   RxList<MixAlbum> albumList = RxList();
   RxList<MixSong> songList = RxList();
 
+  RxnString homeSite = RxnString();
+
   @override
   void initState() {
     super.initState();
+    homeSite.value = Sp.getString(Sp.KEY_HOME_SITE) ?? api.recPlugins.firstOrNull?.site;
+
     getPlayListRec();
     getAlbumRec();
     getSongRec();
@@ -298,7 +301,7 @@ class _HomePageState extends State<HomePage> {
 
   ///获取歌单
   Future<void> getPlayListRec() {
-    return api.playListRec(site: api.recPlugins.firstOrNull?.site ?? "").then((value) {
+    return api.playListRec(site: homeSite.value ?? "").then((value) {
       playlist.clear();
       playlist.addAll(value?.data ?? []);
 
@@ -310,7 +313,7 @@ class _HomePageState extends State<HomePage> {
 
   ///获取专辑
   Future<void> getAlbumRec() {
-    return api.albumRec(site: api.recPlugins.firstOrNull?.site ?? "").then((value) {
+    return api.albumRec(site: homeSite.value ?? "").then((value) {
       albumList.clear();
       albumList.addAll(value?.data ?? []);
 
@@ -322,7 +325,7 @@ class _HomePageState extends State<HomePage> {
 
   ///获取新歌
   Future<void> getSongRec() {
-    return api.songRec(site: api.recPlugins.firstOrNull?.site ?? "").then((value) {
+    return api.songRec(site: homeSite.value ?? "").then((value) {
       songList.clear();
       songList.addAll(value?.data ?? []);
 

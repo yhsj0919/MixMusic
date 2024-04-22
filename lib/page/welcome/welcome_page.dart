@@ -2,11 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/page/home/home_page.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/sp.dart';
 
-import '../../player/music_controller.dart';
-import '../app_main/app_controller.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -16,7 +15,6 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
-
   ///声明变量
   Timer? _timer;
 
@@ -44,7 +42,7 @@ class _WelcomePageState extends State<WelcomePage> {
         if (firstIn) {
           Get.offAndToNamed(Routes.permission);
         } else {
-          Get.offAndToNamed(Routes.main);
+          Get.off(const HomePage());
         }
       }
       setState(() {});

@@ -16,9 +16,7 @@ import '../../widgets/page_list_view.dart';
 import '../api_controller.dart';
 
 class RankDetailPage extends StatefulWidget {
-  RankDetailPage({super.key, required this.rank});
-
-  MixRank? rank;
+  const RankDetailPage({super.key});
 
   @override
   State<RankDetailPage> createState() => _RankDetailPageState();
@@ -35,7 +33,7 @@ class _RankDetailPageState extends State<RankDetailPage> {
   @override
   void initState() {
     super.initState();
-    rank.value = widget.rank;
+    rank.value = Get.arguments;
     refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
     getRankInfo();
   }

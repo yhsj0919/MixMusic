@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:mix_music/page/api_controller.dart';
 import 'package:mix_music/page/playlist/playlist_tab_page.dart';
 
+import 'package:mix_music/page/app_playing/play_bar.dart';
+
 class PlayListPage extends StatefulWidget {
   const PlayListPage({super.key});
 
@@ -31,6 +33,7 @@ class _PlayListPageState extends State<PlayListPage> with TickerProviderStateMix
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight + bottomBarHeight;
 
     return Scaffold(
+      floatingActionButton: PlayBar(),
       body: Obx(
         () => ExtendedNestedScrollView(
           headerSliverBuilder: (BuildContext c, bool f) {

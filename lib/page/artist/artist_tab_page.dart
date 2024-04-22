@@ -13,7 +13,6 @@ import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/message.dart';
 
 import '../../widgets/page_list_view.dart';
-import '../app_main/app_controller.dart';
 
 class ArtistTabPage extends StatefulWidget {
   const ArtistTabPage({super.key, required this.plugin, required this.controller});
@@ -28,7 +27,6 @@ class ArtistTabPage extends StatefulWidget {
 class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveClientMixin {
   late EasyRefreshController refreshController;
   ApiController api = Get.put(ApiController());
-  var app = Get.put(AppController());
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixArtist> artistList = RxList();
   RxList<MixArtistType> artistType = RxList();
@@ -64,7 +62,7 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
             title: Text("${item.name}", maxLines: 1),
             subtitle: Text("", maxLines: 1),
             onTap: () {
-              Get.toNamed(Routes.artistDetail, arguments: item, id: Routes.key);
+              Get.toNamed(Routes.artistDetail, arguments: item);
             },
           );
         },
@@ -110,7 +108,6 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
     if (artistType.isEmpty) {
       getPlayListType();
     }
-    app.showPlayBar.value = false;
     showModalBottomSheet(
         context: context,
         elevation: 0,
@@ -138,7 +135,6 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
                 },
               ));
         }).then((value) {
-      app.showPlayBar.value = true;
     });
   }
 

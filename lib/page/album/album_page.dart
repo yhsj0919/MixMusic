@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/page/album/album_tab_page.dart';
 import 'package:mix_music/page/api_controller.dart';
+import 'package:mix_music/page/app_playing/play_bar.dart';
 
 class AlbumPage extends StatefulWidget {
   const AlbumPage({super.key});
@@ -30,6 +31,7 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight + bottomBarHeight;
 
     return Scaffold(
+      floatingActionButton: PlayBar(),
       body: Obx(
         () => ExtendedNestedScrollView(
           headerSliverBuilder: (BuildContext c, bool f) {

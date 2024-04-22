@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/page/app_main/app_controller.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/widgets/app_image.dart';
 
 class AppPlayListPage extends StatelessWidget {
-  AppPlayListPage({super.key, required this.inPanel, this.scrollController});
+  AppPlayListPage({super.key, this.scrollController});
 
-  bool inPanel;
+
   ScrollController? scrollController;
 
   MusicController music = Get.put(MusicController());
-  AppController app = Get.put(AppController());
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +37,7 @@ class AppPlayListPage extends StatelessWidget {
               () => ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 0),
                 shrinkWrap: true,
-                controller: inPanel ? app.panelScrollController : scrollController,
+                controller:  scrollController,
                 itemCount: music.musicList.length,
                 itemBuilder: (BuildContext context, int index) {
                   var song = music.musicList[index];

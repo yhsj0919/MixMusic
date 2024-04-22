@@ -1,77 +1,109 @@
 // ==PluginsInfo==
-// @name         千千音乐
-// @site         baidu
-// @version      0.0.2
+// @name         QQ音乐
+// @site         qq
+// @version      0.0.1
 // @author       yhsj
-// @icon         https://music.taihe.com/favicon.ico
-// @webSite      https://music.taihe.com
-// @method       ["searchMusic","playUrl","playListRec","albumRec","songRec","playList","playListType","playListInfo","rankList","rankInfo","artistList","artistType","artistInfo","artistSong","artistAlbum","parsePlayList"]
+// @icon         https://y.qq.com/favicon.ico
+// @webSite      https://y.qq.com
+// @method       ["searchMusic","playUrl"]
 // ==/PluginsInfo==
 
-
+// ,"playListRec","albumRec","songRec","playList","playListType","playListInfo","rankList","rankInfo","artistList","artistType","artistInfo","artistSong","artistAlbum",parsePlayList"
 const headers = {
-    "app-version": "v8.3.0.4",
-    "from": "android",
-    "user-agent": "Mozilla/5.0 (Linux; U; Android 11.0.0; zh-cn; MI Build/OPR1.170623.032) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0",
+    "Cookie": ""
 }
 
+let _uid = ''
+
+function getUid() {
+    if (_uid) {
+        return _uid
+    }
+    if (!_uid) {
+        const t = (new Date()).getUTCMilliseconds()
+        _uid = '' + Math.round(2147483647 * Math.random()) * t % 1e10
+    }
+    return _uid
+}
+
+
 //搜索音乐
-function searchMusic(key, page = 0, size = 20) {
+async function searchMusic(key, page = 0, size = 20) {
     // 定义查询参数
     const params = {
-        pageNo: parseInt(page) + 1,
-        pageSize: size,
-        timestamp: Date.now(),
-        type: 1,
-        word: key,
-        appid: 16073360,
-    };
+        data: JSON.stringify({
+            comm: {
+                format: "json",
+                inCharset: "utf-8",
+                outCharset: "utf-8",
+                needNewCode: 1,
+                ct: 23,
+                cv: 0
+            },
+            req: {
+                method: "DoSearchForQQMusicDesktop",
+                module: "music.search.SearchCgiService",
+                param: {
+                    searchid: `${Math.floor(Math.random() * 10000000000000000)}`,
+                    search_type: 0,
+                    query: key,
+                    page_num: parseInt(page) + 1,
+                    num_per_page: size
+                }
+            }
+        })
+    }
 
-    params['sign'] = paramsSign(params);
-
-    return axios.get('https://api-qianqian.taihe.com/v1/search', {
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
-        params: params
+        params: params,
     }).then(function (data) {
-        let respData;
 
+        let respData;
         if (typeof data.data === 'string') {
             respData = JSON.parse(data.data)
         } else {
             respData = data.data
         }
-
-        if (respData["errno"] !== 22000) {
+        if (respData["code"] !== 0) {
             const resp = {
                 code: 500,
-                msg: data["errmsg"],
+                msg: '请求失败',
                 data: null
             };
             return JSON.stringify(resp);
         }
 
-        const result = respData["data"]
 
-        const newArray = result["typeTrack"].map(function (element) {
+        const newArray = respData["req"]["data"]["body"]["song"]["list"].map(function (element) {
             return {
-                site: 'baidu',
-                id: element['assetId'],
-                pic: `${element["pic"]}@w_400,h_400`,
-                title: element['title'],
-                subTitle: element["artist"].map(function (ar) {
+                site: 'qq',
+                id: {
+                    id: element["id"],
+                    mid: element["mid"],
+                    mediaId: element["file"]["media_mid"]
+                },
+                pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
+                title: element['name'],
+                subTitle: element["singer"].map(function (ar) {
                     return ar["name"]
                 }).join(","),
-                vip: element["isVip"],
-                artist: element["artist"].map(function (ar) {
-                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                vip: element["pay"]["pay_play"],
+                artist: element["singer"].map(function (ar) {
+                    return {
+                        site: "qq",
+                        id: ar["mid"],
+                        name: ar["name"],
+                        pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
+                    }
                 }),
                 album: {
-                    site: "baidu",
-                    id: element["albumAssetCode"],
-                    title: element["albumTitle"],
-                    pic: `${element["pic"]}@w_400,h_400`,
+                    site: "qq",
+                    id: element["album"]["mid"],
+                    title: element["album"]["title"],
+                    pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                 },
-                lyric: element["lyric"],
             };
         });
         const resp = {
@@ -79,13 +111,13 @@ function searchMusic(key, page = 0, size = 20) {
             msg: '操作成功',
             data: newArray,
             page: {
-                first: page === 0,
-                last: result["haveMore"] !== 1,
-                page: parseInt(page) + 1,
-                size: parseInt(size),
+                first: parseInt(page) === 0,
+                last: respData["req"]["data"]["meta"]["nextpage"] === -1,
+                page: respData["req"]["data"]["meta"]["curpage"],
+                size: respData["req"]["data"]["meta"]["perpage"],
                 number: newArray.length,
-                totalPages: Math.floor(result["total"] / parseInt(size)),
-                totalSize: result["total"]
+                totalPages: Math.floor(respData["req"]["data"]["meta"]["sum"] / respData["req"]["data"]["meta"]["perpage"]),
+                totalSize: respData["req"]["data"]["meta"]["sum"]
             }
         };
         return JSON.stringify(resp);
@@ -93,19 +125,53 @@ function searchMusic(key, page = 0, size = 20) {
 }
 
 //获取播放地址
-function playUrl(song) {
+async function playUrl(song) {
     var mySong = JSON.parse(song)
+
+
+    try {
+        const lrcParams = {
+            nobase64: 1,
+            format: 'json',
+            songmid: mySong["id"]["mid"],
+        }
+        console.log(JSON.stringify(lrcParams))
+        const response = await axios.get("https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg", {
+            headers: {Referer: 'https://y.qq.com/'},
+            params: lrcParams
+        });
+        mySong["lyric"] = response.data["lyric"];
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+
     // 定义查询参数
     const params = {
-        TSID: mySong["id"],
-        timestamp: Date.now(),
-        appid: 16073360,
-        rate: mySong['rate'] ?? 64,
-    };
+        data: JSON.stringify({
+            comm: {
+                format: "json",
+                ct: 24,
+                cv: 0,
+                uin: "0",
+            },
+            req: {
+                method: "CgiGetVkey",
+                module: "vkey.GetVkeyServer",
+                param: {
+                    guid: getUid(),
+                    songmid: [`${mySong["id"]["mid"]}`],
+                    songtype: [0],
+                    uin: "0",
+                    loginflag: 1,
+                    platform: "20",
+                }
+            }
+        })
+    }
+    console.log(params)
 
-    params['sign'] = paramsSign(params);
-
-    return axios.get('https://api-qianqian.taihe.com/v1/song/tracklink', {
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
         params: params
     }).then(async function (data) {
@@ -118,26 +184,28 @@ function playUrl(song) {
             respData = data.data
         }
 
-        if (respData["errno"] !== 22000) {
+        if (respData["code"] !== 0) {
             const resp = {
                 code: 500,
-                msg: respData["errmsg"],
+                msg: '请求失败',
                 data: null
             };
             return JSON.stringify(resp);
         }
+
+        console.log(JSON.stringify(respData))
+
         try {
-            const path = respData["data"]["lyric"];
-            if (path != null && path !== "") {
-                const response = await axios.get(path);
-                mySong["lyric"] = response.data;
+            const urls = respData["req"]["data"]["midurlinfo"].filter(item => item["purl"] !== "");
+            const sip = respData["req"]["data"]["sip"]
+            if (urls.length !== 0 && sip.length !== 0) {
+                const url = `${sip[0]}${urls[0]["purl"]}`
+                mySong["url"] = url;
             }
+
         } catch (error) {
             console.error('Error:', error);
         }
-        mySong["url"] = respData["data"]["path"]
-
-
         const resp = {
             code: 200,
             msg: '操作成功',
@@ -246,7 +314,7 @@ function playListRec() {
             return {
                 site: 'baidu',
                 id: element['id'],
-                pic: `${element["pic"]}@w_400,h_400`,
+                pic: `${element["pic"]}@w_200,h_200`,
                 title: element['title'],
                 subTitle: element['desc'],
                 desc: element['desc'],
@@ -310,7 +378,7 @@ function playList(type, page = 0, size = 20) {
             return {
                 site: 'baidu',
                 id: element['id'],
-                pic: `${element["pic"]}@w_400,h_400`,
+                pic: `${element["pic"]}@w_200,h_200`,
                 title: element['title'],
                 subTitle: element['desc'],
                 desc: element['desc'],
@@ -381,7 +449,7 @@ function playListInfo(playlist, page = 0, size = 20) {
         const newPlaylist = {
             site: 'baidu',
             id: result['id'],
-            pic: `${result["pic"]}@w_400,h_400`,
+            pic: `${result["pic"]}@w_200,h_200`,
             title: result['title'],
             subTitle: result['desc'],
             desc: result['desc'],
@@ -393,7 +461,7 @@ function playListInfo(playlist, page = 0, size = 20) {
             return {
                 site: 'baidu',
                 id: element['assetId'],
-                pic: `${element["pic"]}@w_400,h_400`,
+                pic: `${element["pic"]}@w_200,h_200`,
                 title: element['title'],
                 subTitle: element["artist"].map(function (ar) {
                     return ar["name"]
@@ -406,7 +474,7 @@ function playListInfo(playlist, page = 0, size = 20) {
                     site: "baidu",
                     id: element["albumAssetCode"],
                     title: element["albumTitle"],
-                    pic: `${element["pic"]}@w_400,h_400`,
+                    pic: `${element["pic"]}@w_200,h_200`,
                 },
                 lyric: element["lyric"],
             };
@@ -484,7 +552,7 @@ function albumRec() {
             return {
                 site: 'baidu',
                 id: element['albumAssetCode'],
-                pic: `${element["pic"]}@w_400,h_400`,
+                pic: `${element["pic"]}@w_200,h_200`,
                 title: element['title'],
                 subTitle: element["artist"].map(function (ar) {
                     return ar["name"]
@@ -550,7 +618,7 @@ function albumList(type, page = 0, size = 20) {
             return {
                 site: 'baidu',
                 id: element['albumAssetCode'],
-                pic: `${element["pic"]}@w_400,h_400`,
+                pic: `${element["pic"]}@w_200,h_200`,
                 title: element['title'],
                 subTitle: element["artist"].map(function (ar) {
                     return ar["name"]
@@ -623,7 +691,7 @@ function albumInfo(album, page = 0, size = 20) {
         const newAlbum = {
             site: 'baidu',
             id: result['albumAssetCode'],
-            pic: `${result["pic"]}@w_400,h_400`,
+            pic: `${result["pic"]}@w_200,h_200`,
             title: result['title'],
             subTitle: result["artist"].map(function (ar) {
                 return ar["name"]
@@ -638,7 +706,7 @@ function albumInfo(album, page = 0, size = 20) {
             return {
                 site: 'baidu',
                 id: element['assetId'],
-                pic: `${result["pic"]}@w_400,h_400`,
+                pic: `${result["pic"]}@w_200,h_200`,
                 title: element['title'],
                 subTitle: result["artist"].map(function (ar) {
                     return ar["name"]
@@ -707,7 +775,7 @@ function rankList() {
             return {
                 site: 'baidu',
                 id: element['bdid'],
-                pic: `${element["pic"]}@w_400,h_400`,
+                pic: `${element["pic"]}@w_200,h_200`,
                 title: element['title'],
             };
         });
@@ -780,7 +848,7 @@ function rankInfo(rank, page = 0, size = 20) {
             return {
                 site: 'baidu',
                 id: element['assetId'],
-                pic: `${element["pic"]}@w_400,h_400`,
+                pic: `${element["pic"]}@w_200,h_200`,
                 title: element['title'],
                 subTitle: element["artist"].map(function (ar) {
                     return ar["name"]
@@ -1004,7 +1072,7 @@ function artistInfo(artist, page = 0, size = 20) {
             return {
                 site: 'baidu',
                 id: element['assetId'],
-                pic: `${element["pic"]}@w_400,h_400`,
+                pic: `${element["pic"]}@w_200,h_200`,
                 title: element['title'],
                 subTitle: element["artist"].map(function (ar) {
                     return ar["name"]
@@ -1017,7 +1085,7 @@ function artistInfo(artist, page = 0, size = 20) {
                     site: "baidu",
                     id: element["albumAssetCode"],
                     title: element["albumTitle"],
-                    pic: `${element["pic"]}@w_400,h_400`,
+                    pic: `${element["pic"]}@w_200,h_200`,
                 },
                 lyric: element["lyric"],
             };
@@ -1086,7 +1154,7 @@ function artistSong(artist, page = 0, size = 20) {
             return {
                 site: 'baidu',
                 id: element['assetId'],
-                pic: `${element["pic"]}@w_400,h_400`,
+                pic: `${element["pic"]}@w_200,h_200`,
                 title: element['title'],
                 subTitle: element["artist"].map(function (ar) {
                     return ar["name"]
@@ -1159,7 +1227,7 @@ function artistAlbum(artist, page = 0, size = 20) {
             return {
                 site: 'baidu',
                 id: element['albumAssetCode'],
-                pic: `${element["pic"]}@w_400,h_400`,
+                pic: `${element["pic"]}@w_200,h_200`,
                 title: element['title'],
                 subTitle: element["artist"].map(function (ar) {
                     return ar["name"]
@@ -1231,7 +1299,7 @@ function songRec() {
             return {
                 site: 'baidu',
                 id: element['assetId'],
-                pic: `${element["pic"]}@w_400,h_400`,
+                pic: `${element["pic"]}@w_200,h_200`,
                 title: element['title'],
                 subTitle: element["artist"].map(function (ar) {
                     return ar["name"]
@@ -1244,7 +1312,7 @@ function songRec() {
                     site: "baidu",
                     id: element["albumAssetCode"],
                     title: element["albumTitle"],
-                    pic: `${element["pic"]}@w_400,h_400`,
+                    pic: `${element["pic"]}@w_200,h_200`,
                 },
                 lyric: element["lyric"],
             };
@@ -1316,7 +1384,7 @@ function parsePlayList(url) {
         const newPlaylist = {
             site: 'baidu',
             id: result['id'],
-            pic: `${result["pic"]}@w_400,h_400`,
+            pic: `${result["pic"]}@w_200,h_200`,
             title: result['title'],
             subTitle: result['desc'],
             desc: result['desc'],

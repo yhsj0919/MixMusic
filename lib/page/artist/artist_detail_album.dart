@@ -13,7 +13,6 @@ import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/message.dart';
 
 import '../../widgets/page_list_view.dart';
-import '../app_main/app_controller.dart';
 
 class ArtistDetailAlbum extends StatefulWidget {
   const ArtistDetailAlbum({super.key, required this.artist});
@@ -27,7 +26,6 @@ class ArtistDetailAlbum extends StatefulWidget {
 class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> with AutomaticKeepAliveClientMixin {
   late EasyRefreshController refreshController;
   ApiController api = Get.put(ApiController());
-  var app = Get.put(AppController());
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixAlbum> albumList = RxList();
 
@@ -60,7 +58,7 @@ class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> with AutomaticKee
             title: Text("${item.title}", maxLines: 1),
             subtitle: Text("${item.subTitle}", maxLines: 1),
             onTap: () {
-              Get.toNamed(Routes.albumDetail, arguments: item, id: Routes.key);
+              Get.toNamed(Routes.albumDetail, arguments: item);
             },
           );
         },

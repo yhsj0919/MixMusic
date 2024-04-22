@@ -13,7 +13,6 @@ import 'package:mix_music/widgets/message.dart';
 
 import '../../player/music_controller.dart';
 import '../../widgets/page_list_view.dart';
-import '../app_main/app_controller.dart';
 
 class ArtistDetailSong extends StatefulWidget {
   const ArtistDetailSong({super.key, required this.artist});
@@ -28,7 +27,6 @@ class _ArtistDetailSongState extends State<ArtistDetailSong> with AutomaticKeepA
   late EasyRefreshController refreshController;
   MusicController music = Get.put(MusicController());
   ApiController api = Get.put(ApiController());
-  var app = Get.put(AppController());
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixSong> songList = RxList();
 

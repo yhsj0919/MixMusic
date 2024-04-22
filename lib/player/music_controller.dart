@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/player/Player.dart';
+import 'package:mix_music/theme/theme_controller.dart';
 
 import '../widgets/message.dart';
 
@@ -30,6 +31,8 @@ class MusicController extends GetxController {
   //这个用于解决跳转上一首歌，结果上一首歌无法播放的问题
   bool isNext = true;
 
+  ThemeController theme = Get.put(ThemeController());
+
   @override
   void onInit() {
     super.onInit();
@@ -48,8 +51,8 @@ class MusicController extends GetxController {
     });
 
     Player.onPlayerComplete.listen((event) {
-      duration.value = null;
-      position.value = null;
+      duration.value = Duration();
+      position.value = Duration();
       // playOrPause();
       if (playMode.value == PlayMode.RepeatOne) {
         playOrPause();
@@ -63,17 +66,13 @@ class MusicController extends GetxController {
       }
     });
     Player.onDurationChanged.listen((event) {
-      if (event.inSeconds >= 0) {
-        duration.value = event;
-      } else {
-        duration.value = null;
-      }
+      duration.value = event;
     });
     Player.onPositionChanged.listen((event) {
-      if (event.inSeconds >= 0) {
-        position.value = event;
+      if (event.inMilliseconds >= (duration.value?.inMilliseconds ?? 1)) {
+        position.value = duration.value;
       } else {
-        position.value = null;
+        position.value = event;
       }
     });
 
@@ -108,6 +107,8 @@ class MusicController extends GetxController {
 
     isBuffering.value = true;
     currentMusic.value = music;
+    theme.getColorScheme(music.pic);
+
     musicIndex.value = musicList.indexWhere((element) => element.id == music.id && element.site == music.site);
     Player.stop();
     ApiFactory.playUrl(site: music.site, song: music).then((value) {

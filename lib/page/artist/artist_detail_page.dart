@@ -14,14 +14,13 @@ import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/page_list_view.dart';
 
 import '../../entity/page_entity.dart';
+import 'package:mix_music/page/app_playing/play_bar.dart';
 import '../../player/music_controller.dart';
 import '../../widgets/message.dart';
 import '../api_controller.dart';
 
 class ArtistDetailPage extends StatefulWidget {
-  ArtistDetailPage({super.key, required this.artist});
-
-  MixArtist? artist;
+  const ArtistDetailPage({super.key});
 
   @override
   State<ArtistDetailPage> createState() => _ArtistDetailPageState();
@@ -42,12 +41,12 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
   @override
   void initState() {
     super.initState();
+    artist.value = Get.arguments;
 
-    detailMethod.addAll(api.getArtistDetailMethod(widget.artist?.site));
+    detailMethod.addAll(api.getArtistDetailMethod(artist.value?.site));
 
     tabController = TabController(length: detailMethod.length, vsync: this);
 
-    artist.value = widget.artist;
     refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
     getPlayListInfo();
   }
@@ -57,6 +56,7 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight;
     return Scaffold(
+      floatingActionButton: PlayBar(),
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [

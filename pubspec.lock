@@ -369,6 +369,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.1.0"
+  dynamic_color:
+    dependency: "direct main"
+    description:
+      name: dynamic_color
+      sha256: eae98052fa6e2826bdac3dd2e921c6ce2903be15c6b7f8b6d8a5d49b5086298d
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.7.0"
   easy_refresh:
     dependency: "direct main"
     description:
@@ -516,6 +524,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.0"
+  gap:
+    dependency: "direct main"
+    description:
+      name: gap
+      sha256: f19387d4e32f849394758b91377f9153a1b41d79513ef7668c088c77dbc6955d
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.1"
   get:
     dependency: "direct main"
     description:
@@ -1009,6 +1025,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.5.4"
+  squiggly_slider:
+    dependency: "direct main"
+    description:
+      name: squiggly_slider
+      sha256: a261c56b308d8457f5033d251771d0ea1ed97d2ea4e1fcc08cb2b9141c1dc1cf
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.4"
   stack_trace:
     dependency: transitive
     description:
@@ -1194,5 +1218,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.3.0 <4.0.0"
+  dart: ">=3.3.0 <3.20.0"
   flutter: ">=3.19.0"

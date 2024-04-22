@@ -15,7 +15,6 @@ import 'package:mix_music/widgets/page_sliver_view.dart';
 import '../../entity/mix_rank.dart';
 import '../../route/routes.dart';
 import '../../widgets/app_image.dart';
-import '../app_main/app_controller.dart';
 
 class RankTabPage extends StatefulWidget {
   const RankTabPage({super.key, required this.plugin, required this.controller});
@@ -30,7 +29,6 @@ class RankTabPage extends StatefulWidget {
 class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClientMixin {
   late EasyRefreshController refreshController;
   ApiController api = Get.put(ApiController());
-  var app = Get.put(AppController());
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixRankType> rankTypeList = RxList();
   String? currentType;
@@ -89,7 +87,7 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
                       child: AppImage(url: e.pic ?? ""),
                     ),
                     onTap: () {
-                      Get.toNamed(Routes.rankDetail, arguments: e, id: Routes.key);
+                      Get.toNamed(Routes.rankDetail, arguments: e);
                     },
                   ),
                 )

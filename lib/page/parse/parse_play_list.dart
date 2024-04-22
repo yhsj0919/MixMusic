@@ -5,6 +5,7 @@ import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/message.dart';
 
 import '../../entity/mix_play_list.dart';
+import 'package:mix_music/page/app_playing/play_bar.dart';
 import '../../route/routes.dart';
 import '../../widgets/sliver_search_appbar.dart';
 import '../api_controller.dart';
@@ -29,6 +30,7 @@ class _ParsePlayListState extends State<ParsePlayList> {
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight + bottomBarHeight;
 
     return Scaffold(
+      floatingActionButton: PlayBar(),
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [
@@ -88,7 +90,7 @@ class _ParsePlayListState extends State<ParsePlayList> {
                       subtitle: Text("${item.subTitle}", maxLines: 1),
                       trailing: Text("${item.site}", maxLines: 1),
                       onTap: () {
-                        Get.toNamed(Routes.playListDetail, arguments: item, id: Routes.key);
+                        Get.toNamed(Routes.playListDetail, arguments: item);
                       },
                     );
                   },

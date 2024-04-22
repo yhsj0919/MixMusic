@@ -2,8 +2,8 @@ import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/page/api_controller.dart';
-import 'package:mix_music/page/playlist/playlist_tab_page.dart';
 
+import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'artist_tab_page.dart';
 
 class ArtistPage extends StatefulWidget {
@@ -33,6 +33,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight + bottomBarHeight;
 
     return Scaffold(
+      floatingActionButton: PlayBar(),
       body: Obx(
         () => ExtendedNestedScrollView(
           headerSliverBuilder: (BuildContext c, bool f) {

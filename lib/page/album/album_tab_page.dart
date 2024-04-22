@@ -13,7 +13,6 @@ import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/message.dart';
 
 import '../../widgets/page_list_view.dart';
-import '../app_main/app_controller.dart';
 
 class AlbumTabPage extends StatefulWidget {
   const AlbumTabPage({super.key, required this.plugin, required this.controller});
@@ -28,7 +27,6 @@ class AlbumTabPage extends StatefulWidget {
 class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClientMixin {
   late EasyRefreshController refreshController;
   ApiController api = Get.put(ApiController());
-  var app = Get.put(AppController());
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixAlbum> albumList = RxList();
   RxList<MixAlbumType> albumType = RxList();
@@ -62,12 +60,11 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
         itemBuilder: (BuildContext context, int index) {
           var item = albumList[index];
           return ListTile(
-
             leading: AppImage(url: item.pic ?? ""),
             title: Text("${item.title}", maxLines: 1),
             subtitle: Text("${item.subTitle}", maxLines: 1),
             onTap: () {
-              Get.toNamed(Routes.albumDetail, arguments: item, id: Routes.key);
+              Get.toNamed(Routes.albumDetail, arguments: item);
             },
           );
         },
@@ -120,7 +117,6 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
       showInfo("暂无分类");
       return;
     }
-    app.showPlayBar.value = false;
     showModalBottomSheet(
         context: context,
         elevation: 0,
@@ -147,9 +143,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
                   return buildItem(albumType[index]);
                 },
               ));
-        }).then((value) {
-      app.showPlayBar.value = true;
-    });
+        }).then((value) {});
   }
 
   Widget buildItem(MixAlbumType type) {

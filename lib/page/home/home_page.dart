@@ -12,6 +12,7 @@ import 'package:mix_music/widgets/ext.dart';
 import '../../entity/mix_play_list.dart';
 import '../../widgets/message.dart';
 import '../api_controller.dart';
+import '../app_playing/play_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -42,6 +43,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: PlayBar(),
       appBar: AppBar(
         leadingWidth: 0,
         leading: Container(width: 0),
@@ -49,9 +51,14 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
               onPressed: () async {
-                Get.toNamed(Routes.search, id: Routes.key);
+                Get.toNamed(Routes.search);
               },
               icon: const Icon(Icons.search)),
+          IconButton(
+              onPressed: () async {
+                Get.toNamed(Routes.mine);
+              },
+              icon: const Icon(Icons.person)),
         ],
       ),
       body: SingleChildScrollView(
@@ -61,66 +68,30 @@ class _HomePageState extends State<HomePage> {
           children: [
             Container(
               alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Wrap(
                 alignment: WrapAlignment.start,
-                // spacing: 8,
-                // runSpacing: 8,
+                spacing: 8,
+                runSpacing: 8,
                 children: [
-                  DropShadow(
-                    blurRadius: 6,
-                    child: InkWell(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.amberAccent.withOpacity(0.4),
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        width: 140,
-                        height: 80,
-                        alignment: Alignment.center,
-                        child: const Text("排行榜"),
-                      ),
-                      onTap: () {
-                        Get.toNamed(Routes.rank, id: Routes.key);
+                  ElevatedButton.icon(
+                      onPressed: () {
+                        Get.toNamed(Routes.rank);
                       },
-                    ),
-                  ),
-                  DropShadow(
-                    blurRadius: 6,
-                    child: InkWell(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.4),
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        width: 140,
-                        height: 80,
-                        alignment: Alignment.center,
-                        child: const Text("歌手"),
-                      ),
-                      onTap: () {
-                        Get.toNamed(Routes.artist, id: Routes.key);
+                      icon: const Icon(Icons.align_vertical_top_rounded),
+                      label: Text("排行")),
+                  ElevatedButton.icon(
+                      onPressed: () {
+                        Get.toNamed(Routes.artist);
                       },
-                    ),
-                  ),
-                  DropShadow(
-                    blurRadius: 6,
-                    child: InkWell(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.pinkAccent.withOpacity(0.4),
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        width: 140,
-                        height: 80,
-                        alignment: Alignment.center,
-                        child: const Text("导入歌单"),
-                      ),
-                      onTap: () {
-                        Get.toNamed(Routes.parsePlayList, id: Routes.key);
+                      icon: const Icon(Icons.group_rounded),
+                      label: Text("歌手")),
+                  ElevatedButton.icon(
+                      onPressed: () {
+                        Get.toNamed(Routes.parsePlayList);
                       },
-                    ),
-                  ),
+                      icon: const Icon(Icons.import_contacts),
+                      label: Text("导入")),
                 ],
               ),
             ),
@@ -151,7 +122,7 @@ class _HomePageState extends State<HomePage> {
               contentPadding: const EdgeInsets.only(left: 16),
               trailing: IconButton(
                 onPressed: () {
-                  Get.toNamed(Routes.playList, id: Routes.key);
+                  Get.toNamed(Routes.playList);
                 },
                 icon: Icon(
                   Icons.keyboard_arrow_right_outlined,
@@ -189,7 +160,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       onTap: () {
-                        Get.toNamed(Routes.playListDetail, arguments: item, id: Routes.key);
+                        Get.toNamed(Routes.playListDetail, arguments: item);
                       },
                     );
                   },
@@ -202,7 +173,7 @@ class _HomePageState extends State<HomePage> {
               contentPadding: const EdgeInsets.only(left: 16),
               trailing: IconButton(
                 onPressed: () {
-                  Get.toNamed(Routes.album, id: Routes.key);
+                  Get.toNamed(Routes.album);
                 },
                 icon: Icon(
                   Icons.keyboard_arrow_right_outlined,
@@ -239,7 +210,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       onTap: () {
-                        Get.toNamed(Routes.albumDetail, arguments: item, id: Routes.key);
+                        Get.toNamed(Routes.albumDetail, arguments: item);
                       },
                     );
                   },

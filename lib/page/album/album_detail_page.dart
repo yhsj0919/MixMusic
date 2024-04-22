@@ -10,15 +10,14 @@ import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/app_image.dart';
 
 import '../../entity/page_entity.dart';
+import 'package:mix_music/page/app_playing/play_bar.dart';
 import '../../player/music_controller.dart';
 import '../../widgets/message.dart';
 import '../../widgets/page_list_view.dart';
 import '../api_controller.dart';
 
 class AlbumDetailPage extends StatefulWidget {
-  AlbumDetailPage({super.key, required this.album});
-
-  MixAlbum? album;
+ const AlbumDetailPage({super.key});
 
   @override
   State<AlbumDetailPage> createState() => _AlbumDetailPageState();
@@ -35,7 +34,7 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
   @override
   void initState() {
     super.initState();
-    album.value = widget.album;
+    album.value = Get.arguments;
     refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
     getAlbumInfo();
   }
@@ -45,6 +44,7 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight;
     return Scaffold(
+      floatingActionButton: PlayBar(),
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [

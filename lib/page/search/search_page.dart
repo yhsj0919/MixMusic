@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:mix_music/page/api_controller.dart';
 import 'package:mix_music/page/search/search_tab_page.dart';
 
+import 'package:mix_music/page/app_playing/play_bar.dart';
 import '../../widgets/sliver_search_appbar.dart';
 
 class SearchPage extends StatefulWidget {
@@ -25,6 +26,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight + bottomBarHeight;
 
     return Scaffold(
+      floatingActionButton: PlayBar(),
       body: Obx(
         () => DefaultTabController(
           length: api.searchPlugins.length,

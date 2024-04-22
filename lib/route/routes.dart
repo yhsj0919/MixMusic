@@ -1,15 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/entity/mix_album.dart';
-import 'package:mix_music/entity/mix_artist.dart';
-import 'package:mix_music/entity/mix_rank.dart';
 import 'package:mix_music/page/album/album_detail_page.dart';
 import 'package:mix_music/page/album/album_page.dart';
-import 'package:mix_music/page/app_main/app_main_page.dart';
-import 'package:mix_music/page/app_playing/app_playing_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
 import 'package:mix_music/page/artist/artist_page.dart';
 import 'package:mix_music/page/home/home_page.dart';
+import 'package:mix_music/page/mine/mine_page.dart';
 import 'package:mix_music/page/parse/parse_play_list.dart';
 import 'package:mix_music/page/permission/permission_page.dart';
 import 'package:mix_music/page/playlist/play_list_detail_page.dart';
@@ -20,7 +15,6 @@ import 'package:mix_music/page/rank/rank_page.dart';
 import 'package:mix_music/page/search/search_page.dart';
 import 'package:mix_music/page/setting/home_site_page.dart';
 
-import '../entity/mix_play_list.dart';
 import '../page/artist/artist_detail_page.dart';
 import '../page/setting/match_site_page.dart';
 import '../page/welcome/welcome_page.dart';
@@ -28,7 +22,7 @@ import '../page/welcome/welcome_page.dart';
 class Routes {
   Routes._();
 
-  static const key = 1;
+  // static const key = 1;
   static const String permission = "/permission";
   static const String plugins = "/plugins";
   static const String welcome = "/welcome";
@@ -37,6 +31,7 @@ class Routes {
   static const String appPlaying = "/appPlaying";
   static const String appPlayList = "/appPlayList";
   static const String search = "/search";
+  static const String mine = "/mine";
   static const String home = "/";
   static const String playList = "/playList";
   static const String playListDetail = "/playlistDetail";
@@ -53,47 +48,33 @@ class Routes {
 
   static List<GetPage> routes = [
     GetPage(name: welcome, page: () => const WelcomePage()),
-    GetPage(name: main, page: () => AppMainPage()),
     GetPage(name: permission, page: () => const PermissionPage()),
     GetPage(name: plugins, page: () => const PluginsPage()),
     GetPage(name: matchSite, page: () => const MatchSitePage()),
     GetPage(name: homeSite, page: () => const HomeSitePage()),
+    GetPage(name: home, page: () => const HomePage()),
+    GetPage(name: mine, page: () => const MinePage()),
+    GetPage(name: search, page: () => const SearchPage()),
+    GetPage(name: appPlayList, page: () => AppPlayListPage()),
+    GetPage(name: playList, page: () => const PlayListPage()),
+    GetPage(name: playListDetail, page: () => const PlayListDetailPage()),
+    GetPage(name: album, page: () => const AlbumPage()),
+    GetPage(name: albumDetail, page: () => const AlbumDetailPage()),
+    GetPage(name: rank, page: () => const RankPage()),
+    GetPage(name: rankDetail, page: () => const RankDetailPage()),
+    GetPage(name: artist, page: () => const ArtistPage()),
+    GetPage(name: artistDetail, page: () => const ArtistDetailPage()),
+    GetPage(name: parsePlayList, page: () => const ParsePlayList()),
   ];
 
-  static Route<dynamic> getRoute(RouteSettings settings) {
-    var route = settings.name;
-    var arguments = settings.arguments;
-    switch (route) {
-      case home:
-        return GetPageRoute(settings: settings, page: () => const HomePage());
-      case search:
-        return GetPageRoute(settings: settings, page: () => const SearchPage());
-      case appPlaying:
-        return GetPageRoute(settings: settings, page: () => AppPlayingPage());
-      case appPlayList:
-        return GetPageRoute(settings: settings, page: () => AppPlayListPage(inPanel: false));
-      case playList:
-        return GetPageRoute(settings: settings, page: () => const PlayListPage());
-      case playListDetail:
-        return GetPageRoute(settings: settings, page: () => PlayListDetailPage(playlist: arguments as MixPlaylist?));
-      case album:
-        return GetPageRoute(settings: settings, page: () => const AlbumPage());
-      case albumDetail:
-        return GetPageRoute(settings: settings, page: () => AlbumDetailPage(album: arguments as MixAlbum?));
-      case rank:
-        return GetPageRoute(settings: settings, page: () => const RankPage());
-      case rankDetail:
-        return GetPageRoute(settings: settings, page: () => RankDetailPage(rank: arguments as MixRank?));
-      case artist:
-        return GetPageRoute(settings: settings, page: () => const ArtistPage());
-      case artistDetail:
-        return GetPageRoute(settings: settings, page: () => ArtistDetailPage(artist: arguments as MixArtist?));
-
-      case parsePlayList:
-        return GetPageRoute(settings: settings, page: () => ParsePlayList());
-
-      default:
-        return GetPageRoute(settings: settings, page: () => Center(child: Text("404", style: Theme.of(Get.context!).textTheme.displayLarge)));
-    }
-  }
+// static Route<dynamic> getRoute(RouteSettings settings) {
+//   var route = settings.name;
+//   var arguments = settings.arguments;
+//   switch (route) {
+//
+//
+//     default:
+//       return GetPageRoute(settings: settings, page: () => Center(child: Text("404", style: Theme.of(Get.context!).textTheme.displayLarge)));
+//   }
+// }
 }

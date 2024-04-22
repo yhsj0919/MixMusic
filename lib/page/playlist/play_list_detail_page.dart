@@ -11,14 +11,13 @@ import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/page_list_view.dart';
 
 import '../../entity/page_entity.dart';
+import 'package:mix_music/page/app_playing/play_bar.dart';
 import '../../player/music_controller.dart';
 import '../../widgets/message.dart';
 import '../api_controller.dart';
 
 class PlayListDetailPage extends StatefulWidget {
-  PlayListDetailPage({super.key, required this.playlist});
-
-  MixPlaylist? playlist;
+  const PlayListDetailPage({super.key});
 
   @override
   State<PlayListDetailPage> createState() => _PlayListDetailPageState();
@@ -35,7 +34,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   @override
   void initState() {
     super.initState();
-    playlist.value = widget.playlist;
+    playlist.value = Get.arguments;
     refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
     getPlayListInfo();
   }
@@ -45,6 +44,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight;
     return Scaffold(
+      floatingActionButton: PlayBar(),
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [
@@ -81,7 +81,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: const Text('关于'),
-                            content: Text(playlist.value?.desc??""),
+                            content: Text(playlist.value?.desc ?? ""),
                             actions: <Widget>[
                               TextButton(
                                 onPressed: () {

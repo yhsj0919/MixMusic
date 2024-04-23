@@ -76,18 +76,36 @@ class _PlayBarState extends State<PlayBar> {
                                   ),
                           ),
                         )),
-                    Gap(8),
-                    Obx(() => music.isBuffering.value
-                        ? CircularProgressIndicator(
-                            strokeWidth: 2,
-                            backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.black12 : Colors.white12,
-                          )
-                        : IconButton(
-                            onPressed: () {
-                              music.playOrPause();
-                            },
-                            icon: Icon(music.state.value == PlayerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded))),
-                    Gap(8),
+                    const Gap(8),
+                    Obx(
+                      () => AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 500),
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          return ScaleTransition(
+                            scale: animation,
+                            child: child,
+                          );
+                        },
+                        child: music.isBuffering.value
+                            ? AnimatedContainer(
+                                width: 48,
+                                height: 48,
+                                padding: const EdgeInsets.all(8),
+                                duration: const Duration(milliseconds: 200),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.black12 : Colors.white12,
+                                ),
+                              )
+                            : IconButton(
+                                onPressed: () {
+                                  music.playOrPause();
+                                },
+                                icon: Icon(music.state.value == PlayerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
+                              ),
+                      ),
+                    ),
+                    const Gap(8),
                   ],
                 ),
               ],

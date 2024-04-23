@@ -1,13 +1,12 @@
 import 'dart:math';
 
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader_widget.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:get/get_rx/get_rx.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/theme/new_surface_theme.dart';
@@ -15,10 +14,7 @@ import 'package:mix_music/theme/surface_color_enum.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/widgets/ext.dart';
 
-import 'package:squiggly_slider/slider.dart';
-
 import '../../../player/ui_mix.dart';
-import '../../../widgets/BlurRectWidget.dart';
 
 class PhonePlaying extends StatefulWidget {
   PhonePlaying({super.key});
@@ -50,6 +46,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
   Widget build(BuildContext context1) {
     // 获取状态栏的高度
     double statusBarHeight = max(MediaQuery.of(context1).padding.top, 16);
+    double bottom = max(MediaQuery.of(context1).padding.bottom, 16);
 
     return Obx(
       () => AnimatedTheme(
@@ -74,7 +71,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                                 margin: const EdgeInsets.symmetric(horizontal: 16),
                                 width: double.infinity,
                                 height: showCover.value ? 250 : 0,
-                                duration: Duration(milliseconds: 200),
+                                duration: const Duration(milliseconds: 200),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(24),
                                   child: CachedNetworkImage(
@@ -84,6 +81,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                                   ),
                                 )),
                           )),
+                      const Gap(8),
                       Expanded(child: Obx(() => buildLrc(context))),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -97,36 +95,53 @@ class _PhonePlayingState extends State<PhonePlaying> {
                         ),
                       ),
                       Container(
-                          height: 30,
-                          child: Obx(() => SquigglySlider(
-                                onChangeStart: (value) {
-                                  sliderValue.value = value;
-                                },
-                                onChangeEnd: (value) {
-                                  music.seek(Duration(milliseconds: value.toInt()));
-                                  Future.delayed(const Duration(milliseconds: 100)).then((value) {
-                                    sliderValue.value = null;
-                                  });
-                                },
-                                squiggleAmplitude: 5.0,
-                                squiggleWavelength: 6,
-                                squiggleSpeed: 0.3,
-                                max: music.duration.value?.inMilliseconds.toDouble() ?? 1,
-                                value: sliderValue.value ?? music.position.value?.inMilliseconds.toDouble() ?? 0,
-                                onChanged: (double value) {
-                                  sliderValue.value = value;
-                                },
-                              ))),
-                      Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          children: [
-                            Obx(() => Text("${music.position.value?.inMilliseconds.date("mm:ss")}")),
-                            Expanded(child: Container()),
-                            Obx(() => Text("${music.duration.value?.inMilliseconds.date("mm:ss")}")),
-                          ],
+                        child: Obx(
+                          () => ProgressBar(
+                            progress: music.position.value ?? const Duration(),
+                            // buffered: const Duration(milliseconds: 2000),
+                            total: music.duration.value ?? const Duration(),
+                            timeLabelLocation: TimeLabelLocation.below,
+                            timeLabelTextStyle: Theme.of(context).textTheme.bodyMedium,
+                            onDragStart: (value) {},
+                            onSeek: (duration) {
+                              music.seek(duration);
+                            },
+                          ),
                         ),
                       ),
+
+                      // Container(
+                      //     height: 30,
+                      //     child: Obx(() => SquigglySlider(
+                      //           onChangeStart: (value) {
+                      //             sliderValue.value = value;
+                      //           },
+                      //           onChangeEnd: (value) {
+                      //             music.seek(Duration(milliseconds: value.toInt()));
+                      //             Future.delayed(const Duration(milliseconds: 100)).then((value) {
+                      //               sliderValue.value = null;
+                      //             });
+                      //           },
+                      //           squiggleAmplitude: 5.0,
+                      //           squiggleWavelength: 6,
+                      //           squiggleSpeed: 0.1,
+                      //           max: music.duration.value?.inMilliseconds.toDouble() ?? 1,
+                      //           value: sliderValue.value ?? music.position.value?.inMilliseconds.toDouble() ?? 0,
+                      //           onChanged: (double value) {
+                      //             sliderValue.value = value;
+                      //           },
+                      //         ))),
+                      // Container(
+                      //   padding: const EdgeInsets.symmetric(horizontal: 16),
+                      //   child: Row(
+                      //     children: [
+                      //       Obx(() => Text("${music.position.value?.inMilliseconds.date("mm:ss")}")),
+                      //       Expanded(child: Container()),
+                      //       Obx(() => Text("${music.duration.value?.inMilliseconds.date("mm:ss")}")),
+                      //     ],
+                      //   ),
+                      // ),
                       Container(height: 16),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -134,18 +149,40 @@ class _PhonePlayingState extends State<PhonePlaying> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Expanded(
-                                child: IconButton.filled(
-                                    onPressed: () {
-                                      music.playOrPause();
+                              child: Obx(
+                                () => IconButton.filled(
+                                  onPressed: music.isBuffering.value
+                                      ? null
+                                      : () {
+                                          music.playOrPause();
+                                        },
+                                  icon: AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 500),
+                                    transitionBuilder: (Widget child, Animation<double> animation) {
+                                      return ScaleTransition(
+                                        scale: animation,
+                                        child: child,
+                                      );
                                     },
-                                    icon: SizedBox(
-                                        height: 40,
-                                        child: Obx(
-                                          () => Icon(
-                                            music.state.value == PlayerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                                            size: 30,
+                                    child: music.isBuffering.value
+                                        ? AnimatedContainer(
+                                            width: 40,
+                                            height: 40,
+                                            padding: const EdgeInsets.all(4),
+                                            duration: const Duration(milliseconds: 200),
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.black12 : Colors.white12,
+                                            ),
+                                          )
+                                        : SizedBox(
+                                            height: 40,
+                                            child: Icon(music.state.value == PlayerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded, size: 30),
                                           ),
-                                        )))),
+                                  ),
+                                ),
+                              ),
+                            ),
                             Container(width: 16),
                             IconButton.filledTonal(
                                 onPressed: () {
@@ -180,7 +217,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                               IconButton(onPressed: () {}, icon: Icon(Icons.more_vert_rounded)),
                             ],
                           )),
-                      Container(height: 16),
+                      Gap(bottom),
                     ],
                   ),
                   AnimatedOpacity(
@@ -208,8 +245,13 @@ class _PhonePlayingState extends State<PhonePlaying> {
   Widget buildLrc(BuildContext context) {
     return LyricsReader(
       position: music.position.value?.inMilliseconds ?? 0,
-      lyricUi:
-          UIMix(highlight: false, playingMainTextColor: Theme.of(context).colorScheme.primary, playingOtherMainTextColor: Theme.of(context).colorScheme.primary.withOpacity(0.5)),
+      lyricUi: UIMix(
+        highlight: true,
+        playingMainTextColor: Theme.of(context).colorScheme.primary,
+        playingOtherMainTextColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+        highLightColor: Colors.yellow
+
+      ),
       model: music.lyricModel.value,
       playing: music.state.value == PlayerState.playing,
       onTap: () {
@@ -230,10 +272,12 @@ class _PhonePlayingState extends State<PhonePlaying> {
                 alignment: Alignment.centerLeft,
                 margin: const EdgeInsets.symmetric(horizontal: 16),
                 child: InkWell(
-                  child: BlurRectWidget(
-                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                    ),
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
                     child: Text(
                       progress.date("mm:ss"),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimary),

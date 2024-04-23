@@ -1,5 +1,7 @@
-import 'package:drop_shadow/drop_shadow.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_song.dart';
@@ -42,6 +44,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // 获取状态栏的高度
+    double statusBarHeight = max(MediaQuery.of(context).padding.top, 16);
+    double bottom = max(MediaQuery.of(context).padding.bottom, 16);
     return Scaffold(
       floatingActionButton: PlayBar(),
       appBar: AppBar(
@@ -264,6 +269,7 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ),
+            Gap(bottom),
           ],
         ),
       ),

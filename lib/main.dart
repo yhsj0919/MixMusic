@@ -31,7 +31,10 @@ Future<void> main() async {
     // 沉浸式状态栏（仅安卓）
     statusBarColor: Colors.transparent,
     // 沉浸式导航指示器
+    systemNavigationBarIconBrightness: Brightness.dark,
     systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarContrastEnforced: false
+
   ));
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   runApp(const MyApp());

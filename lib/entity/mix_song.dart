@@ -9,10 +9,6 @@ import 'mix_artist.dart';
 class MixSong {
   String site;
   dynamic id;
-  dynamic mid;
-  String? contentId;
-  String? mediaId;
-  dynamic albumAudioId;
   String? title;
   dynamic subTitle;
   List<MixArtist>? artist = const [];
@@ -26,10 +22,6 @@ class MixSong {
   MixSong({
     required this.site,
     required this.id,
-    this.mid,
-    this.contentId,
-    this.mediaId,
-    this.albumAudioId,
     required this.title,
     this.subTitle,
     this.artist = const [],

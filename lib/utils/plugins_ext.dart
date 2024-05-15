@@ -78,10 +78,10 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
 
   /// 启用加密
   Future<JavascriptRuntime> enableCrypto() async {
-    String sleep = await rootBundle.loadString("assets/crypto.js");
-    final evalFetchResult = evaluate(sleep);
+    String crypto = await rootBundle.loadString("assets/crypto.js");
+    final evalFetchResult = evaluate(crypto);
     if (kDebugMode) {
-      print('sleep 结果: $evalFetchResult');
+      print('crypto 结果: $evalFetchResult');
     }
     return this;
   }

@@ -79,7 +79,7 @@ class _PlayBarState extends State<PlayBar> {
                     const Gap(8),
                     Obx(
                       () => AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 500),
+                        duration: const Duration(milliseconds: 200),
                         transitionBuilder: (Widget child, Animation<double> animation) {
                           return ScaleTransition(
                             scale: animation,

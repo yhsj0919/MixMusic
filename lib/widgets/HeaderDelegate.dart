@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
 class HeaderDelegate extends SliverPersistentHeaderDelegate {
-  const HeaderDelegate({required this.child, this.childMaxExtent, required this.childMinExtent});
+  const HeaderDelegate({required this.child, this.childMaxExtent, required this.childMinExtent, this.minWidget});
 
   final Widget child;
+  final Widget? minWidget;
   final double? childMaxExtent;
   final double childMinExtent;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return child;
+    print(shrinkOffset);
+
+    return shrinkOffset == maxExtent ? (minWidget ?? child) : child;
   }
 
   @override

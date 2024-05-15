@@ -108,7 +108,7 @@ class Player {
 
   ///播放器播放
   static Future<void> play(Source source, {double? volume, double? balance, AudioContext? ctx, Duration? position, PlayerMode? mode}) async {
-    return _player.play(source, volume: volume, balance: balance, ctx: ctx, position: position, mode: mode);
+    return Future.delayed(const Duration(milliseconds: 200)).then((value) => _player.play(source, volume: volume, balance: balance, ctx: ctx, position: position, mode: mode));
   }
 
   ///跳转

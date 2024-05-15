@@ -27,7 +27,8 @@ class _PhonePlayingState extends State<PhonePlaying> {
   ThemeController theme = Get.put(ThemeController());
   MusicController music = Get.put(MusicController());
 
-  var _isVisible = false;
+  final RxBool _isVisible = RxBool(false);
+  final RxBool _showLrc = RxBool(false);
   RxnDouble sliderValue = RxnDouble();
   RxBool showCover = RxBool(true);
 
@@ -36,9 +37,10 @@ class _PhonePlayingState extends State<PhonePlaying> {
     super.initState();
 
     Future.delayed(const Duration(milliseconds: 100)).then((value) {
-      setState(() {
-        _isVisible = true;
-      });
+      _isVisible.value = true;
+    });
+    Future.delayed(const Duration(milliseconds: 300)).then((value) {
+      _showLrc.value = true;
     });
   }
 
@@ -82,7 +84,11 @@ class _PhonePlayingState extends State<PhonePlaying> {
                                 )),
                           )),
                       const Gap(8),
-                      Expanded(child: Obx(() => buildLrc(context))),
+                      Expanded(
+                          child: Obx(() => AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 500),
+                                child: _showLrc.value ? buildLrc(context) : Container(),
+                              ))),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         child: Column(
@@ -157,7 +163,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                                           music.playOrPause();
                                         },
                                   icon: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 500),
+                                    duration: const Duration(milliseconds: 200),
                                     transitionBuilder: (Widget child, Animation<double> animation) {
                                       return ScaleTransition(
                                         scale: animation,
@@ -212,7 +218,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                                   onPressed: () {
                                     showBottomPlayList(context);
                                   },
-                                  icon: Icon(Icons.playlist_play)),
+                                  icon: const Icon(Icons.playlist_play)),
                               Expanded(child: Container()),
                               IconButton(onPressed: () {}, icon: Icon(Icons.more_vert_rounded)),
                             ],
@@ -220,19 +226,19 @@ class _PhonePlayingState extends State<PhonePlaying> {
                       Gap(bottom),
                     ],
                   ),
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 300),
-                    opacity: _isVisible ? 1.0 : 0.0,
-                    child: Container(
-                      margin: EdgeInsets.only(top: statusBarHeight),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      child: IconButton.filledTonal(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          icon: const Icon(Icons.arrow_downward_rounded)),
-                    ),
-                  ),
+                  Obx(() => AnimatedOpacity(
+                        duration: const Duration(milliseconds: 500),
+                        opacity: _isVisible.value ? 1.0 : 0.0,
+                        child: Container(
+                          margin: EdgeInsets.only(top: statusBarHeight),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                          child: IconButton.filledTonal(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              icon: const Icon(Icons.arrow_downward_rounded)),
+                        ),
+                      )),
                 ],
               ),
             );
@@ -249,7 +255,6 @@ class _PhonePlayingState extends State<PhonePlaying> {
         highlight: false,
         playingMainTextColor: Theme.of(context).colorScheme.primary,
         playingOtherMainTextColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-
       ),
       model: music.lyricModel.value,
       playing: music.state.value == PlayerState.playing,

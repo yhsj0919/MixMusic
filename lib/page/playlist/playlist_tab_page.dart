@@ -153,9 +153,9 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
                     ?.map((e) => ActionChip(
                           label: Text(e.name ?? ""),
                           onPressed: () {
-                            currentType = e.id;
+                            currentType = e.id.toString();
 
-                            getPlayList(type: e.id);
+                            getPlayList(type: e.id.toString());
 
                             Navigator.of(context).pop();
                           },

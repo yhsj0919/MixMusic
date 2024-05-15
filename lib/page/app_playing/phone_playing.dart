@@ -246,10 +246,9 @@ class _PhonePlayingState extends State<PhonePlaying> {
     return LyricsReader(
       position: music.position.value?.inMilliseconds ?? 0,
       lyricUi: UIMix(
-        highlight: true,
+        highlight: false,
         playingMainTextColor: Theme.of(context).colorScheme.primary,
         playingOtherMainTextColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-        highLightColor: Colors.yellow
 
       ),
       model: music.lyricModel.value,

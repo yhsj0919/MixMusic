@@ -97,11 +97,15 @@ class _PlayBarState extends State<PlayBar> {
                                   backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.black12 : Colors.white12,
                                 ),
                               )
-                            : IconButton(
-                                onPressed: () {
-                                  music.playOrPause();
-                                },
-                                icon: Icon(music.state.value == PlayerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
+                            : Container(
+                                width: 48,
+                                height: 48,
+                                child: IconButton(
+                                  onPressed: () {
+                                    music.playOrPause();
+                                  },
+                                  icon: Icon(music.state.value == PlayerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
+                                ),
                               ),
                       ),
                     ),

@@ -177,9 +177,8 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
       }
       refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success, true);
 
-      if (pageEntity.value != null) {
-        songList.addAll(value.data?.songs ?? []);
-      }
+      songList.addAll(value.data?.songs ?? []);
+
       // showComplete("操作成功");
     }).catchError((e) {
       if (page == 0) {

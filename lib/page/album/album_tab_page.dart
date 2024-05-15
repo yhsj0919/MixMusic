@@ -162,9 +162,9 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
                     ?.map((e) => ActionChip(
                           label: Text(e.name ?? ""),
                           onPressed: () {
-                            currentType = e.id;
+                            currentType = e.id.toString();
 
-                            getAlbumList(type: e.id);
+                            getAlbumList(type: e.id.toString());
 
                             Navigator.of(context).pop();
                           },

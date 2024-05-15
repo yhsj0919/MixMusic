@@ -5,7 +5,7 @@
 // @author       yhsj
 // @icon         https://music.taihe.com/favicon.ico
 // @webSite      https://music.taihe.com
-// @method       ["searchMusic","playUrl","playListRec","albumRec","songRec","playList","playListType","playListInfo","rankList","rankInfo","artistList","artistType","artistInfo","artistSong","artistAlbum","parsePlayList"]
+// @method       ["searchMusic","playUrl","albumList","playListRec","albumRec","songRec","playList","playListType","playListInfo","rankList","rankInfo","artistList","artistType","artistInfo","artistSong","artistAlbum","parsePlayList"]
 // ==/PluginsInfo==
 
 

@@ -48,7 +48,7 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
                             child: TabBar(
                           isScrollable: true,
                           controller: tabController,
-                          tabs: api.playListPlugins
+                          tabs: api.albumPlugins
                               .map((item) => Tab(
                                     text: item.name,
                                     // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
@@ -57,7 +57,7 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
                         )),
                         IconButton(
                             onPressed: () {
-                              controller.open(api.playListPlugins[tabController.index].site);
+                              controller.open(api.albumPlugins[tabController.index].site);
                             },
                             icon: const Icon(Icons.filter_list))
                       ],
@@ -81,7 +81,7 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
   Widget _buildTabBarView() {
     return TabBarView(
       controller: tabController,
-      children: api.playListPlugins.map((element) => AlbumTabPage(plugin: element, controller: controller)).toList(),
+      children: api.albumPlugins.map((element) => AlbumTabPage(plugin: element, controller: controller)).toList(),
     );
   }
 }

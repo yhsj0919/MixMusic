@@ -60,7 +60,7 @@ dependencies:
   #时间格式化
   dart_date: ^1.3.2
 
-  easy_refresh: ^3.3.4
+  easy_refresh: ^3.4.0
 
   device_info_plus: ^9.1.2
 

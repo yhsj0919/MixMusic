@@ -320,7 +320,7 @@ extension JavascriptRuntimeXhrExtension on JavascriptRuntime {
             break;
         }
         // assuming request was successfully executed
-        String responseText = utf8.decode(response.bodyBytes).replaceAll("\\", "\\\\");
+        String responseText = utf8.decode(response.bodyBytes).replaceAll("\\", "\\\\").replaceAll("`", "\\`");
         // print('原始字符串：$responseText');
         // try {
         //   responseText = jsonEncode(json.decode(responseText));

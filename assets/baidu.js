@@ -624,10 +624,10 @@ function albumInfo(album, page = 0, size = 20) {
             id: result['albumAssetCode'],
             pic: `${result["pic"]}@w_400,h_400`,
             title: result['title'],
-            subTitle: result["artist"].map(function (ar) {
+            subTitle: result["artist"]?.map(function (ar) {
                 return ar["name"]
             }).join(","),
-            artist: result["artist"].map(function (ar) {
+            artist: result["artist"]?.map(function (ar) {
                 return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
             }),
             desc: result["introduce"],
@@ -639,11 +639,11 @@ function albumInfo(album, page = 0, size = 20) {
                 id: element['assetId'],
                 pic: `${result["pic"]}@w_400,h_400`,
                 title: element['title'],
-                subTitle: result["artist"].map(function (ar) {
+                subTitle: result["artist"]?.map(function (ar) {
                     return ar["name"]
                 }).join(","),
                 vip: element["isVip"],
-                artist: result["artist"].map(function (ar) {
+                artist: result["artist"]?.map(function (ar) {
                     return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
                 }),
             };

@@ -479,17 +479,16 @@ function albumRec() {
             return data["type"] === "album";
         });
 
-
         const newArray = result["result"].map(function (element) {
             return {
                 site: 'baidu',
                 id: element['albumAssetCode'],
                 pic: `${element["pic"]}@w_400,h_400`,
                 title: element['title'],
-                subTitle: element["artist"].map(function (ar) {
+                subTitle: element["artist"]?.map(function (ar) {
                     return ar["name"]
                 }).join(","),
-                artist: element["artist"].map(function (ar) {
+                artist: element["artist"]?.map(function (ar) {
                     return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
                 }),
                 songCount: element['trackCount'],

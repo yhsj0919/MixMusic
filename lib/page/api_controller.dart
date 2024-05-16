@@ -166,7 +166,7 @@ class ApiController extends GetxController {
   }
 
   ///歌单
-  Future<AppRespEntity<List<MixArtist>>> artistList({required String site, Map<String, String?>? type, int page = 0, int size = 20}) async {
+  Future<AppRespEntity<List<MixArtist>>> artistList({required String site, Map<String, dynamic>? type, int page = 0, int size = 20}) async {
     return ApiFactory.api(site: site)!.artistList(type: type, page: page, size: size);
   }
 

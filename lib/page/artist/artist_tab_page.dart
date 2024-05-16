@@ -30,7 +30,7 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixArtist> artistList = RxList();
   RxList<MixArtistType> artistType = RxList();
-  final Map<String, String> currentType = {};
+  final Map<String, dynamic> currentType = {};
 
   @override
   void initState() {
@@ -71,7 +71,7 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
   }
 
   ///获取歌单
-  Future<void> getPlayList({Map<String, String?>? type, int page = 0}) {
+  Future<void> getPlayList({Map<String, dynamic>? type, int page = 0}) {
     return api.artistList(site: widget.plugin.site!, type: type, page: page).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
@@ -134,8 +134,7 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
                   return buildItem(artistType[index]);
                 },
               ));
-        }).then((value) {
-    });
+        }).then((value) {});
   }
 
   Widget buildItem(MixArtistType type) {

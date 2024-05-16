@@ -5,10 +5,10 @@
 // @author       yhsj
 // @icon         https://y.qq.com/favicon.ico
 // @webSite      https://y.qq.com
-// @method       ["searchMusic","playUrl","playList","playListType","albumType","albumList"]
+// @method       ["searchMusic","playUrl","playList","playListType","playListInfo","albumType","albumList","albumInfo","rankList","rankInfo","artistList","artistType","artistSong","artistAlbum"]
 // ==/PluginsInfo==
 
-// ,"playListRec","albumRec","songRec","playListInfo","rankList","rankInfo","artistList","artistType","artistInfo","artistSong","artistAlbum",parsePlayList"
+// ,"playListRec","albumRec","songRec","artistInfo","parsePlayList"
 const headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0",
     "Cookie": "",
@@ -497,7 +497,7 @@ function playListInfo(playlist, page = 0, size = 20) {
                     mediaId: element["file"]["media_mid"]
                 },
                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
-                title: element['name'],
+                title: element['title'],
                 subTitle: element["singer"].map(function (ar) {
                     return ar["name"]
                 }).join(","),
@@ -880,19 +880,30 @@ function albumInfo(album, page = 0, size = 20) {
 
 //排行榜
 function rankList() {
-    // 定义查询参数
     const params = {
-        timestamp: Date.now(),
-        appid: 16073360,
-    };
+        data: JSON.stringify({
+            comm: {
+                format: "json",
+                g_tk: 5381,
+                ct: 20,
+                cv: 1807,
+                uin: "0",
+                platform: "wk_v17",
+            },
+            rankList: {
+                module: "musicToplist.ToplistInfoServer",
+                method: "GetAll",
+                param: {}
+            }
+        })
+    }
 
-    params['sign'] = paramsSign(params);
-
-    return axios.get('https://api-qianqian.taihe.com/v1/bd/category', {
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
         params: params
     }).then(function (data) {
         let respData;
+
 
         if (typeof data.data === 'string') {
             respData = JSON.parse(data.data)
@@ -909,28 +920,32 @@ function rankList() {
             return JSON.stringify(resp);
         }
 
+        const result = respData["rankList"]["data"]["group"]
 
-        const newArray = respData["data"].map(function (element) {
+        const newArray = result.map(function (element) {
             return {
-                site: 'baidu',
-                id: element['bdid'],
-                pic: `${element["pic"]}@w_200,h_200`,
-                title: element['title'],
+                site: 'qq',
+                id: element['groupId'],
+                title: element['groupName'],
+                rankList: element['toplist'].map(function (element) {
+                    return {
+                        site: 'qq',
+                        id: {
+                            id: element['topId'],
+                            period: element['period']
+                        },
+                        title: element['title'],
+                        pic: element['frontPicUrl'],
+                    };
+                })
             };
         });
-        const type = [
-            {
-                site: 'baidu',
-                title: '官方榜',
-                rankList: newArray,
-            }
-        ]
 
 
         const resp = {
             code: 200,
             msg: '操作成功',
-            data: type
+            data: newArray
         };
         return JSON.stringify(resp);
     });
@@ -942,16 +957,22 @@ function rankInfo(rank, page = 0, size = 20) {
     const myRank = JSON.parse(rank);
     // 定义查询参数
     const params = {
-        bdid: myRank["id"],
-        pageNo: parseInt(page) + 1,
-        pageSize: size,
-        timestamp: Date.now(),
-        appid: 16073360
-    };
+        data: JSON.stringify({
+            comm: {ct: 20, cv: 1807, uin: "0"},
+            rank: {
+                module: "musicToplist.ToplistInfoServer",
+                method: "GetDetail",
+                param: {
+                    topid: myRank["id"]["id"],
+                    period: myRank["id"]["period"],
+                    offset: parseInt(page) * parseInt(size),
+                    num: parseInt(size),
+                }
+            }
+        })
+    }
 
-    params['sign'] = paramsSign(params);
-
-    return axios.get('https://api-qianqian.taihe.com/v1/bd/list', {
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
         params: params
     }).then(function (data) {
@@ -973,29 +994,48 @@ function rankInfo(rank, page = 0, size = 20) {
             return JSON.stringify(resp);
         }
 
-
-        const result = respData["data"]
+        const info = respData["rank"]["data"]["data"]
+        const result = respData["rank"]["data"]["songInfoList"]
 
         const newAlbum = {
-            site: 'baidu',
-            id: result['bdid'],
-            pic: `${myRank["pic"]}`,
-            title: result['title'],
-            songCount: result['total']
+            site: 'qq',
+            id: {
+                id: info["topId"],
+                period: info["period"],
+            },
+            pic: info["headPicUrl"],
+            title: info['title'],
+            desc: info['intro'],
+            songCount: info['totalNum']
         }
-        const newArray = result["result"].map(function (element) {
+        const newArray = result.map(function (element) {
             return {
-                site: 'baidu',
-                id: element['assetId'],
-                pic: `${element["pic"]}@w_200,h_200`,
+                site: 'qq',
+                id: {
+                    id: element["id"],
+                    mid: element["mid"],
+                    mediaId: element["file"]["media_mid"]
+                },
+                pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["mid"]}.jpg`,
                 title: element['title'],
-                subTitle: element["artist"].map(function (ar) {
+                subTitle: element["singer"].map(function (ar) {
                     return ar["name"]
                 }).join(","),
-                vip: element["isVip"],
-                artist: element["artist"].map(function (ar) {
-                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                vip: element["pay"]["pay_play"],
+                artist: element["singer"].map(function (ar) {
+                    return {
+                        site: "qq",
+                        id: ar["mid"],
+                        name: ar["name"],
+                        pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
+                    }
                 }),
+                album: {
+                    site: "qq",
+                    id: element["album"]["mid"],
+                    title: element["album"]["title"],
+                    pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
+                },
             };
         });
 
@@ -1007,12 +1047,12 @@ function rankInfo(rank, page = 0, size = 20) {
             data: newAlbum,
             page: {
                 first: parseInt(page) === 0,
-                last: result["haveMore"] !== 1,
+                last: parseInt(size) * (parseInt(page) + 1) >= parseInt(info['totalNum']),
                 page: parseInt(page) + 1,
                 size: parseInt(size),
                 number: newArray.length,
-                totalPages: Math.floor(result["total"] / parseInt(size)),
-                totalSize: result["total"]
+                totalPages: Math.floor(info['totalNum'] / parseInt(size)),
+                totalSize: info['totalNum']
             }
         };
         return JSON.stringify(resp);
@@ -1022,161 +1062,36 @@ function rankInfo(rank, page = 0, size = 20) {
 //歌手分类
 function artistType() {
 
-    const newArray = [
-        {
-            site: 'baidu',
-            id: "artistFristLetter",
-            name: '首字母',
-            subType: [
-                {site: 'baidu', id: "", name: '全部'},
-                {site: 'baidu', id: 'A', name: 'A'},
-                {site: 'baidu', id: 'B', name: 'B'},
-                {site: 'baidu', id: 'C', name: 'C'},
-                {site: 'baidu', id: 'D', name: 'D'},
-                {site: 'baidu', id: 'E', name: 'E'},
-                {site: 'baidu', id: 'F', name: 'F'},
-                {site: 'baidu', id: 'G', name: 'G'},
-                {site: 'baidu', id: 'H', name: 'H'},
-                {site: 'baidu', id: 'I', name: 'I'},
-                {site: 'baidu', id: 'J', name: 'J'},
-                {site: 'baidu', id: 'K', name: 'K'},
-                {site: 'baidu', id: 'L', name: 'L'},
-                {site: 'baidu', id: 'M', name: 'M'},
-                {site: 'baidu', id: 'N', name: 'N'},
-                {site: 'baidu', id: 'O', name: 'O'},
-                {site: 'baidu', id: 'P', name: 'P'},
-                {site: 'baidu', id: 'Q', name: 'Q'},
-                {site: 'baidu', id: 'R', name: 'R'},
-                {site: 'baidu', id: 'S', name: 'S'},
-                {site: 'baidu', id: 'T', name: 'T'},
-                {site: 'baidu', id: 'U', name: 'U'},
-                {site: 'baidu', id: 'V', name: 'V'},
-                {site: 'baidu', id: 'W', name: 'W'},
-                {site: 'baidu', id: 'X', name: 'X'},
-                {site: 'baidu', id: 'Y', name: 'Y'},
-                {site: 'baidu', id: 'Z', name: 'Z'},
-                {site: 'baidu', id: 'other', name: '#'},
-            ]
-        },
-        {
-            site: 'baidu',
-            id: "artistGender",
-            name: '性别',
-            subType: [
-                {site: 'baidu', id: "", name: '全部'},
-                {site: 'baidu', id: '男', name: '男'},
-                {site: 'baidu', id: '女', name: '女'},
-                {site: 'baidu', id: '组合', name: '组合'},
-                {site: 'baidu', id: '乐队', name: '乐队'}]
-        },
-        {
-            site: 'baidu',
-            id: "artistRegion",
-            name: '地区',
-            subType: [
-                {site: 'baidu', id: "", name: '全部'},
-                {site: 'baidu', id: '内地', name: '内地'},
-                {site: 'baidu', id: '港台', name: '港台'},
-                {site: 'baidu', id: '欧美', name: '欧美'},
-                {site: 'baidu', id: '韩国', name: '韩国'},
-                {site: 'baidu', id: '日本', name: '日本'},
-                {site: 'baidu', id: '其他', name: '其他'}]
-        }];
-    const resp = {
-        code: 200,
-        msg: '操作成功',
-        data: newArray
-    };
-    return JSON.stringify(resp);
-}
-
-//根据分类获取歌手
-function artistList(type, page = 0, size = 20) {
-
-    const params = JSON.parse(type ?? "{}");
-
-    params["pageNo"] = parseInt(page) + 1
-    params["pageSize"] = size
-    params["timestamp"] = Date.now()
-    params["appid"] = 16073360
-
-    console.log(type)
-
-
-    params['sign'] = paramsSign(params);
-    https://music.91q.com/v1/artist/list?sign=24942010ce9864df0e507f1ec15411f8&pageNo=1&artistFristLetter=A&artistRegion=&artistGender=&pageSize=48&appid=16073360&timestamp=1710912762
-        return axios.get('https://api-qianqian.taihe.com/v1/artist/list', {
-            params
-        }, {
-            headers: headers
-        }).then(function (data) {
-
-            let respData;
-
-            if (typeof data.data === 'string') {
-                respData = JSON.parse(data.data)
-            } else {
-                respData = data.data
-            }
-
-            if (respData["errno"] !== 22000) {
-                const resp = {
-                    code: 500,
-                    msg: data["errmsg"],
-                    data: null
-                };
-                return JSON.stringify(resp);
-            }
-
-            const result = respData["data"]
-
-
-            const newArray = result["result"].map(function (element) {
-                return {
-                    site: 'baidu',
-                    id: element['artistCode'],
-                    pic: element["pic"],
-                    name: element['name'],
-                };
-            });
-            const resp = {
-                code: 200,
-                msg: '操作成功',
-                data: newArray,
-                page: {
-                    first: page === 0,
-                    last: result["haveMore"] !== 1,
-                    page: parseInt(page) + 1,
-                    size: parseInt(size),
-                    number: newArray.length,
-                    totalPages: Math.floor(result["total"] / parseInt(size)),
-                    totalSize: result["total"]
-                }
-            };
-            return JSON.stringify(resp);
-        });
-}
-
-// 歌手详情
-function artistInfo(artist, page = 0, size = 20) {
-
-    const myPlaylist = JSON.parse(artist);
     // 定义查询参数
     const params = {
-        id: myPlaylist["id"],
-        pageNo: parseInt(page) + 1,
-        pageSize: size,
-        timestamp: Date.now(),
-        appid: 16073360
-    };
-
-    params['sign'] = paramsSign(params);
-
-    return axios.get('https://api-qianqian.taihe.com/v1/tracklist/info', {
+        data: JSON.stringify({
+            comm: {
+                format: "json",
+                g_tk: 5381,
+                ct: 20,
+                cv: 1807,
+                uin: "0",
+                platform: "wk_v17",
+            },
+            singerList: {
+                module: "music.musichallSinger.SingerList",
+                method: "GetSingerListIndex",
+                param: {
+                    area: -100,
+                    sex: -100,
+                    genre: -100,
+                    index: -100,
+                    sin: 0,
+                    cur_page: 1
+                }
+            }
+        })
+    }
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
         params: params
     }).then(function (data) {
-
+        console.log(JSON.stringify(data))
         let respData;
 
         if (typeof data.data === 'string') {
@@ -1194,57 +1109,186 @@ function artistInfo(artist, page = 0, size = 20) {
             return JSON.stringify(resp);
         }
 
+        const result = respData["singerList"]["data"]["tags"]
 
-        const result = respData["data"]
-
-        const newPlaylist = {
-            site: 'baidu',
-            id: result['id'],
-            title: result['title'],
-            subTitle: result['desc'],
-            desc: result['desc'],
-            songCount: result['trackCount'],
-        }
-
-
-        const newArray = result["trackList"].map(function (element) {
+        var group = [
+            {id: "area", name: "区域"},
+            {id: "genre", name: "类型"},
+            {id: "index", name: "首字母"},
+            {id: "sex", name: "性别"},
+        ]
+        const newArray = group.map(function (element) {
             return {
-                site: 'baidu',
-                id: element['assetId'],
-                pic: `${element["pic"]}@w_200,h_200`,
-                title: element['title'],
-                subTitle: element["artist"].map(function (ar) {
-                    return ar["name"]
-                }).join(","),
-                vip: element["isVip"],
-                artist: element["artist"].map(function (ar) {
-                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
-                }),
-                album: {
-                    site: "baidu",
-                    id: element["albumAssetCode"],
-                    title: element["albumTitle"],
-                    pic: `${element["pic"]}@w_200,h_200`,
-                },
-                lyric: element["lyric"],
+                site: 'qq',
+                id: element['id'],
+                name: element['name'],
+                subType: result[element['id']].map(function (element) {
+                    return {
+                        site: 'qq',
+                        id: element['id'],
+                        name: element['name'],
+                    };
+                })
             };
         });
+        const resp = {
+            code: 200,
+            msg: '操作成功',
+            data: newArray
+        };
+        return JSON.stringify(resp);
+    });
+}
 
-        newPlaylist['songs'] = newArray
+//根据分类获取歌手
+function artistList(type, page = 0, size = 20) {
+
+    const sin = parseInt(page) * 80;
+
+    const myType = JSON.parse(type ?? "{}");
+
+    // 定义查询参数
+    const params = {
+        data: JSON.stringify({
+            comm: {
+                format: "json",
+                g_tk: 5381,
+                ct: 20,
+                cv: 1807,
+                uin: "0",
+                platform: "wk_v17",
+            },
+            singerList: {
+                module: "music.musichallSinger.SingerList",
+                method: "GetSingerListIndex",
+                param: {
+                    area: myType["area"] ?? -100,
+                    sex: myType["sex"] ?? -100,
+                    genre: myType["genre"] ?? -100,
+                    index: myType["index"] ?? -100,
+                    sin: sin,
+                    cur_page: parseInt(page) + 1
+                }
+            }
+        })
+    }
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
+        headers: headers,
+        params: params
+    }).then(function (data) {
+        console.log(JSON.stringify(data))
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
+        } else {
+            respData = data.data
+        }
+
+        if (respData["code"] !== 0) {
+            const resp = {
+                code: 500,
+                msg: '请求失败',
+                data: null
+            };
+            return JSON.stringify(resp);
+        }
+
+        const result = respData["singerList"]["data"]
+
+        const newArray = result["singerlist"].map(function (element) {
+            return {
+                site: 'qq',
+                id: element['singer_mid'],
+                pic: element["singer_pic"],
+                name: element['singer_name'],
+            };
+        });
+        const resp = {
+            code: 200,
+            msg: '操作成功',
+            data: newArray,
+            page: {
+                first: parseInt(page) === 0,
+                last: 80 * (parseInt(page) + 1) >= parseInt(result['total']),
+                page: parseInt(page) + 1,
+                size: 80,
+                number: newArray.length,
+                totalPages: Math.floor(result['total'] / 80),
+                totalSize: result['total']
+            }
+        };
+        return JSON.stringify(resp);
+    });
+}
+
+// 歌手详情
+function artistInfo(artist, page = 0, size = 20) {
+
+    const myArtist = JSON.parse(artist);
+    // 定义查询参数
+    const params = {
+        data: JSON.stringify({
+                comm: {
+                    format: "json",
+                    g_tk: 5381,
+                    ct: 20,
+                    cv: 1807,
+                    uin: "0",
+                    platform: "wk_v17",
+                },
+                detail: {
+                    method: "GetSingerDetail",
+                    module: "music.musichallSinger.SingerInfoInter",
+                    param: {
+                        singer_mids: [myArtist["id"]],
+                        ex_singer: 1,
+                        wiki_singer: 1,
+                        group_singer: 0,
+                        pic: 1,
+                        photos: 0
+                    }
+                }
+            }
+        )
+    }
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
+        headers: headers,
+        params: params
+    }).then(function (data) {
+        console.log(JSON.stringify(data))
+        let respData;
+
+        if (typeof data.data === 'string') {
+            respData = JSON.parse(data.data)
+        } else {
+            respData = data.data
+        }
+
+        if (respData["code"] !== 0) {
+            const resp = {
+                code: 500,
+                msg: '请求失败',
+                data: null
+            };
+            return JSON.stringify(resp);
+        }
+
+        const result = respData["detail"]["data"]["singer_list"].first
+
+        const newPlaylist = {
+            site: 'qq',
+            id: result["basic_info"]['singer_mid'],
+            title: result["basic_info"]['name'],
+            subTitle: result["ex_info"]['desc'],
+            desc: result["ex_info"]['desc'],
+            songCount: result['trackCount'],
+        }
 
         const resp = {
             code: 200,
             msg: '操作成功',
             data: newPlaylist,
-            page: {
-                first: page === 0,
-                last: result["haveMore"] !== 1,
-                page: parseInt(page) + 1,
-                size: parseInt(size),
-                number: newArray.length,
-                totalPages: Math.floor(result["trackCount"] / parseInt(size)),
-                totalSize: result["trackCount"]
-            }
         };
         return JSON.stringify(resp);
     });
@@ -1256,20 +1300,27 @@ function artistSong(artist, page = 0, size = 20) {
     const myArtist = JSON.parse(artist);
     // 定义查询参数
     const params = {
-        artistCode: myArtist["id"],
-        pageNo: parseInt(page) + 1,
-        pageSize: size,
-        timestamp: Date.now(),
-        appid: 16073360
-    };
+        data: JSON.stringify({
+                comm: {ct: 24, cv: 0},
+                //歌曲
+                singerSongList: {
+                    module: "musichall.song_list_server",
+                    method: "GetSingerSongList",
+                    param: {
+                        singerMid: myArtist["id"],
+                        begin: parseInt(page) * parseInt(size),
+                        num: parseInt(size),
+                        order: 1
+                    }
+                },
+            }
+        )
+    }
 
-    params['sign'] = paramsSign(params);
-
-    return axios.get('https://api-qianqian.taihe.com/v1/artist/song', {
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
         params: params
     }).then(function (data) {
-
         let respData;
 
         if (typeof data.data === 'string') {
@@ -1277,6 +1328,7 @@ function artistSong(artist, page = 0, size = 20) {
         } else {
             respData = data.data
         }
+
         if (respData["code"] !== 0) {
             const resp = {
                 code: 500,
@@ -1287,21 +1339,36 @@ function artistSong(artist, page = 0, size = 20) {
         }
 
 
-        const result = respData["data"]
+        const result = respData["singerSongList"]["data"]
 
-        const newArray = result["result"].map(function (element) {
+        const newArray = result["songList"].map(function (element) {
             return {
-                site: 'baidu',
-                id: element['assetId'],
-                pic: `${element["pic"]}@w_200,h_200`,
-                title: element['title'],
-                subTitle: element["artist"].map(function (ar) {
+                site: 'qq',
+                id: {
+                    id: element["songInfo"]["id"],
+                    mid: element["songInfo"]["mid"],
+                    mediaId: element["songInfo"]["file"]["media_mid"]
+                },
+                pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
+                title: element["songInfo"]['title'],
+                subTitle: element["songInfo"]["singer"].map(function (ar) {
                     return ar["name"]
                 }).join(","),
-                vip: element["isVip"],
-                artist: element["artist"].map(function (ar) {
-                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                vip: element["songInfo"]["pay"]["pay_play"],
+                artist: element["songInfo"]["singer"].map(function (ar) {
+                    return {
+                        site: "qq",
+                        id: ar["mid"],
+                        name: ar["name"],
+                        pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
+                    }
                 }),
+                album: {
+                    site: "qq",
+                    id: element["songInfo"]["album"]["mid"],
+                    title: element["songInfo"]["album"]["title"],
+                    pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
+                },
             };
         });
 
@@ -1312,12 +1379,12 @@ function artistSong(artist, page = 0, size = 20) {
             data: newArray,
             page: {
                 first: parseInt(page) === 0,
-                last: (parseInt(page) + 1) * parseInt(size) > result["total"],
+                last: (parseInt(page) + 1) * parseInt(size) > result["totalNum"],
                 page: parseInt(page) + 1,
                 size: parseInt(size),
                 number: newArray.length,
-                totalPages: Math.floor(result["total"] / parseInt(size)),
-                totalSize: result["total"]
+                totalPages: Math.floor(result["totalNum"] / parseInt(size)),
+                totalSize: result["totalNum"]
             }
         };
         return JSON.stringify(resp);
@@ -1330,20 +1397,28 @@ function artistAlbum(artist, page = 0, size = 20) {
     const myArtist = JSON.parse(artist);
     // 定义查询参数
     const params = {
-        artistCode: myArtist["id"],
-        pageNo: parseInt(page) + 1,
-        pageSize: size,
-        timestamp: Date.now(),
-        appid: 16073360
-    };
-
-    params['sign'] = paramsSign(params);
-
-    return axios.get('https://api-qianqian.taihe.com/v1/artist/album', {
+        data: JSON.stringify({
+                comm: {ct: 24, cv: 0},
+                //专辑
+                albumList: {
+                    module: "GetAlbumList",
+                    method: "music.musichallAlbum.AlbumListServer",
+                    param: {
+                        singerMid: myArtist["id"],
+                        begin: parseInt(page) * parseInt(size),
+                        num: parseInt(size),
+                        order: 1,
+                        songNumTag: 0
+                    }
+                },
+            }
+        )
+    }
+    console.log(JSON.stringify(params))
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
         params: params
     }).then(function (data) {
-
         let respData;
 
         if (typeof data.data === 'string') {
@@ -1351,6 +1426,7 @@ function artistAlbum(artist, page = 0, size = 20) {
         } else {
             respData = data.data
         }
+
         if (respData["code"] !== 0) {
             const resp = {
                 code: 500,
@@ -1360,21 +1436,18 @@ function artistAlbum(artist, page = 0, size = 20) {
             return JSON.stringify(resp);
         }
 
-        const result = respData["data"]
 
-        const newArray = result["result"].map(function (element) {
+
+        const result = respData["albumList"]["data"]
+
+        const newArray = result["albumList"].map(function (element) {
             return {
-                site: 'baidu',
-                id: element['albumAssetCode'],
-                pic: `${element["pic"]}@w_200,h_200`,
-                title: element['title'],
-                subTitle: element["artist"].map(function (ar) {
-                    return ar["name"]
-                }).join(","),
-                artist: element["artist"].map(function (ar) {
-                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
-                }),
-                desc: element['introduce'],
+                site: 'qq',
+                id: element['albumMid'],
+                pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["albumMid"]}.jpg`,
+                title: element['albumName'],
+                subTitle: element["singerName"],
+                artist: [myArtist]
             };
         });
 
@@ -1385,12 +1458,12 @@ function artistAlbum(artist, page = 0, size = 20) {
             data: newArray,
             page: {
                 first: parseInt(page) === 0,
-                last: (parseInt(page) + 1) * parseInt(size) > result["total"],
+                last: (parseInt(page) + 1) * parseInt(size) > result["totalNum"],
                 page: parseInt(page) + 1,
                 size: parseInt(size),
                 number: newArray.length,
-                totalPages: Math.floor(result["total"] / parseInt(size)),
-                totalSize: result["total"]
+                totalPages: Math.floor(result["totalNum"] / parseInt(size)),
+                totalSize: result["totalNum"]
             }
         };
         return JSON.stringify(resp);

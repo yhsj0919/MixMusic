@@ -12,7 +12,6 @@ class MixRank {
   String? pic;
   String? subTitle;
   String? desc;
-  String? period;
   dynamic songCount;
   List<MixSong>? songs = const [];
 
@@ -23,7 +22,6 @@ class MixRank {
     required this.pic,
     this.subTitle,
     this.desc,
-    this.period,
     this.songCount,
     this.songs = const [],
   });

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/entity/mix_rank.dart';
 import 'package:mix_music/entity/mix_song.dart';
+import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/app_image.dart';
 
@@ -43,6 +44,7 @@ class _RankDetailPageState extends State<RankDetailPage> {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight;
     return Scaffold(
+      floatingActionButton: PlayBar(),
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [

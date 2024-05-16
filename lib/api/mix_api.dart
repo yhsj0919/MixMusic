@@ -195,7 +195,7 @@ class MixApi extends MusicApi {
   }
 
   @override
-  Future<AppRespEntity<List<MixArtist>>> artistList({Map<String, String?>? type, required int page, required int size}) {
+  Future<AppRespEntity<List<MixArtist>>> artistList({Map<String, dynamic>? type, required int page, required int size}) {
     var ss = json.encode(type);
     return invokeMethod(method: "artistList", params: [ss, page, size]).then((value) {
       AppRespEntity<List<MixArtist>> data = AppRespEntity.fromJson(json.decode(value));

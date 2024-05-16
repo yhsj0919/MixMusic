@@ -55,7 +55,7 @@ abstract class MusicApi {
   Future<AppRespEntity<MixRank>> rankInfo({required MixRank rank, required int page, required int size});
 
   ///歌手
-  Future<AppRespEntity<List<MixArtist>>> artistList({Map<String, String?>? type, required int page, required int size});
+  Future<AppRespEntity<List<MixArtist>>> artistList({Map<String, dynamic>? type, required int page, required int size});
 
   ///歌手分类
   Future<AppRespEntity<List<MixArtistType>>> artistType();

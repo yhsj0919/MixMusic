@@ -1,7 +1,5 @@
 import 'package:dart_json_mapper/dart_json_mapper.dart';
 
-import 'mix_song.dart';
-
 @jsonSerializable
 class MixArtistType {
   String site;

@@ -1401,14 +1401,15 @@ function artistAlbum(artist, page = 0, size = 20) {
                 comm: {ct: 24, cv: 0},
                 //专辑
                 albumList: {
-                    module: "GetAlbumList",
-                    method: "music.musichallAlbum.AlbumListServer",
+                    method: "GetAlbumList",
+                    module: "music.musichallAlbum.AlbumListServer",
                     param: {
                         singerMid: myArtist["id"],
                         begin: parseInt(page) * parseInt(size),
                         num: parseInt(size),
-                        order: 1,
-                        songNumTag: 0
+                        order: 0,
+                        songNumTag: 0,
+                        singerID: 0
                     }
                 },
             }

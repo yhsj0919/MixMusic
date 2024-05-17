@@ -5,10 +5,10 @@
 // @author       yhsj
 // @icon         https://y.qq.com/favicon.ico
 // @webSite      https://y.qq.com
-// @method       ["searchMusic","playUrl","playList","playListType","playListInfo","albumType","albumList","albumInfo","rankList","rankInfo","artistList","artistType","artistSong","artistAlbum"]
+// @method       ["searchMusic","playUrl","playList","playListType","playListInfo","albumType","albumList","albumInfo","rankList","rankInfo","artistList","artistType","artistSong","artistAlbum","artistInfo","playListRec","albumRec","songRec","parsePlayList"]
 // ==/PluginsInfo==
 
-// ,"playListRec","albumRec","songRec","artistInfo","parsePlayList"
+//
 const headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0",
     "Cookie": "",
@@ -85,17 +85,18 @@ async function searchMusic(key, page = 0, size = 20) {
                     mid: element["mid"],
                     mediaId: element["file"]["media_mid"]
                 },
+                urls: getUrls(element["file"]),
                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
-                title: element['name'],
+                title: element['title'],
                 subTitle: element["singer"].map(function (ar) {
-                    return ar["name"]
+                    return ar["title"]
                 }).join(","),
                 vip: element["pay"]["pay_play"],
                 artist: element["singer"].map(function (ar) {
                     return {
                         site: "qq",
                         id: ar["mid"],
-                        name: ar["name"],
+                        name: ar["title"],
                         pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
                     }
                 }),
@@ -146,6 +147,12 @@ async function playUrl(song) {
         console.error('Error:', error);
     }
 
+    // const typeObj = typeMap[128];
+    // const file = `${typeObj.s}${mySong["id"]["id"]}${mySong["id"]["mid"]}${typeObj.e}`;
+
+    // console.log(file)
+    console.log(mySong)
+
     // 定义查询参数
     const params = {
         data: JSON.stringify({
@@ -160,6 +167,9 @@ async function playUrl(song) {
                 module: "vkey.GetVkeyServer",
                 param: {
                     guid: getUid(),
+                    // filename: typeMap.map(function (element) {
+                    //     return `${element.s}${mySong["id"]["mediaId"]}${element.e}`;
+                    // }),
                     songmid: [`${mySong["id"]["mid"]}`],
                     songtype: [0],
                     uin: "0",
@@ -198,8 +208,20 @@ async function playUrl(song) {
         try {
             const urls = respData["req"]["data"]["midurlinfo"].filter(item => item["purl"] !== "");
             const sip = respData["req"]["data"]["sip"]
+            urls.forEach(function (ss) {
+
+                const url = `${sip[0]}${ss["purl"]}`
+
+                console.log(url)
+
+            })
+
+
             if (urls.length !== 0 && sip.length !== 0) {
                 const url = `${sip[0]}${urls[0]["purl"]}`
+
+                console.log(url)
+
                 mySong["url"] = url;
             }
 
@@ -287,13 +309,17 @@ function playListType() {
 function playListRec() {
     // 定义查询参数
     const params = {
-        timestamp: Date.now(),
-        appid: 16073360,
-    };
+        data: JSON.stringify({
+            comm: {ct: 20, cv: 1807, uin: "0"},
+            playlist: {
+                module: "music.playlist.PlaylistSquare",
+                method: "GetRecommendFeed",
+                param: {"From": 0, "Size": 10},
+            }
+        })
+    }
 
-    params['sign'] = paramsSign(params);
-
-    return axios.get('https://api-qianqian.taihe.com/v1/index', {
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
         params: params
     }).then(function (data) {
@@ -315,21 +341,18 @@ function playListRec() {
             return JSON.stringify(resp);
         }
 
+        const result = respData["playlist"]["data"]["List"]
 
-        const result = respData["data"].find(function (data) {
-            return data["type"] === "tracklist";
-        });
+        const newArray = result.map(function (element) {
 
-
-        const newArray = result["result"].map(function (element) {
             return {
-                site: 'baidu',
-                id: element['id'],
-                pic: `${element["pic"]}@w_200,h_200`,
-                title: element['title'],
-                subTitle: element['desc'],
-                desc: element['desc'],
-                songCount: element['trackCount'],
+                site: 'qq',
+                id: element["Playlist"]["basic"]['tid'],
+                pic: element["Playlist"]["basic"]["cover"]["default_url"],
+                title: element["Playlist"]["basic"]["title"],
+                subTitle: element["Playlist"]["basic"]["desc"],
+                desc: element["Playlist"]["basic"]["desc"],
+                songCount: element["Playlist"]["basic"]["song_cnt"],
             };
         });
         const resp = {
@@ -420,6 +443,8 @@ function playList(type, page = 0, size = 20) {
 // 歌单详情
 function playListInfo(playlist, page = 0, size = 20) {
     const myPlaylist = JSON.parse(playlist);
+
+    console.log(myPlaylist["id"])
     // 定义查询参数
     const params = {
         data: JSON.stringify({
@@ -448,14 +473,10 @@ function playListInfo(playlist, page = 0, size = 20) {
         })
     }
 
-    console.log(JSON.stringify(params))
-
-
     return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
         params: params
     }).then(function (data) {
-        console.log(JSON.stringify(data))
         let respData;
 
         if (typeof data.data === 'string') {
@@ -496,6 +517,7 @@ function playListInfo(playlist, page = 0, size = 20) {
                     mid: element["mid"],
                     mediaId: element["file"]["media_mid"]
                 },
+                urls: getUrls(element["file"]),
                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                 title: element['title'],
                 subTitle: element["singer"].map(function (ar) {
@@ -609,17 +631,25 @@ function albumType() {
 function albumRec() {
     // 定义查询参数
     const params = {
-        timestamp: Date.now(),
-        appid: 16073360,
-    };
+        data: JSON.stringify({
+            comm: {ct: 20, cv: 1807, uin: "0"},
+            album: {
+                module: "newalbum.NewAlbumServer",
+                method: "get_new_album_info",
+                param: {
+                    last_id: "",
+                    start: 0,
+                    num: 10,
+                    area: 1,
+                },
+            }
+        })
+    }
 
-    params['sign'] = paramsSign(params);
-
-    return axios.get('https://api-qianqian.taihe.com/v1/index', {
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
         params: params
     }).then(function (data) {
-
         let respData;
 
         if (typeof data.data === 'string') {
@@ -637,32 +667,26 @@ function albumRec() {
             return JSON.stringify(resp);
         }
 
+        const result = respData["album"]["data"]
 
-        const result = respData["data"].find(function (data) {
-            return data["type"] === "album";
-        });
-
-
-        const newArray = result["result"].map(function (element) {
+        const newArray = result["albums"].map(function (element) {
             return {
-                site: 'baidu',
-                id: element['albumAssetCode'],
-                pic: `${element["pic"]}@w_200,h_200`,
-                title: element['title'],
-                subTitle: element["artist"].map(function (ar) {
+                site: 'qq',
+                id: element['mid'],
+                pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["mid"]}.jpg`,
+                title: element['name'],
+                subTitle: element["singers"].map(function (ar) {
                     return ar["name"]
                 }).join(","),
-                artist: element["artist"].map(function (ar) {
-                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                artist: element["singers"].map(function (ar) {
+                    return {site: "qq", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
                 }),
-                songCount: element['trackCount'],
             };
         });
         const resp = {
             code: 200,
             msg: '操作成功',
-            data: newArray,
-
+            data: newArray
         };
         return JSON.stringify(resp);
     });
@@ -835,6 +859,7 @@ function albumInfo(album, page = 0, size = 20) {
                     mid: element["songInfo"]["mid"],
                     mediaId: element["songInfo"]["file"]["media_mid"]
                 },
+                urls: getUrls(element["songInfo"]["file"]),
                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
                 title: element["songInfo"]['title'],
                 subTitle: element["songInfo"]["singer"].map(function (ar) {
@@ -1016,6 +1041,7 @@ function rankInfo(rank, page = 0, size = 20) {
                     mid: element["mid"],
                     mediaId: element["file"]["media_mid"]
                 },
+                urls: getUrls(element["file"]),
                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["mid"]}.jpg`,
                 title: element['title'],
                 subTitle: element["singer"].map(function (ar) {
@@ -1349,6 +1375,7 @@ function artistSong(artist, page = 0, size = 20) {
                     mid: element["songInfo"]["mid"],
                     mediaId: element["songInfo"]["file"]["media_mid"]
                 },
+                urls: getUrls(element["songInfo"]["file"]),
                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
                 title: element["songInfo"]['title'],
                 subTitle: element["songInfo"]["singer"].map(function (ar) {
@@ -1415,7 +1442,6 @@ function artistAlbum(artist, page = 0, size = 20) {
             }
         )
     }
-    console.log(JSON.stringify(params))
     return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
         params: params
@@ -1436,7 +1462,6 @@ function artistAlbum(artist, page = 0, size = 20) {
             };
             return JSON.stringify(resp);
         }
-
 
 
         const result = respData["albumList"]["data"]
@@ -1475,25 +1500,29 @@ function artistAlbum(artist, page = 0, size = 20) {
 function songRec() {
     // 定义查询参数
     const params = {
-        timestamp: Date.now(),
-        appid: 16073360,
-    };
+        data: JSON.stringify({
+            comm: {ct: 20, cv: 1087},
+            newSong: {
+                module: "newsong.NewSongServer",
+                method: "get_new_song_info",
+                param: {
+                    type: 5
+                }
+            }
+        })
+    }
 
-    params['sign'] = paramsSign(params);
-
-    return axios.get('https://api-qianqian.taihe.com/v1/index', {
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
-        params: params
+        params: params,
     }).then(function (data) {
 
         let respData;
-
         if (typeof data.data === 'string') {
             respData = JSON.parse(data.data)
         } else {
             respData = data.data
         }
-
         if (respData["code"] !== 0) {
             const resp = {
                 code: 500,
@@ -1503,37 +1532,41 @@ function songRec() {
             return JSON.stringify(resp);
         }
 
-
-        const result = respData["data"].find(function (data) {
-            return data["type"] === "song";
-        });
-
-        const newArray = result["result"].map(function (element) {
+        const newArray = respData["newSong"]["data"]["songlist"].map(function (element) {
             return {
-                site: 'baidu',
-                id: element['assetId'],
-                pic: `${element["pic"]}@w_200,h_200`,
+                site: 'qq',
+                id: {
+                    id: element["id"],
+                    mid: element["mid"],
+                    mediaId: element["file"]["media_mid"]
+                },
+                urls: getUrls(element["file"]),
+                pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                 title: element['title'],
-                subTitle: element["artist"].map(function (ar) {
-                    return ar["name"]
+                subTitle: element["singer"].map(function (ar) {
+                    return ar["title"]
                 }).join(","),
-                vip: element["isVip"],
-                artist: element["artist"].map(function (ar) {
-                    return {site: "baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                vip: element["pay"]["pay_play"],
+                artist: element["singer"].map(function (ar) {
+                    return {
+                        site: "qq",
+                        id: ar["mid"],
+                        name: ar["title"],
+                        pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
+                    }
                 }),
                 album: {
-                    site: "baidu",
-                    id: element["albumAssetCode"],
-                    title: element["albumTitle"],
-                    pic: `${element["pic"]}@w_200,h_200`,
+                    site: "qq",
+                    id: element["album"]["mid"],
+                    title: element["album"]["title"],
+                    pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                 },
-                lyric: element["lyric"],
             };
         });
         const resp = {
             code: 200,
             msg: '操作成功',
-            data: newArray
+            data: newArray.slice(0, 10)
         };
         return JSON.stringify(resp);
     });
@@ -1542,11 +1575,9 @@ function songRec() {
 // 歌单详情
 function parsePlayList(url) {
     console.log(url)
-    if (!url.toString().includes("music.91q.com") && !url.toString().includes("music.taihe.com")) {
+    if (!url.toString().includes("y.qq.com")) {
         return JSON.stringify({code: 500, msg: "暂不支持此链接"});
     }
-    console.log(url)
-
     var id
 
     let pattern = /[/][\d]+[?]*/g;
@@ -1554,28 +1585,42 @@ function parsePlayList(url) {
     let matches = url.toString().match(pattern);
 
     if (matches !== null) {
-        id = matches[0].slice(1, -1)
+        id = matches[0].slice(1)
     }
 
-    console.log(url)
-    console.log(id)
-    //
     // 定义查询参数
     const params = {
-        id: id,
-        pageNo: 1,
-        pageSize: 10,
-        timestamp: Date.now(),
-        appid: 16073360
-    };
+        data: JSON.stringify({
+            comm: {
+                g_tk: 5381,
+                uin: 0,
+                format: "json",
+                ct: 20,
+                cv: 1807,
+                platform: "wk_v17",
+            },
+            playlist: {
+                module: "music.srfDissInfo.aiDissInfo",
+                method: "uniform_get_Dissinfo",
+                param: {
+                    disstid: parseInt(id),
+                    userinfo: 1,
+                    tag: 1,
+                    orderlist: 1,
+                    song_begin: 0,
+                    song_num: 20,
+                    onlysonglist: 0,
+                    enc_host_uin: ""
+                }
+            }
+        })
+    }
 
-    params['sign'] = paramsSign(params);
 
-    return axios.get('https://api-qianqian.taihe.com/v1/tracklist/info', {
+    return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
         headers: headers,
         params: params
     }).then(function (data) {
-
         let respData;
 
         if (typeof data.data === 'string') {
@@ -1593,36 +1638,182 @@ function parsePlayList(url) {
             return JSON.stringify(resp);
         }
 
-        const result = respData["data"]
+
+        const result = respData["playlist"]["data"]
+
         const newPlaylist = {
-            site: 'baidu',
-            id: result['id'],
-            pic: `${result["pic"]}@w_200,h_200`,
-            title: result['title'],
-            subTitle: result['desc'],
-            desc: result['desc'],
-            songCount: result['trackCount'],
+            site: 'qq',
+            id: result["dirinfo"]['id'],
+            pic: result["dirinfo"]["picurl"],
+            title: result["dirinfo"]['title'],
+            subTitle: result["dirinfo"]['desc'],
+            desc: result["dirinfo"]['desc'],
+            songCount: result["dirinfo"]['songnum'],
         }
 
         const resp = {
             code: 200,
             msg: '操作成功',
-            data: newPlaylist,
+            data: newPlaylist
         };
         return JSON.stringify(resp);
     });
 }
 
 
-function paramsSign(params) {
+function getUrls(urls) {
 
-    const paramsString = Object.entries(params)
-        .map(([key, value]) => `${key}=${value}`)
-        .sort()
-        .join('&');
-    const signStr = `${paramsString.toString()}0b50b02fd0d73a9c4c8c3a781c30845f`;
+    //             "media_mid": "002OWTIf4Tq1Xx",
+    //             "size_24aac": 0,
+    //             "size_48aac": 1188720,
+    //             "size_96aac": 2389294,
+    //             "size_192ogg": 4347940,
+    //             "size_192aac": 4736900,
+    //             "size_128mp3": 3136979,
+    //             "size_320mp3": 7841993,
+    //             "size_ape": 0,
+    //             "size_flac": 41560304,
+    //             "size_dts": 0,
+    //             "size_hires": 0,
+    //             "size_96ogg": 2242692,
 
-    console.log(signStr)
+    // const typeMap = [
+    //     {q: "size_24aac", s: "C100", e: ".m4a"},
+    //     {q: "size_48aac", s: "C200", e: ".m4a"},
+    //     {q: "size_96aac", s: "C400", e: ".m4a"},
+    //     {q: "size_128mp3", s: "M500", e: ".mp3"},
+    //     {q: "size_192ogg", s: "O600", e: ".ogg"},
+    //     {q: "size_192aac", s: "C600", e: ".m4a"},
+    //     {q: "size_320mp3", s: "M800", e: ".mp3"},
+    //     {q: "size_flac", s: "F000", e: ".flac"},
+    //     {q: "size_ape", s: "A000", e: ".ape"},
+    //     {q: "size_dts", s: "D00A", e: ".flac"},
+    //     {q: "size_hires", s: "RS01", e: ".flac"},
+    // ];
+    const myUrls = [];
 
-    return CryptoJS.MD5(signStr).toString();
+    if (urls["size_24aac"] !== 0) {
+        myUrls.push({
+            site: "qq",
+            name: "24aac",
+            quality: 24,
+            prefix: "C100",
+            suffix: "m4a",
+            size: urls["size_24aac"],
+            mid: urls["media_mid"]
+        })
+    }
+    if (urls["size_48aac"] !== 0) {
+        myUrls.push({
+            site: "qq",
+            name: "48aac",
+            quality: 48,
+            prefix: "C200",
+            suffix: "m4a",
+            size: urls["size_48aac"],
+            mid: urls["media_mid"]
+        })
+    }
+    if (urls["size_96aac"] !== 0) {
+        myUrls.push({
+            site: "qq",
+            name: "96aac",
+            quality: 96,
+            prefix: "C400",
+            suffix: "m4a",
+            size: urls["size_96aac"],
+            mid: urls["media_mid"]
+        })
+    }
+    if (urls["size_128mp3"] !== 0) {
+        myUrls.push({
+            site: "qq",
+            name: "128mp3",
+            quality: 128,
+            prefix: "M500",
+            suffix: "mp3",
+            size: urls["size_128mp3"],
+            mid: urls["media_mid"]
+        })
+    }
+    if (urls["size_192ogg"] !== 0) {
+        myUrls.push({
+            site: "qq",
+            name: "192ogg",
+            quality: 192,
+            prefix: "O600",
+            suffix: "ogg",
+            size: urls["size_192ogg"],
+            mid: urls["media_mid"]
+        })
+    }
+    if (urls["size_192aac"] !== 0) {
+        myUrls.push({
+            site: "qq",
+            name: "192aac",
+            quality: 192,
+            prefix: "C600",
+            suffix: "m4a",
+            size: urls["size_192aac"],
+            mid: urls["media_mid"]
+        })
+    }
+    if (urls["size_320mp3"] !== 0) {
+        myUrls.push({
+            site: "qq",
+            name: "320mp3",
+            quality: 320,
+            prefix: "M800",
+            suffix: "mp3",
+            size: urls["size_320mp3"],
+            mid: urls["media_mid"]
+        })
+    }
+    if (urls["size_flac"] !== 0) {
+        myUrls.push({
+            site: "qq",
+            name: "flac",
+            quality: 1000,
+            prefix: "F000",
+            suffix: "flac",
+            size: urls["size_flac"],
+            mid: urls["media_mid"]
+        })
+    }
+    if (urls["size_ape"] !== 0) {
+        myUrls.push({
+            site: "qq",
+            name: "ape",
+            quality: 1000,
+            prefix: "A000",
+            suffix: "ape",
+            size: urls["size_ape"],
+            mid: urls["media_mid"]
+        })
+    }
+    if (urls["size_dts"] !== 0) {
+        myUrls.push({
+            site: "qq",
+            name: "dts",
+            quality: 1000,
+            prefix: "D00A",
+            suffix: "flac",
+            size: urls["size_dts"],
+            mid: urls["media_mid"]
+        })
+    }
+
+    if (urls["size_hires"] !== 0) {
+        myUrls.push({
+            site: "qq",
+            name: "hires",
+            quality: 1000,
+            prefix: "RS01",
+            suffix: "flac",
+            size: urls["size_hires"],
+            mid: urls["media_mid"]
+        })
+    }
+
+    return myUrls
 }

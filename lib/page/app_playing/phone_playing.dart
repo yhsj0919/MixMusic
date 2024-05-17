@@ -94,9 +94,9 @@ class _PhonePlayingState extends State<PhonePlaying> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(music.currentMusic.value?.title ?? "N/A", style: Theme.of(context).textTheme.headlineSmall),
-                            Text(music.currentMusic.value?.subTitle ?? "N/A",
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.outline)),
+                            Obx(() => Text(music.currentMusic.value?.title ?? "N/A", style: Theme.of(context).textTheme.headlineSmall)),
+                            Obx(() => Text(music.currentMusic.value?.subTitle ?? "N/A",
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.outline))),
                           ],
                         ),
                       ),

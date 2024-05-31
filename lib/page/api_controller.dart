@@ -11,6 +11,7 @@ import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
 import 'package:mix_music/entity/mix_rank.dart';
 import 'package:mix_music/entity/mix_song.dart';
+import 'package:mix_music/utils/sp.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../api/mix_api.dart';
@@ -31,6 +32,12 @@ class ApiController extends GetxController {
   @override
   Future<void> onInit() async {
     super.onInit();
+
+    var matchVip = Sp.getBool(Sp.KEY_MATCH_VIP) ?? false;
+    ApiFactory.matchVip(matchVip);
+
+    var list = Sp.getStringList(Sp.KEY_MATCH_SITE);
+    ApiFactory.setMatchSite((list ?? []).toSet());
 
     initPlugins();
   }

@@ -1579,14 +1579,24 @@ function parsePlayList(url) {
         return JSON.stringify({code: 500, msg: "暂不支持此链接"});
     }
     var id
+    if (url.toString().includes("y.qq.com/n/ryqq/playlist")) {
+        let pattern = /[\d]{5,}/g;
+        // 使用正则表达式的 exec() 方法来执行匹配
+        let matches = url.toString().match(pattern);
 
-    let pattern = /[/][\d]+[?]*/g;
-    // 使用正则表达式的 exec() 方法来执行匹配
-    let matches = url.toString().match(pattern);
+        if (matches !== null) {
+            id = matches[0]
+        }
+    } else {
+        let pattern = /id=[\d]{5,}/g;
+        // 使用正则表达式的 exec() 方法来执行匹配
+        let matches = url.toString().match(pattern);
 
-    if (matches !== null) {
-        id = matches[0].slice(1)
+        if (matches !== null) {
+            id = matches[0].slice(3)
+        }
     }
+
 
     // 定义查询参数
     const params = {

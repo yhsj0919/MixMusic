@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/mix_api.dart';
@@ -41,8 +42,8 @@ class _PluginsPageState extends State<PluginsPage> {
               child: Text(result ?? ""),
             ),
           ),
-          Obx(() => ListView.builder(
-              shrinkWrap: true,
+          Expanded(child: Obx(() => ListView.builder(
+
               itemCount: api.plugins.length,
               itemBuilder: (context, index) {
                 var plugin = api.getPlugin(index);
@@ -58,7 +59,7 @@ class _PluginsPageState extends State<PluginsPage> {
                     test(plugin);
                   },
                 );
-              }))
+              })))
         ],
       ),
     );

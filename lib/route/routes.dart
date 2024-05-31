@@ -16,6 +16,7 @@ import 'package:mix_music/page/search/search_page.dart';
 import 'package:mix_music/page/setting/home_site_page.dart';
 
 import '../page/artist/artist_detail_page.dart';
+import '../page/setting/cookie_page.dart';
 import '../page/setting/match_site_page.dart';
 import '../page/welcome/welcome_page.dart';
 
@@ -37,6 +38,7 @@ class Routes {
   static const String playListDetail = "/playlistDetail";
   static const String matchSite = "/matchSite";
   static const String homeSite = "/homeSite";
+  static const String cookieSetting = "/cookieSetting";
   static const String album = "/album";
   static const String albumDetail = "/albumDetail";
 
@@ -52,6 +54,7 @@ class Routes {
     GetPage(name: plugins, page: () => const PluginsPage()),
     GetPage(name: matchSite, page: () => const MatchSitePage()),
     GetPage(name: homeSite, page: () => const HomeSitePage()),
+    GetPage(name: cookieSetting, page: () => const CookiePage()),
     GetPage(name: home, page: () => const HomePage()),
     GetPage(name: mine, page: () => const MinePage()),
     GetPage(name: search, page: () => const SearchPage()),

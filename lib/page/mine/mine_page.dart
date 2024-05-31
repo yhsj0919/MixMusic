@@ -70,6 +70,14 @@ class _MinePageState extends State<MinePage> {
               Get.toNamed(Routes.homeSite);
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.cookie),
+            title: const Text("站点登录"),
+            subtitle: const Text("配置cookie，实现登录"),
+            onTap: () {
+              Get.toNamed(Routes.cookieSetting);
+            },
+          ),
         ],
       ),
     );

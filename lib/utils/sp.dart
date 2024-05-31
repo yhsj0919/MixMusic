@@ -6,6 +6,7 @@ class Sp {
   static String KEY_MATCH_SITE = "KEY_MATCH_SITE";
   static String KEY_HOME_SITE = "KEY_HOME_SITE";
   static String KEY_FIRST_IN = "KEY_FIRST_IN";
+  static String KEY_COOKIE = "KEY_COOKIE";
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();

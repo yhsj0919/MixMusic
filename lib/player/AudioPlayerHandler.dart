@@ -74,9 +74,11 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
     Player.onPlayerStateChanged.listen((event) {
       print('>>>>>>>>>>$event');
       if (event == PlayerState.playing) {
-        isPlaying = true;
         smtc?.setPlaybackStatus(PlaybackStatus.Playing);
         Player.setActive(true);
+        Future.delayed(Duration(milliseconds: 200)).then((v) {
+          isPlaying = true;
+        });
       } else if (event == PlayerState.paused) {
         smtc?.setPlaybackStatus(PlaybackStatus.Paused);
         isPlaying = false;

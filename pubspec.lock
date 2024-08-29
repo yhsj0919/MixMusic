@@ -478,10 +478,12 @@ packages:
   flutter_js:
     dependency: "direct main"
     description:
-      path: "modules/flutter_js"
-      relative: true
-    source: path
-    version: "0.8.0"
+      path: "."
+      ref: master
+      resolved-ref: ad162f2d4dc59d8e0b010945236907c80d308d94
+      url: "https://github.com/yhsj0919/flutter_js"
+    source: git
+    version: "0.8.1"
   flutter_lints:
     dependency: "direct dev"
     description:

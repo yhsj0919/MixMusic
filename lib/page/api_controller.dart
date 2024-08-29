@@ -190,7 +190,7 @@ class ApiController extends GetxController {
     return ApiFactory.api(site: site)!.artistAlbum(artist: artist, page: page, size: size);
   }
 
-  Future<String> invokeMethod({required PluginsInfo plugin, required String method, List<String> params = const []}) async {
+  Future<dynamic> invokeMethod({required PluginsInfo plugin, required String method, List<String> params = const []}) async {
     return (await MixApi.api(plugins: plugin)).invokeMethod(method: method, params: params);
   }
 

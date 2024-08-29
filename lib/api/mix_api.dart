@@ -108,14 +108,14 @@ class MixApi extends MusicApi {
   }
 
   @override
-  Future<String> invokeMethod({required String method, List<dynamic> params = const []}) {
+  Future<dynamic> invokeMethod({required String method, List<dynamic> params = const []}) {
     var ddd = current?.evaluate("typeof $method === 'function'");
     if (ddd?.rawResult == false) {
       return Future.error("${plugins.name}尚未实现此功能");
     }
     var ss = "$method(${params.map((e) => "'$e'").join(",")})";
     print("当前请求:$ss");
-    return current!.invokeMethod("$method(${params.map((e) => "'$e'").join(",")})");
+    return current!.invokeCode("$method(${params.map((e) => "'$e'").join(",")})");
   }
 
   @override

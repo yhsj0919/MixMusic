@@ -67,5 +67,5 @@ abstract class MusicApi {
 
   Future<AppRespEntity<List<MixAlbum>>> artistAlbum({required MixArtist artist, required int page, required int size});
 
-  Future<String> invokeMethod({required String method, List<String> params = const []});
+  Future<dynamic> invokeMethod({required String method, List<String> params = const []});
 }

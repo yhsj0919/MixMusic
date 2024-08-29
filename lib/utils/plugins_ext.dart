@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:crypto/crypto.dart';
 import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -84,48 +83,5 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
       print('crypto 结果: $evalFetchResult');
     }
     return this;
-  }
-
-  ///启用文件插件
-  Future<JavascriptRuntime> enableFilePlugin({required String? path}) async {
-    if (path != null) {
-      var file = File(path);
-      final plugin = await file.readAsString();
-      final evalFetchResult = evaluate(plugin);
-      if (kDebugMode) {
-        print('插件结果: $path : $evalFetchResult');
-      }
-    }
-    return this;
-  }
-
-  ///启用系统文件插件
-  Future<JavascriptRuntime> enableAssetsPlugin({required String path}) async {
-    String plugin = await rootBundle.loadString(path);
-    final evalFetchResult = evaluate(plugin);
-    if (kDebugMode) {
-      print('插件结果: $path : $evalFetchResult');
-    }
-    return this;
-  }
-
-  ///调用方法
-  Future<String> invokeMethod(String code, {String? sourceUrl}) async {
-    try {
-      var asyncResult = await evaluateAsync(code);
-      executePendingJob();
-      return handlePromise(asyncResult).then((value) {
-        if (value.isError) {
-          return Future.error(value.rawResult);
-        } else {
-          return Future.value(value.stringResult);
-        }
-      });
-    } catch (e) {
-      if (kDebugMode) {
-        print("出现异常2");
-      }
-      return Future.error(e);
-    }
   }
 }

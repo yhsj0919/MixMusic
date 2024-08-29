@@ -42,7 +42,9 @@ dependencies:
   #js插件处理
   #  flutter_js: ^0.8.0
   flutter_js:
-    path: modules/flutter_js
+    git:
+      url: https://github.com/yhsj0919/flutter_js
+      ref: master
   #文件路径处理
   path: ^1.9.0
   #json序列化

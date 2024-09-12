@@ -29,45 +29,43 @@ class _HomeSitePageState extends State<HomeSitePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Obx(
-      () => CustomScrollView(
-        slivers: [
-          const SliverAppBar.large(
-            title: Text("首页数据"),
-          ),
-          SliverToBoxAdapter(
-            child: ListTile(
-              title: Text("站点", style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).colorScheme.primary)),
-              subtitle: const Text("下列站点可展示在首页"),
+      body: Obx(
+        () => CustomScrollView(
+          slivers: [
+            const SliverAppBar.large(
+              title: Text("首页数据"),
             ),
-          ),
-          SliverList.builder(
-            itemCount: plugins.length,
-            itemBuilder: (BuildContext context, int index) {
-              var plugin = plugins[index];
-
-              return Obx(
-                () => CommonItem(
-                  child: RadioListTile<String?>(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12), // 圆角半径
+            SliverToBoxAdapter(
+              child: ListTile(
+                title: Text("站点", style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.primary)),
+                subtitle: Text("下列站点可展示在首页", style: Theme.of(context).textTheme.bodyMedium),
+              ),
+            ),
+            SliverList.builder(
+              itemCount: plugins.length,
+              itemBuilder: (BuildContext context, int index) {
+                var plugin = plugins[index];
+                return Obx(
+                  () => CommonItem(
+                    child: RadioListTile<String?>(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      title: Text(plugin.name ?? ""),
+                      subtitle: Text(plugin.version ?? ""),
+                      secondary: AppImage(url: '${plugin.icon}', width: 40, height: 40),
+                      value: plugin.package,
+                      groupValue: homeSite.value,
+                      onChanged: (String? value) {
+                        Sp.setString(Constant.KEY_HOME_SITE, value ?? "");
+                        homeSite.value = value;
+                      },
                     ),
-                    title: Text(plugin.name ?? ""),
-                    subtitle: Text(plugin.version ?? ""),
-                    secondary: AppImage(url: '${plugin.icon}', width: 40, height: 40),
-                    value: plugin.package,
-                    groupValue: homeSite.value,
-                    onChanged: (String? value) {
-                      Sp.setString(Constant.KEY_HOME_SITE, value ?? "");
-                      homeSite.value = value;
-                    },
                   ),
-                ),
-              );
-            },
-          ),
-        ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
-    ));
+    );
   }
 }

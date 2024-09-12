@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/utils/sp.dart';
+import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/common_item.dart';
 
 class CookiePage extends StatefulWidget {
   const CookiePage({super.key});
@@ -30,52 +32,65 @@ class _CookiePageState extends State<CookiePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("cookie设置"),
-      ),
-      body: Obx(
-        () => ListView.builder(
+      body: CustomScrollView(
+        slivers: [
+          const SliverAppBar.large(
+            title: Text("Cookie设置"),
+          ),
+          SliverList.builder(
             itemCount: plugins.length,
-            itemBuilder: (context, index) {
+            itemBuilder: (BuildContext context, int index) {
               var plugin = plugins[index];
               var cookie = Sp.getString("${Constant.KEY_COOKIE}_${plugin.package}");
+              return CommonItem(
+                child: ListTile(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  leading: AppImage(url: "${plugin.icon}", width: 40, height: 40),
+                  title: Text("${plugin.name}"),
+                  subtitle: Text(cookie?.isNotEmpty == true ? "$cookie" : "未设置"),
+                  onTap: () {
+                    var controller = TextEditingController(text: cookie);
 
-              return ListTile(
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: Image.network("${plugin.icon}", width: 40, height: 40, fit: BoxFit.cover),
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('设置'),
+                          content: TextField(
+                            maxLines: 5,
+                            controller: controller,
+                            decoration: const InputDecoration(
+                              hintText: "请输入cookie",
+                              border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('取消'),
+                              onPressed: () {
+                                Navigator.of(context).pop(); // 关闭对话框
+                              },
+                            ),
+                            TextButton(
+                              child: const Text('确定'),
+                              onPressed: () {
+                                print(controller.text);
+                                Sp.setString("${Constant.KEY_COOKIE}_${plugin.package}", controller.text);
+                                Navigator.of(context).pop(); // 关闭对话框
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    ).then((v) {
+                      setState(() {});
+                    });
+                  },
                 ),
-                title: Text("${plugin.name}"),
-                subtitle: Text(cookie?.isNotEmpty == true ? "$cookie" : "未设置"),
-                onTap: () {
-                  var controller = TextEditingController();
-
-                  Get.defaultDialog(
-                      title: "设置",
-                      content: TextField(
-                        maxLines: 5,
-                        controller: controller,
-                        decoration: const InputDecoration(
-                          hintText: "请输入cookie",
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      cancel: TextButton(
-                          onPressed: () {
-                            Get.back();
-                          },
-                          child: const Text("取消")),
-                      confirm: TextButton(
-                          onPressed: () {
-                            print(controller.text);
-                            Sp.setString("${Constant.KEY_COOKIE}_${plugin.package}", controller.text);
-                            Get.back();
-                            setState(() {});
-                          },
-                          child: const Text("确定")));
-                },
               );
-            }),
+            },
+          ),
+        ],
       ),
     );
   }

@@ -116,7 +116,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
             itemBuilder: (BuildContext context, int index) {
               var item = plugins[index];
               return PluginItem(
-                leading: AppImage(url: "${item.icon}"),
+                leading: AppImage(url: "${item.icon}", width: 40, height: 40),
                 title: "${item.name} ${item.version}",
                 subtitle: "${item.desc}",
                 trailing: IconButton(

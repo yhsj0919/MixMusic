@@ -4,6 +4,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
@@ -14,7 +15,6 @@ import '../../entity/page_entity.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 import '../../player/music_controller.dart';
 import '../../widgets/message.dart';
-import '../api_controller.dart';
 
 class PlayListDetailPage extends StatefulWidget {
   const PlayListDetailPage({super.key});
@@ -27,7 +27,6 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   late EasyRefreshController refreshController;
   MusicController music = Get.put(MusicController());
   RxList<MixSong> songList = RxList();
-  ApiController api = Get.put(ApiController());
   Rxn<PageEntity> pageEntity = Rxn();
   Rxn<MixPlaylist> playlist = Rxn();
 
@@ -168,8 +167,8 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   }
 
   ///获取歌单
-  Future<void> getPlayListInfo({int page = 0}) {
-    return api.playListInfo(site: playlist.value?.package  ?? "", playlist: playlist.value!, page: page).then((value) {
+  void getPlayListInfo({int page = 0}) {
+    ApiFactory.api(package: playlist.value?.package ?? "")?.playListInfo(playlist: playlist.value!, page: page, size: 20).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         songList.clear();

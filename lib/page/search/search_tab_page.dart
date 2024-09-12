@@ -2,10 +2,10 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/entity/page_entity.dart';
 import 'package:mix_music/entity/plugins_info.dart';
-import 'package:mix_music/page/api_controller.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
@@ -25,7 +25,6 @@ class SearchTabPage extends StatefulWidget {
 
 class _SearchTabPageState extends State<SearchTabPage> with AutomaticKeepAliveClientMixin {
   late EasyRefreshController refreshController;
-  ApiController api = Get.put(ApiController());
   MusicController music = Get.put(MusicController());
 
   Rxn<PageEntity> pageEntity = Rxn();
@@ -95,11 +94,11 @@ class _SearchTabPageState extends State<SearchTabPage> with AutomaticKeepAliveCl
     );
   }
 
-  Future<void> searchSong({required String keyword, int page = 0, int size = 20}) {
+  void searchSong({required String keyword, int page = 0, int size = 20}) {
     if (keyword.isEmpty) {
-      return Future(() => null);
+      return;
     }
-    return api.searchSong(site: widget.plugin.package !, keyword: keyword, page: page, size: size).then((value) {
+    ApiFactory.api(package: widget.plugin.package!)?.searchSong(keyword: keyword, page: page, size: size).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         songList.clear();

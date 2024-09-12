@@ -55,7 +55,12 @@ const music = {
                         }).join(","),
                         vip: element["isVip"],
                         artist: element["artist"].map(function (ar) {
-                            return {package: "xyz.yhsj.baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                            return {
+                                package: "xyz.yhsj.baidu",
+                                id: ar["artistCode"],
+                                name: ar["name"],
+                                pic: `${ar["pic"]}`
+                            }
                         }),
                         album: {
                             package: "xyz.yhsj.baidu",
@@ -240,7 +245,12 @@ const music = {
                         }).join(","),
                         vip: element["isVip"],
                         artist: element["artist"].map(function (ar) {
-                            return {package: "xyz.yhsj.baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                            return {
+                                package: "xyz.yhsj.baidu",
+                                id: ar["artistCode"],
+                                name: ar["name"],
+                                pic: `${ar["pic"]}`
+                            }
                         }),
                         album: {
                             package: "xyz.yhsj.baidu",
@@ -301,7 +311,12 @@ const music = {
                             return ar["name"]
                         }).join(","),
                         artist: element["artist"].map(function (ar) {
-                            return {package: "xyz.yhsj.baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                            return {
+                                package: "xyz.yhsj.baidu",
+                                id: ar["artistCode"],
+                                name: ar["name"],
+                                pic: `${ar["pic"]}`
+                            }
                         }),
                         songCount: element['trackCount'],
                     }
@@ -366,7 +381,12 @@ const music = {
                         }).join(","),
                         vip: element["isVip"],
                         artist: result["artist"]?.map(function (ar) {
-                            return {package: "xyz.yhsj.baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                            return {
+                                package: "xyz.yhsj.baidu",
+                                id: ar["artistCode"],
+                                name: ar["name"],
+                                pic: `${ar["pic"]}`
+                            }
                         }),
                     }
                 })
@@ -452,7 +472,12 @@ const music = {
                             return ar["name"]
                         }).join(","),
                         artist: element["artist"]?.map(function (ar) {
-                            return {package: "xyz.yhsj.baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                            return {
+                                package: "xyz.yhsj.baidu",
+                                id: ar["artistCode"],
+                                name: ar["name"],
+                                pic: `${ar["pic"]}`
+                            }
                         }),
                         songCount: element['trackCount'],
                     }
@@ -490,7 +515,12 @@ const music = {
                         }).join(","),
                         vip: element["isVip"],
                         artist: element["artist"].map(function (ar) {
-                            return {package: "xyz.yhsj.baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                            return {
+                                package: "xyz.yhsj.baidu",
+                                id: ar["artistCode"],
+                                name: ar["name"],
+                                pic: `${ar["pic"]}`
+                            }
                         }),
                         album: {
                             package: "xyz.yhsj.baidu",
@@ -576,7 +606,12 @@ const music = {
                         }).join(","),
                         vip: element["isVip"],
                         artist: element["artist"].map(function (ar) {
-                            return {package: "xyz.yhsj.baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                            return {
+                                package: "xyz.yhsj.baidu",
+                                id: ar["artistCode"],
+                                name: ar["name"],
+                                pic: `${ar["pic"]}`
+                            }
                         }),
                     }
                 })
@@ -772,7 +807,12 @@ const music = {
                         }).join(","),
                         vip: element["isVip"],
                         artist: element["artist"].map(function (ar) {
-                            return {package: "xyz.yhsj.baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                            return {
+                                package: "xyz.yhsj.baidu",
+                                id: ar["artistCode"],
+                                name: ar["name"],
+                                pic: `${ar["pic"]}`
+                            }
                         }),
                         album: {
                             package: "xyz.yhsj.baidu",
@@ -800,116 +840,128 @@ const music = {
                 }
             })
         },
-        song: function artistSong(artist, page = 0, size = 20) {
-            const myArtist = JSON.parse(artist)
-            const params = {
-                artistCode: myArtist["id"],
-                pageNo: parseInt(page) + 1,
-                pageSize: size,
-                timestamp: Date.now(),
-                appid: 16073360
-            }
-            params['sign'] = paramsSign(params)
-            return axios.get('https://api-qianqian.taihe.com/v1/artist/song', {
-                headers: headers,
-                params: params
-            }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
+        detail: {
+            song: function artistSong(artist, page = 0, size = 20) {
+                const myArtist = JSON.parse(artist)
+                const params = {
+                    artistCode: myArtist["id"],
+                    pageNo: parseInt(page) + 1,
+                    pageSize: size,
+                    timestamp: Date.now(),
+                    appid: 16073360
                 }
-                if (respData["errno"] !== 22000) {
-                    return {code: 500, msg: data["errmsg"], data: null}
-                }
-                const result = respData["data"]
-                const newArray = result["result"].map(function (element) {
+                params['sign'] = paramsSign(params)
+                return axios.get('https://api-qianqian.taihe.com/v1/artist/song', {
+                    headers: headers,
+                    params: params
+                }).then(function (data) {
+                    let respData
+                    if (typeof data.data === 'string') {
+                        respData = JSON.parse(data.data)
+                    } else {
+                        respData = data.data
+                    }
+                    if (respData["errno"] !== 22000) {
+                        return {code: 500, msg: data["errmsg"], data: null}
+                    }
+                    const result = respData["data"]
+                    const newArray = result["result"].map(function (element) {
+                        return {
+                            package: 'xyz.yhsj.baidu',
+                            id: element['assetId'],
+                            pic: `${element["pic"]}@w_400,h_400`,
+                            title: element['title'],
+                            subTitle: element["artist"].map(function (ar) {
+                                return ar["name"]
+                            }).join(","),
+                            vip: element["isVip"],
+                            artist: element["artist"].map(function (ar) {
+                                return {
+                                    package: "xyz.yhsj.baidu",
+                                    id: ar["artistCode"],
+                                    name: ar["name"],
+                                    pic: `${ar["pic"]}`
+                                }
+                            }),
+                        }
+                    })
                     return {
-                        package: 'xyz.yhsj.baidu',
-                        id: element['assetId'],
-                        pic: `${element["pic"]}@w_400,h_400`,
-                        title: element['title'],
-                        subTitle: element["artist"].map(function (ar) {
-                            return ar["name"]
-                        }).join(","),
-                        vip: element["isVip"],
-                        artist: element["artist"].map(function (ar) {
-                            return {package: "xyz.yhsj.baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
-                        }),
+                        code: 200,
+                        msg: '操作成功',
+                        data: newArray,
+                        page: {
+                            first: parseInt(page) === 0,
+                            last: (parseInt(page) + 1) * parseInt(size) > result["total"],
+                            page: parseInt(page) + 1,
+                            size: parseInt(size),
+                            number: newArray.length,
+                            totalPages: Math.floor(result["total"] / parseInt(size)),
+                            totalSize: result["total"]
+                        }
                     }
                 })
-                return {
-                    code: 200,
-                    msg: '操作成功',
-                    data: newArray,
-                    page: {
-                        first: parseInt(page) === 0,
-                        last: (parseInt(page) + 1) * parseInt(size) > result["total"],
-                        page: parseInt(page) + 1,
-                        size: parseInt(size),
-                        number: newArray.length,
-                        totalPages: Math.floor(result["total"] / parseInt(size)),
-                        totalSize: result["total"]
+            },
+            album: function artistAlbum(artist, page = 0, size = 20) {
+                const myArtist = JSON.parse(artist)
+                const params = {
+                    artistCode: myArtist["id"],
+                    pageNo: parseInt(page) + 1,
+                    pageSize: size,
+                    timestamp: Date.now(),
+                    appid: 16073360
+                }
+                params['sign'] = paramsSign(params)
+                return axios.get('https://api-qianqian.taihe.com/v1/artist/album', {
+                    headers: headers,
+                    params: params
+                }).then(function (data) {
+                    let respData
+                    if (typeof data.data === 'string') {
+                        respData = JSON.parse(data.data)
+                    } else {
+                        respData = data.data
                     }
-                }
-            })
-        },
-        album: function artistAlbum(artist, page = 0, size = 20) {
-            const myArtist = JSON.parse(artist)
-            const params = {
-                artistCode: myArtist["id"],
-                pageNo: parseInt(page) + 1,
-                pageSize: size,
-                timestamp: Date.now(),
-                appid: 16073360
-            }
-            params['sign'] = paramsSign(params)
-            return axios.get('https://api-qianqian.taihe.com/v1/artist/album', {
-                headers: headers,
-                params: params
-            }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
-                if (respData["errno"] !== 22000) {
-                    return {code: 500, msg: data["errmsg"], data: null}
-                }
-                const result = respData["data"]
-                const newArray = result["result"].map(function (element) {
+                    if (respData["errno"] !== 22000) {
+                        return {code: 500, msg: data["errmsg"], data: null}
+                    }
+                    const result = respData["data"]
+                    const newArray = result["result"].map(function (element) {
+                        return {
+                            package: 'xyz.yhsj.baidu',
+                            id: element['albumAssetCode'],
+                            pic: `${element["pic"]}@w_400,h_400`,
+                            title: element['title'],
+                            subTitle: element["artist"].map(function (ar) {
+                                return ar["name"]
+                            }).join(","),
+                            artist: element["artist"].map(function (ar) {
+                                return {
+                                    package: "xyz.yhsj.baidu",
+                                    id: ar["artistCode"],
+                                    name: ar["name"],
+                                    pic: `${ar["pic"]}`
+                                }
+                            }),
+                            desc: element['introduce'],
+                        }
+                    })
                     return {
-                        package: 'xyz.yhsj.baidu',
-                        id: element['albumAssetCode'],
-                        pic: `${element["pic"]}@w_400,h_400`,
-                        title: element['title'],
-                        subTitle: element["artist"].map(function (ar) {
-                            return ar["name"]
-                        }).join(","),
-                        artist: element["artist"].map(function (ar) {
-                            return {package: "xyz.yhsj.baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
-                        }),
-                        desc: element['introduce'],
+                        code: 200,
+                        msg: '操作成功',
+                        data: newArray,
+                        page: {
+                            first: parseInt(page) === 0,
+                            last: (parseInt(page) + 1) * parseInt(size) > result["total"],
+                            page: parseInt(page) + 1,
+                            size: parseInt(size),
+                            number: newArray.length,
+                            totalPages: Math.floor(result["total"] / parseInt(size)),
+                            totalSize: result["total"]
+                        }
                     }
                 })
-                return {
-                    code: 200,
-                    msg: '操作成功',
-                    data: newArray,
-                    page: {
-                        first: parseInt(page) === 0,
-                        last: (parseInt(page) + 1) * parseInt(size) > result["total"],
-                        page: parseInt(page) + 1,
-                        size: parseInt(size),
-                        number: newArray.length,
-                        totalPages: Math.floor(result["total"] / parseInt(size)),
-                        totalSize: result["total"]
-                    }
-                }
-            })
-        },
+            },
+        }
     },
     parse: {
         playlist: function parsePlayList(url) {

@@ -87,7 +87,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                       Expanded(
                           child: Obx(() => AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 500),
-                                child: _showLrc.value ? buildLrc(context) : Container(),
+                                child: _showLrc.value ? Obx(()=>buildLrc(context)) : Container(),
                               ))),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

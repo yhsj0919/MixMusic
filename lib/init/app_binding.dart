@@ -1,12 +1,11 @@
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/page/api_controller.dart';
 import 'package:mix_music/player/music_controller.dart';
 
 class AppBinding implements Bindings {
   @override
-  void dependencies() {
-    Get.put(ApiController());
+  Future<void> dependencies() async {
+    ApiFactory.init();
     Get.put(MusicController());
   }
 }

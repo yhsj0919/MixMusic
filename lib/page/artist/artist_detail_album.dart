@@ -2,11 +2,10 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_artist.dart';
-import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/entity/page_entity.dart';
-import 'package:mix_music/page/api_controller.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
@@ -25,7 +24,6 @@ class ArtistDetailAlbum extends StatefulWidget {
 
 class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> with AutomaticKeepAliveClientMixin {
   late EasyRefreshController refreshController;
-  ApiController api = Get.put(ApiController());
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixAlbum> albumList = RxList();
 
@@ -53,7 +51,6 @@ class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> with AutomaticKee
         itemBuilder: (BuildContext context, int index) {
           var item = albumList[index];
           return ListTile(
-
             leading: AppImage(url: item.pic ?? ""),
             title: Text("${item.title}", maxLines: 1),
             subtitle: Text("${item.subTitle}", maxLines: 1),
@@ -67,8 +64,8 @@ class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> with AutomaticKee
   }
 
   ///获取歌单
-  Future<void> artistSong({required MixArtist artist, int page = 0}) {
-    return api.artistAlbum(site: widget.artist.package , artist: artist, page: page).then((value) {
+  void artistSong({required MixArtist artist, int page = 0}) {
+    ApiFactory.api(package: widget.artist.package)?.artistAlbum(artist: artist, page: page, size: 20).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         albumList.clear();

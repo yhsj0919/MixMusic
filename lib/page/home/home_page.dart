@@ -3,18 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/constant.dart';
-import 'package:mix_music/entity/mix_album.dart';
-import 'package:mix_music/entity/mix_song.dart';
-import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/route/routes.dart';
-import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/ext.dart';
 
-import '../../entity/mix_play_list.dart';
-import '../../widgets/message.dart';
-import '../api_controller.dart';
 import '../app_playing/play_bar.dart';
 import 'home_controller.dart';
 

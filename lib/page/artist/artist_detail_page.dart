@@ -4,20 +4,17 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_artist.dart';
-import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_song.dart';
+import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/page/artist/artist_detail_album.dart';
 import 'package:mix_music/page/artist/artist_detail_song.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/app_image.dart';
-import 'package:mix_music/widgets/page_list_view.dart';
 
 import '../../entity/page_entity.dart';
-import 'package:mix_music/page/app_playing/play_bar.dart';
 import '../../player/music_controller.dart';
-import '../../widgets/message.dart';
-import '../api_controller.dart';
 
 class ArtistDetailPage extends StatefulWidget {
   const ArtistDetailPage({super.key});
@@ -30,7 +27,6 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
   late EasyRefreshController refreshController;
   MusicController music = Get.put(MusicController());
   RxList<MixSong> songList = RxList();
-  ApiController api = Get.put(ApiController());
   Rxn<PageEntity> pageEntity = Rxn();
   Rxn<MixArtist> artist = Rxn();
 
@@ -43,7 +39,9 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
     super.initState();
     artist.value = Get.arguments;
 
-    detailMethod.addAll(api.getArtistDetailMethod(artist.value?.package ));
+    detailMethod.addAll(ApiFactory.getArtistMethod(artist.value?.package));
+
+    print(detailMethod);
 
     tabController = TabController(length: detailMethod.length, vsync: this);
 
@@ -121,13 +119,13 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
                     controller: tabController,
                     isScrollable: true,
                     tabs: detailMethod.map((element) {
-                      if (element == "artistSong") {
+                      if (element == "song") {
                         return const Tab(text: "歌曲");
                       }
-                      if (element == "artistAlbum") {
+                      if (element == "album") {
                         return const Tab(text: "专辑");
                       }
-                      if (element == "artistMv") {
+                      if (element == "mv") {
                         return const Tab(text: "MV");
                       }
 
@@ -155,10 +153,10 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
     return TabBarView(
       controller: tabController,
       children: detailMethod.map((element) {
-        if (element == "artistSong") {
+        if (element == "song") {
           return ArtistDetailSong(artist: artist.value!);
         }
-        if (element == "artistAlbum") {
+        if (element == "album") {
           return ArtistDetailAlbum(artist: artist.value!);
         }
 

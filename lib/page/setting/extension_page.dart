@@ -2,11 +2,12 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/plugins_info.dart';
+import 'package:mix_music/page/home/home_controller.dart';
 import 'package:mix_music/utils/plugins_ext.dart';
 import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/OpacityRoute.dart';
@@ -23,11 +24,15 @@ class ExtensionPage extends StatefulWidget {
 }
 
 class _ExtensionPageState extends State<ExtensionPage> {
+  HomeController home = Get.put(HomeController());
+
   List<PluginsInfo> plugins = [];
+  String? homeSite;
 
   @override
   void initState() {
     super.initState();
+    homeSite = Sp.getString(Constant.KEY_HOME_SITE);
 
     getPlugins();
   }
@@ -39,9 +44,9 @@ class _ExtensionPageState extends State<ExtensionPage> {
     });
   }
 
-  void initPlugins() {
-
-    ApiFactory.init();
+  Future<void> initPlugins() async {
+    await ApiFactory.init();
+    home.getData();
   }
 
   @override
@@ -116,10 +121,15 @@ class _ExtensionPageState extends State<ExtensionPage> {
                 subtitle: "${item.desc}",
                 trailing: IconButton(
                     onPressed: () async {
+                      ///删除设置的首页
+                      if (homeSite == item.package) {
+                        Sp.remove(Constant.KEY_HOME_SITE);
+                      }
                       await Sp.removeList<PluginsInfo>(Constant.KEY_EXTENSION, check: (old) {
                         return old.package == item.package;
                       });
                       getPlugins();
+                      initPlugins();
                     },
                     icon: const Icon(Icons.clear)),
                 onTap: () {

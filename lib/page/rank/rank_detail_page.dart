@@ -4,6 +4,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_rank.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
@@ -14,7 +15,6 @@ import '../../entity/page_entity.dart';
 import '../../player/music_controller.dart';
 import '../../widgets/message.dart';
 import '../../widgets/page_list_view.dart';
-import '../api_controller.dart';
 
 class RankDetailPage extends StatefulWidget {
   const RankDetailPage({super.key});
@@ -27,7 +27,6 @@ class _RankDetailPageState extends State<RankDetailPage> {
   late EasyRefreshController refreshController;
   MusicController music = Get.put(MusicController());
   RxList<MixSong> songList = RxList();
-  ApiController api = Get.put(ApiController());
   Rxn<PageEntity> pageEntity = Rxn();
   Rxn<MixRank> rank = Rxn();
 
@@ -174,8 +173,8 @@ class _RankDetailPageState extends State<RankDetailPage> {
   }
 
   ///获取专辑
-  Future<void> getRankInfo({int page = 0}) {
-    return api.rankInfo(site: rank.value?.package  ?? "", rank: rank.value!, page: page).then((value) {
+  void getRankInfo({int page = 0}) {
+    ApiFactory.api(package: rank.value?.package ?? "")?.rankInfo(rank: rank.value!, page: page, size: 20).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         rank.value = value.data;

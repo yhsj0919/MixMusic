@@ -1,22 +1,22 @@
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
+import 'package:mix_music/api/music_api.dart';
 import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_song.dart';
-import 'package:mix_music/page/api_controller.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/message.dart';
 
 class HomeController extends GetxController {
   MusicController music = Get.put(MusicController());
-  ApiController api = Get.put(ApiController());
   RxList<MixPlaylist> playlist = RxList();
   RxList<MixAlbum> albumList = RxList();
   RxList<MixSong> songList = RxList();
 
-  RxnString homeSite = RxnString();
+  RxnString homeSitePackage = RxnString();
+
 
   @override
   Future<void> onInit() async {
@@ -25,7 +25,12 @@ class HomeController extends GetxController {
   }
 
   void getData() {
-    homeSite.value = Sp.getString(Constant.KEY_HOME_SITE) ?? ApiFactory.getRecPlugins().firstOrNull?.package;
+    playlist.clear();
+    albumList.clear();
+    songList.clear();
+
+
+    homeSitePackage.value = Sp.getString(Constant.KEY_HOME_SITE) ?? ApiFactory.getRecPlugins().firstOrNull?.package;
 
     getSongRec();
     getPlayListRec();
@@ -34,9 +39,9 @@ class HomeController extends GetxController {
 
   ///获取歌单
   void getPlayListRec() {
-    api.playListRec(site: homeSite.value ?? "").then((value) {
+    ApiFactory.api(package: homeSitePackage.value ?? "")?.playListRec().then((value) {
       playlist.clear();
-      playlist.addAll(value?.data ?? []);
+      playlist.addAll(value.data ?? []);
 
       // showComplete("操作成功");
     }).catchError((e) {
@@ -45,10 +50,10 @@ class HomeController extends GetxController {
   }
 
   ///获取专辑
-  Future<void> getAlbumRec() {
-    return api.albumRec(site: homeSite.value ?? "").then((value) {
+  void getAlbumRec() {
+    ApiFactory.api(package: homeSitePackage.value ?? "")?.albumRec().then((value) {
       albumList.clear();
-      albumList.addAll(value?.data ?? []);
+      albumList.addAll(value.data ?? []);
 
       // showComplete("操作成功");
     }).catchError((e) {
@@ -57,10 +62,10 @@ class HomeController extends GetxController {
   }
 
   ///获取新歌
-  Future<void> getSongRec() {
-    return api.songRec(site: homeSite.value ?? "").then((value) {
+  void getSongRec() {
+    ApiFactory.api(package: homeSitePackage.value ?? "")?.songRec().then((value) {
       songList.clear();
-      songList.addAll(value?.data ?? []);
+      songList.addAll(value.data ?? []);
 
       // showComplete("操作成功");
     }).catchError((e) {

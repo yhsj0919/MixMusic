@@ -2,11 +2,11 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
 import 'package:mix_music/entity/page_entity.dart';
 import 'package:mix_music/entity/plugins_info.dart';
-import 'package:mix_music/page/api_controller.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
@@ -26,7 +26,6 @@ class PlayListTabPage extends StatefulWidget {
 
 class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAliveClientMixin {
   late EasyRefreshController refreshController;
-  ApiController api = Get.put(ApiController());
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixPlaylist> playlist = RxList();
   RxList<MixPlaylistType> playlistType = RxList();
@@ -35,7 +34,7 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
   @override
   void initState() {
     super.initState();
-    widget.controller._addState(widget.plugin.package  ?? "", this);
+    widget.controller._addState(widget.plugin.package ?? "", this);
     refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
     getPlayList();
     getPlayListType();
@@ -71,8 +70,8 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
   }
 
   ///获取歌单
-  Future<void> getPlayList({String? type, int page = 0}) {
-    return api.playList(site: widget.plugin.package !, type: type, page: page).then((value) {
+  void getPlayList({String? type, int page = 0}) {
+    ApiFactory.api(package: widget.plugin.package!)?.playList(type: type, page: page, size: 20).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         playlist.clear();
@@ -95,8 +94,8 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
   }
 
   ///获取歌单类型
-  Future<void> getPlayListType() {
-    return api.playListType(site: widget.plugin.package !).then((value) {
+  void getPlayListType() {
+    ApiFactory.api(package: widget.plugin.package!)?.playListType().then((value) {
       playlistType.clear();
       playlistType.addAll(value.data ?? []);
     }).catchError((e) {

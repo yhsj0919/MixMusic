@@ -4,20 +4,20 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_song.dart';
+import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/app_image.dart';
 
 import '../../entity/page_entity.dart';
-import 'package:mix_music/page/app_playing/play_bar.dart';
 import '../../player/music_controller.dart';
 import '../../widgets/message.dart';
 import '../../widgets/page_list_view.dart';
-import '../api_controller.dart';
 
 class AlbumDetailPage extends StatefulWidget {
- const AlbumDetailPage({super.key});
+  const AlbumDetailPage({super.key});
 
   @override
   State<AlbumDetailPage> createState() => _AlbumDetailPageState();
@@ -27,7 +27,6 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
   late EasyRefreshController refreshController;
   MusicController music = Get.put(MusicController());
   RxList<MixSong> songList = RxList();
-  ApiController api = Get.put(ApiController());
   Rxn<PageEntity> pageEntity = Rxn();
   Rxn<MixAlbum> album = Rxn();
 
@@ -35,6 +34,7 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
   void initState() {
     super.initState();
     album.value = Get.arguments;
+
     refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
     getAlbumInfo();
   }
@@ -174,8 +174,8 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
   }
 
   ///获取专辑
-  Future<void> getAlbumInfo({int page = 0}) {
-    return api.albumInfo(site: album.value?.package ?? "", album: album.value!, page: page).then((value) {
+  void getAlbumInfo({int page = 0}) {
+    ApiFactory.api(package: album.value?.package ?? "")?.albumInfo(album: album.value!, page: page, size: 20).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         album.value = value.data;

@@ -1351,174 +1351,178 @@ const music = {
                 };
             });
         },
-        song: function artistSong(artist, page = 0, size = 20) {
+        detail: {
+            song: function artistSong(artist, page = 0, size = 20) {
 
-            const myArtist = JSON.parse(artist);
-            // 定义查询参数
-            const params = {
-                data: JSON.stringify({
-                        comm: {ct: 24, cv: 0},
-                        //歌曲
-                        singerSongList: {
-                            module: "musichall.song_list_server",
-                            method: "GetSingerSongList",
-                            param: {
-                                singerMid: myArtist["id"],
-                                begin: parseInt(page) * parseInt(size),
-                                num: parseInt(size),
-                                order: 1
-                            }
-                        },
+                const myArtist = JSON.parse(artist);
+                // 定义查询参数
+                const params = {
+                    data: JSON.stringify({
+                            comm: {ct: 24, cv: 0},
+                            //歌曲
+                            singerSongList: {
+                                module: "musichall.song_list_server",
+                                method: "GetSingerSongList",
+                                param: {
+                                    singerMid: myArtist["id"],
+                                    begin: parseInt(page) * parseInt(size),
+                                    num: parseInt(size),
+                                    order: 1
+                                }
+                            },
+                        }
+                    )
+                }
+
+                return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
+                    headers: headers,
+                    params: params
+                }).then(function (data) {
+                    let respData;
+
+                    if (typeof data.data === 'string') {
+                        respData = JSON.parse(data.data)
+                    } else {
+                        respData = data.data
                     }
-                )
-            }
 
-            return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
-                headers: headers,
-                params: params
-            }).then(function (data) {
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
-
-                if (respData["code"] !== 0) {
-                    return {
-                        code: 500,
-                        msg: '请求失败',
-                        data: null
-                    };
-                }
+                    if (respData["code"] !== 0) {
+                        return {
+                            code: 500,
+                            msg: '请求失败',
+                            data: null
+                        };
+                    }
 
 
-                const result = respData["singerSongList"]["data"]
+                    const result = respData["singerSongList"]["data"]
 
-                const newArray = result["songList"].map(function (element) {
-                    return {
-                        package: 'xyz.yhsj.qq',
-                        id: {
-                            id: element["songInfo"]["id"],
-                            mid: element["songInfo"]["mid"],
-                            mediaId: element["songInfo"]["file"]["media_mid"]
-                        },
-                        urls: getUrls(element["songInfo"]["file"]),
-                        pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
-                        title: element["songInfo"]['title'],
-                        subTitle: element["songInfo"]["singer"].map(function (ar) {
-                            return ar["name"]
-                        }).join(","),
-                        vip: element["songInfo"]["pay"]["pay_play"],
-                        artist: element["songInfo"]["singer"].map(function (ar) {
-                            return {
-                                package: "xyz.yhsj.qq",
-                                id: ar["mid"],
-                                name: ar["name"],
-                                pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
-                            }
-                        }),
-                        album: {
-                            package: "xyz.yhsj.qq",
-                            id: element["songInfo"]["album"]["mid"],
-                            title: element["songInfo"]["album"]["title"],
+                    const newArray = result["songList"].map(function (element) {
+                        return {
+                            package: 'xyz.yhsj.qq',
+                            id: {
+                                id: element["songInfo"]["id"],
+                                mid: element["songInfo"]["mid"],
+                                mediaId: element["songInfo"]["file"]["media_mid"]
+                            },
+                            urls: getUrls(element["songInfo"]["file"]),
                             pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
-                        },
+                            title: element["songInfo"]['title'],
+                            subTitle: element["songInfo"]["singer"].map(function (ar) {
+                                return ar["name"]
+                            }).join(","),
+                            vip: element["songInfo"]["pay"]["pay_play"],
+                            artist: element["songInfo"]["singer"].map(function (ar) {
+                                return {
+                                    package: "xyz.yhsj.qq",
+                                    id: ar["mid"],
+                                    name: ar["name"],
+                                    pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
+                                }
+                            }),
+                            album: {
+                                package: "xyz.yhsj.qq",
+                                id: element["songInfo"]["album"]["mid"],
+                                title: element["songInfo"]["album"]["title"],
+                                pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
+                            },
+                        };
+                    });
+
+
+                    return {
+                        code: 200,
+                        msg: '操作成功',
+                        data: newArray,
+                        page: {
+                            first: parseInt(page) === 0,
+                            last: (parseInt(page) + 1) * parseInt(size) > result["totalNum"],
+                            page: parseInt(page) + 1,
+                            size: parseInt(size),
+                            number: newArray.length,
+                            totalPages: Math.floor(result["totalNum"] / parseInt(size)),
+                            totalSize: result["totalNum"]
+                        }
                     };
                 });
+            },
+            album: function artistAlbum(artist, page = 0, size = 20) {
 
-
-                return {
-                    code: 200,
-                    msg: '操作成功',
-                    data: newArray,
-                    page: {
-                        first: parseInt(page) === 0,
-                        last: (parseInt(page) + 1) * parseInt(size) > result["totalNum"],
-                        page: parseInt(page) + 1,
-                        size: parseInt(size),
-                        number: newArray.length,
-                        totalPages: Math.floor(result["totalNum"] / parseInt(size)),
-                        totalSize: result["totalNum"]
-                    }
-                };
-            });
-        },
-        album: function artistAlbum(artist, page = 0, size = 20) {
-
-            const myArtist = JSON.parse(artist);
-            // 定义查询参数
-            const params = {
-                data: JSON.stringify({
-                        comm: {ct: 24, cv: 0},
-                        //专辑
-                        albumList: {
-                            method: "GetAlbumList",
-                            module: "music.musichallAlbum.AlbumListServer",
-                            param: {
-                                singerMid: myArtist["id"],
-                                begin: parseInt(page) * parseInt(size),
-                                num: parseInt(size),
-                                order: 0,
-                                songNumTag: 0,
-                                singerID: 0
-                            }
-                        },
-                    }
-                )
-            }
-            return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
-                headers: headers,
-                params: params
-            }).then(function (data) {
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
+                const myArtist = JSON.parse(artist);
+                // 定义查询参数
+                const params = {
+                    data: JSON.stringify({
+                            comm: {ct: 24, cv: 0},
+                            //专辑
+                            albumList: {
+                                method: "GetAlbumList",
+                                module: "music.musichallAlbum.AlbumListServer",
+                                param: {
+                                    singerMid: myArtist["id"],
+                                    begin: parseInt(page) * parseInt(size),
+                                    num: parseInt(size),
+                                    order: 0,
+                                    songNumTag: 0,
+                                    singerID: 0
+                                }
+                            },
+                        }
+                    )
                 }
+                return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
+                    headers: headers,
+                    params: params
+                }).then(function (data) {
+                    console.log(JSON.stringify(data))
 
-                if (respData["code"] !== 0) {
+                    let respData;
+
+                    if (typeof data.data === 'string') {
+                        respData = JSON.parse(data.data)
+                    } else {
+                        respData = data.data
+                    }
+
+                    if (respData["code"] !== 0) {
+                        return {
+                            code: 500,
+                            msg: '请求失败',
+                            data: null
+                        };
+                    }
+
+                    const result = respData["albumList"]["data"]
+
+                    const newArray = result["albumList"].map(function (element) {
+                        return {
+                            package: 'xyz.yhsj.qq',
+                            id: element['albumMid'],
+                            pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["albumMid"]}.jpg`,
+                            title: element['albumName'],
+                            subTitle: element["singerName"],
+                            artist: [myArtist]
+                        };
+                    });
+
+
                     return {
-                        code: 500,
-                        msg: '请求失败',
-                        data: null
-                    };
-                }
-
-
-                const result = respData["albumList"]["data"]
-
-                const newArray = result["albumList"].map(function (element) {
-                    return {
-                        package: 'xyz.yhsj.qq',
-                        id: element['albumMid'],
-                        pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["albumMid"]}.jpg`,
-                        title: element['albumName'],
-                        subTitle: element["singerName"],
-                        artist: [myArtist]
+                        code: 200,
+                        msg: '操作成功',
+                        data: newArray,
+                        page: {
+                            first: parseInt(page) === 0,
+                            last: (parseInt(page) + 1) * parseInt(size) > result["total"],
+                            page: parseInt(page) + 1,
+                            size: parseInt(size),
+                            number: newArray.length,
+                            totalPages: Math.floor(result["total"] / parseInt(size)),
+                            totalSize: result["total"]
+                        }
                     };
                 });
+            },
+        }
 
-
-                return {
-                    code: 200,
-                    msg: '操作成功',
-                    data: newArray,
-                    page: {
-                        first: parseInt(page) === 0,
-                        last: (parseInt(page) + 1) * parseInt(size) > result["totalNum"],
-                        page: parseInt(page) + 1,
-                        size: parseInt(size),
-                        number: newArray.length,
-                        totalPages: Math.floor(result["totalNum"] / parseInt(size)),
-                        totalSize: result["totalNum"]
-                    }
-                };
-            });
-        },
     },
     parse: {
         playlist: function parsePlayList(url) {

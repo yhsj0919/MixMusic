@@ -1,6 +1,8 @@
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
+import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/message.dart';
 
@@ -8,7 +10,6 @@ import '../../entity/mix_play_list.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 import '../../route/routes.dart';
 import '../../widgets/sliver_search_appbar.dart';
-import '../api_controller.dart';
 
 class ParsePlayList extends StatefulWidget {
   const ParsePlayList({super.key});
@@ -21,8 +22,14 @@ class _ParsePlayListState extends State<ParsePlayList> {
   RxString keyWord = RxString("");
   final double bottomBarHeight = 46;
   var controller = TextEditingController(text: "");
-  ApiController api = Get.put(ApiController());
   RxList<MixPlaylist> playlist = RxList();
+  List<PluginsInfo> plugins = [];
+
+  @override
+  void initState() {
+    super.initState();
+    plugins = ApiFactory.getParsePlugins();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +72,7 @@ class _ParsePlayListState extends State<ParsePlayList> {
                     shrinkWrap: true,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (BuildContext context, int index) {
-                      var item = api.parsePlugins[index];
+                      var item = plugins[index];
                       return Container(
                         alignment: Alignment.center,
                         child: Text(item.name ?? ""),
@@ -74,7 +81,7 @@ class _ParsePlayListState extends State<ParsePlayList> {
                     separatorBuilder: (BuildContext context, int index) {
                       return Container(width: 8);
                     },
-                    itemCount: api.parsePlugins.length,
+                    itemCount: plugins.length,
                   )
                 ],
               ),
@@ -88,7 +95,7 @@ class _ParsePlayListState extends State<ParsePlayList> {
                       leading: AppImage(url: item.pic ?? ""),
                       title: Text("${item.title}", maxLines: 1),
                       subtitle: Text("${item.subTitle}", maxLines: 1),
-                      trailing: Text("${item.package }", maxLines: 1),
+                      trailing: Text("${item.package}", maxLines: 1),
                       onTap: () {
                         Get.toNamed(Routes.playListDetail, arguments: item);
                       },
@@ -102,17 +109,15 @@ class _ParsePlayListState extends State<ParsePlayList> {
   }
 
   ///获取歌单
-  Future<void> parsePlayList({String? url}) {
-    if (api.parsePlugins.isEmpty) {
+  void parsePlayList({String? url}) {
+    if (plugins.isEmpty) {
       showError("暂无插件支持");
-      return Future(() => null);
     }
     if (url?.isNotEmpty != true) {
       showError("链接不可为空");
-      return Future(() => null);
     }
 
-    return api.parsePlayList(sites: api.parsePlugins.map((element) => element.package !).toList(), url: url).then((value) {
+    ApiFactory.parsePlayList(packages: plugins.map((element) => element.package!).toList(), url: url).then((value) {
       if (value.isEmpty) {
         showInfo("没有匹配到数据");
       }

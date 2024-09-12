@@ -1,10 +1,10 @@
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/page/api_controller.dart';
-import 'package:mix_music/page/playlist/playlist_tab_page.dart';
-
+import 'package:mix_music/api/api_factory.dart';
+import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
+import 'package:mix_music/page/playlist/playlist_tab_page.dart';
 
 class PlayListPage extends StatefulWidget {
   const PlayListPage({super.key});
@@ -14,16 +14,19 @@ class PlayListPage extends StatefulWidget {
 }
 
 class _PlayListPageState extends State<PlayListPage> with TickerProviderStateMixin {
-  ApiController api = Get.put(ApiController());
   PlayListPageController controller = PlayListPageController();
 
   late TabController tabController;
   final double bottomBarHeight = 46;
 
+  List<PluginsInfo> plugins = [];
+
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: api.playListPlugins.length, vsync: this);
+    plugins = ApiFactory.getPlayListPlugins();
+
+    tabController = TabController(length: plugins.length, vsync: this);
   }
 
   @override
@@ -34,47 +37,45 @@ class _PlayListPageState extends State<PlayListPage> with TickerProviderStateMix
 
     return Scaffold(
       floatingActionButton: PlayBar(),
-      body: Obx(
-        () => ExtendedNestedScrollView(
-          headerSliverBuilder: (BuildContext c, bool f) {
-            return [
-              SliverAppBar(
-                title: const Text('歌单'),
-                forceElevated: f,
-                pinned: true,
-                bottom: PreferredSize(
-                    preferredSize: Size.fromHeight(bottomBarHeight),
-                    child: Row(
-                      children: [
-                        Expanded(
-                            child: TabBar(
-                          isScrollable: true,
-                          controller: tabController,
-                          tabs: api.playListPlugins
-                              .map((item) => Tab(
-                                    text: item.name,
-                                    // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
-                                  ))
-                              .toList(),
-                        )),
-                        IconButton(
-                            onPressed: () {
-                              controller.open(api.playListPlugins[tabController.index].package );
-                            },
-                            icon: const Icon(Icons.filter_list))
-                      ],
-                    )),
-              )
-            ];
-          },
-          pinnedHeaderSliverHeightBuilder: () {
-            return pinnedHeaderHeight;
-          },
-          onlyOneScrollInBody: true,
-          // physics: NeverScrollableScrollPhysics(),
-          body: Column(
-            children: <Widget>[Expanded(child: _buildTabBarView())],
-          ),
+      body: ExtendedNestedScrollView(
+        headerSliverBuilder: (BuildContext c, bool f) {
+          return [
+            SliverAppBar(
+              title: const Text('歌单'),
+              forceElevated: f,
+              pinned: true,
+              bottom: PreferredSize(
+                  preferredSize: Size.fromHeight(bottomBarHeight),
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: TabBar(
+                        isScrollable: true,
+                        controller: tabController,
+                        tabs: plugins
+                            .map((item) => Tab(
+                                  text: item.name,
+                                  // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
+                                ))
+                            .toList(),
+                      )),
+                      IconButton(
+                          onPressed: () {
+                            controller.open(plugins[tabController.index].package);
+                          },
+                          icon: const Icon(Icons.filter_list))
+                    ],
+                  )),
+            )
+          ];
+        },
+        pinnedHeaderSliverHeightBuilder: () {
+          return pinnedHeaderHeight;
+        },
+        onlyOneScrollInBody: true,
+        // physics: NeverScrollableScrollPhysics(),
+        body: Column(
+          children: <Widget>[Expanded(child: _buildTabBarView())],
         ),
       ),
     );
@@ -83,7 +84,7 @@ class _PlayListPageState extends State<PlayListPage> with TickerProviderStateMix
   Widget _buildTabBarView() {
     return TabBarView(
       controller: tabController,
-      children: api.playListPlugins.map((element) => PlayListTabPage(plugin: element, controller: controller)).toList(),
+      children: plugins.map((element) => PlayListTabPage(plugin: element, controller: controller)).toList(),
     );
   }
 }

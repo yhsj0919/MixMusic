@@ -19,7 +19,7 @@ class ApiFactory {
     return _apis[package];
   }
 
-  static init() {
+  static init() async {
     List<PluginsInfo> plugins = Sp.getList(Constant.KEY_EXTENSION) ?? [];
     _plugins.clear();
     _apis.clear();
@@ -27,7 +27,7 @@ class ApiFactory {
 
     for (var element in _plugins) {
       var api = MixApi.api(plugins: element);
-      _apis[element.package!] = api;
+      _apis[element.package!] = await api;
     }
   }
 
@@ -63,6 +63,14 @@ class ApiFactory {
 
   static List<PluginsInfo> getParsePlugins() {
     return getPlugins(key: "parse");
+  }
+
+  static List<String> getSearchMethod(String? package) {
+    return api(package: package ?? "")?.keys(obj: "music.search") ?? [];
+  }
+
+  static List<String> getArtistMethod(String? package) {
+    return api(package: package ?? "")?.keys(obj: "music.artist.detail") ?? [];
   }
 
   static List<PluginsInfo> getPlugins({String? key}) {
@@ -144,9 +152,7 @@ class ApiFactory {
 
   static Future<List<MixPlaylist?>> parsePlayList({required List<String> packages, required String? url}) async {
     var value = await Future.wait(packages.map((e) => _parsePlayList(package: e, url: url)));
-
     var datas = value.where((element) => element != null).toList();
-
     try {
       return datas;
     } catch (e) {

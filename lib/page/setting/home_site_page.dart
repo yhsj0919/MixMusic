@@ -7,7 +7,6 @@ import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/common_item.dart';
 
 import '../../entity/plugins_info.dart';
-import '../api_controller.dart';
 
 class HomeSitePage extends StatefulWidget {
   const HomeSitePage({super.key});
@@ -17,8 +16,6 @@ class HomeSitePage extends StatefulWidget {
 }
 
 class _HomeSitePageState extends State<HomeSitePage> {
-  ApiController controller = Get.put(ApiController());
-
   RxList<PluginsInfo> plugins = RxList();
   RxnString homeSite = RxnString();
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/constant.dart';
-import 'package:mix_music/page/api_controller.dart';
+import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/utils/sp.dart';
 
 class CookiePage extends StatefulWidget {
@@ -12,19 +12,33 @@ class CookiePage extends StatefulWidget {
 }
 
 class _CookiePageState extends State<CookiePage> {
-  ApiController api = Get.put(ApiController());
+  RxList<PluginsInfo> plugins = RxList();
+
+  @override
+  void initState() {
+    super.initState();
+
+    getPlugins();
+  }
+
+  void getPlugins() {
+    List<PluginsInfo>? list = Sp.getList(Constant.KEY_EXTENSION);
+    plugins.clear();
+    plugins.addAll(list ?? []);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("cookie设置"),
-        ),
-        body: ListView.builder(
-            itemCount: api.plugins.length,
+      appBar: AppBar(
+        title: const Text("cookie设置"),
+      ),
+      body: Obx(
+        () => ListView.builder(
+            itemCount: plugins.length,
             itemBuilder: (context, index) {
-              var plugin = api.getPlugin(index);
-              var cookie = Sp.getString("${Constant.KEY_COOKIE}_${plugin.package }");
+              var plugin = plugins[index];
+              var cookie = Sp.getString("${Constant.KEY_COOKIE}_${plugin.package}");
 
               return ListTile(
                 leading: ClipRRect(
@@ -54,13 +68,15 @@ class _CookiePageState extends State<CookiePage> {
                       confirm: TextButton(
                           onPressed: () {
                             print(controller.text);
-                            Sp.setString("${Constant.KEY_COOKIE}_${plugin.package }", controller.text);
+                            Sp.setString("${Constant.KEY_COOKIE}_${plugin.package}", controller.text);
                             Get.back();
                             setState(() {});
                           },
                           child: const Text("确定")));
                 },
               );
-            }));
+            }),
+      ),
+    );
   }
 }

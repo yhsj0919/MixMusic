@@ -53,7 +53,7 @@ dependencies:
   #播放器相关
   audio_service: ^0.18.15
   audio_session: ^0.1.21
-  audioplayers: ^6.0.0
+  audioplayers: ^6.1.0
   audio_video_progress_bar: ^2.0.3
   extended_image: ^8.2.1
   smtc_windows: ^0.1.3

@@ -1,10 +1,11 @@
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/page/api_controller.dart';
+import 'package:mix_music/api/api_factory.dart';
+import 'package:mix_music/entity/plugins_info.dart';
+import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/page/search/search_tab_page.dart';
 
-import 'package:mix_music/page/app_playing/play_bar.dart';
 import '../../widgets/sliver_search_appbar.dart';
 
 class SearchPage extends StatefulWidget {
@@ -15,10 +16,16 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
-  ApiController api = Get.put(ApiController());
   var controller = TextEditingController(text: "");
   RxString keyWord = RxString("");
   final double bottomBarHeight = 46;
+  List<PluginsInfo> plugins = [];
+
+  @override
+  void initState() {
+    super.initState();
+    plugins = ApiFactory.getSearchPlugins();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +34,8 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
 
     return Scaffold(
       floatingActionButton: PlayBar(),
-      body: Obx(
-        () => DefaultTabController(
-          length: api.searchPlugins.length,
+      body:  DefaultTabController(
+          length: plugins.length,
           child: ExtendedNestedScrollView(
             headerSliverBuilder: (BuildContext c, bool f) {
               return [
@@ -44,7 +50,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                       preferredSize: Size.fromHeight(bottomBarHeight),
                       child: TabBar(
                         isScrollable: true,
-                        tabs: api.searchPlugins
+                        tabs: plugins
                             .map((item) => Tab(
                                   text: item.name,
                                   // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
@@ -64,25 +70,13 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
             ),
           ),
         ),
-      ),
     );
   }
 
   Widget _buildTabBarView() {
     return TabBarView(
-      children: api.searchPlugins.map((element) => Obx(() => SearchTabPage(plugin: element, keyWord: keyWord.value))).toList(),
+      children: plugins.map((element) => Obx(() => SearchTabPage(plugin: element, keyWord: keyWord.value))).toList(),
     );
   }
 }
 
-class CustomScrollBehavior extends ScrollBehavior {
-  @override
-  ScrollPhysics getScrollPhysics(BuildContext context) {
-    return BouncingScrollPhysics(); // 自定义滚动物理效果
-  }
-
-  @override
-  Widget buildViewportChrome(BuildContext context, Widget child, AxisDirection axisDirection) {
-    return child; // 不改变滚动条样式
-  }
-}

@@ -2,11 +2,10 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_artist.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/entity/page_entity.dart';
-import 'package:mix_music/page/api_controller.dart';
-import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/message.dart';
@@ -26,7 +25,6 @@ class ArtistDetailSong extends StatefulWidget {
 class _ArtistDetailSongState extends State<ArtistDetailSong> with AutomaticKeepAliveClientMixin {
   late EasyRefreshController refreshController;
   MusicController music = Get.put(MusicController());
-  ApiController api = Get.put(ApiController());
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixSong> songList = RxList();
 
@@ -84,8 +82,8 @@ class _ArtistDetailSongState extends State<ArtistDetailSong> with AutomaticKeepA
   }
 
   ///获取歌单
-  Future<void> artistSong({required MixArtist artist, int page = 0}) {
-    return api.artistSong(site: widget.artist.package , artist: artist, page: page).then((value) {
+  void artistSong({required MixArtist artist, int page = 0}) {
+    ApiFactory.api(package: widget.artist.package)?.artistSong(artist: artist, page: page, size: 20).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         songList.clear();

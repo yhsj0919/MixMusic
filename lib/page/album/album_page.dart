@@ -1,8 +1,9 @@
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
+import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/page/album/album_tab_page.dart';
-import 'package:mix_music/page/api_controller.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 
 class AlbumPage extends StatefulWidget {
@@ -13,16 +14,19 @@ class AlbumPage extends StatefulWidget {
 }
 
 class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
-  ApiController api = Get.put(ApiController());
   AlbumPageController controller = AlbumPageController();
 
   late TabController tabController;
   final double bottomBarHeight = 46;
 
+  List<PluginsInfo> plugins = [];
+
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: api.playListPlugins.length, vsync: this);
+    plugins = ApiFactory.getAlbumPlugins();
+
+    tabController = TabController(length: plugins.length, vsync: this);
   }
 
   @override
@@ -32,8 +36,7 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
 
     return Scaffold(
       floatingActionButton: PlayBar(),
-      body: Obx(
-        () => ExtendedNestedScrollView(
+      body:  ExtendedNestedScrollView(
           headerSliverBuilder: (BuildContext c, bool f) {
             return [
               SliverAppBar(
@@ -48,7 +51,7 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
                             child: TabBar(
                           isScrollable: true,
                           controller: tabController,
-                          tabs: api.albumPlugins
+                          tabs: plugins
                               .map((item) => Tab(
                                     text: item.name,
                                     // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
@@ -57,7 +60,7 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
                         )),
                         IconButton(
                             onPressed: () {
-                              controller.open(api.albumPlugins[tabController.index].package );
+                              controller.open(plugins[tabController.index].package);
                             },
                             icon: const Icon(Icons.filter_list))
                       ],
@@ -74,14 +77,13 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
             children: <Widget>[Expanded(child: _buildTabBarView())],
           ),
         ),
-      ),
     );
   }
 
   Widget _buildTabBarView() {
     return TabBarView(
       controller: tabController,
-      children: api.albumPlugins.map((element) => AlbumTabPage(plugin: element, controller: controller)).toList(),
+      children: plugins.map((element) => AlbumTabPage(plugin: element, controller: controller)).toList(),
     );
   }
 }

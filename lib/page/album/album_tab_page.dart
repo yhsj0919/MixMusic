@@ -2,11 +2,12 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
+import 'package:mix_music/api/music_api.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_album_type.dart';
 import 'package:mix_music/entity/page_entity.dart';
 import 'package:mix_music/entity/plugins_info.dart';
-import 'package:mix_music/page/api_controller.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
@@ -26,7 +27,6 @@ class AlbumTabPage extends StatefulWidget {
 
 class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClientMixin {
   late EasyRefreshController refreshController;
-  ApiController api = Get.put(ApiController());
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixAlbum> albumList = RxList();
   RxList<MixAlbumType> albumType = RxList();
@@ -37,7 +37,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
   @override
   void initState() {
     super.initState();
-    widget.controller._addState(widget.plugin.package  ?? "", this);
+    widget.controller._addState(widget.plugin.package ?? "", this);
     refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
     getAlbumList();
     getAlbumType();
@@ -73,8 +73,8 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
   }
 
   ///获取专辑
-  Future<void> getAlbumList({String? type, int page = 0}) {
-    return api.albumList(site: widget.plugin.package !, type: type, page: page).then((value) {
+  void getAlbumList({String? type, int page = 0}) {
+    ApiFactory.api(package: widget.plugin.package ?? "")?.albumList(type: type, page: page, size: 20).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         albumList.clear();
@@ -97,8 +97,8 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
   }
 
   ///获取专辑类型
-  Future<void> getAlbumType() {
-    return api.albumType(site: widget.plugin.package !).then((value) {
+  void getAlbumType() {
+    ApiFactory.api(package: widget.plugin.package ?? "")?.albumType().then((value) {
       albumType.clear();
       albumType.addAll(value.data ?? []);
 

@@ -3,10 +3,10 @@ import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_rank_type.dart';
 import 'package:mix_music/entity/page_entity.dart';
 import 'package:mix_music/entity/plugins_info.dart';
-import 'package:mix_music/page/api_controller.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/message.dart';
@@ -28,7 +28,6 @@ class RankTabPage extends StatefulWidget {
 
 class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClientMixin {
   late EasyRefreshController refreshController;
-  ApiController api = Get.put(ApiController());
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixRankType> rankTypeList = RxList();
   String? currentType;
@@ -38,7 +37,7 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
   @override
   void initState() {
     super.initState();
-    widget.controller._addState(widget.plugin.package  ?? "", this);
+    widget.controller._addState(widget.plugin.package ?? "", this);
     refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
     getRankList();
   }
@@ -98,8 +97,8 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
   }
 
   ///获取专辑
-  Future<void> getRankList() {
-    return api.rankList(site: widget.plugin.package !).then((value) {
+  void getRankList() {
+    ApiFactory.api(package: widget.plugin.package!)?.rankList().then((value) {
       pageEntity.value = value.page;
 
       rankTypeList.clear();

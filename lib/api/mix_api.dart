@@ -19,19 +19,19 @@ import 'package:mix_music/utils/plugins_ext.dart';
 import '../entity/mix_rank_type.dart';
 
 class MixApi extends MusicApi {
-  static MusicApi api({required PluginsInfo plugins}) {
+  static Future<MusicApi> api({required PluginsInfo plugins}) async {
     var api = MixApi._();
     api.plugins = plugins;
-    api._init();
+    await api._init();
     return api;
   }
 
   MixApi._();
 
-  void _init() {
+  Future<void> _init() async {
     current = getJavascriptRuntime();
-    current?.enableAxios();
-    current?.enableCrypto();
+    await current?.enableAxios();
+    await current?.enableCrypto();
     current?.enableStringPlugin(code: plugins?.code ?? "");
   }
 
@@ -220,7 +220,8 @@ class MixApi extends MusicApi {
   @override
   Future<AppRespEntity<List<MixAlbum>>> artistAlbum({required MixArtist artist, required int page, required int size}) {
     var ss = JsonMapper.serialize(artist).replaceAll("\n", "").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
-    return invokeMethod(method: "music.artist.album", params: [ss, page, size]).then((value) {
+    return invokeMethod(method: "music.artist.detail.album", params: [ss, page, size]).then((value) {
+      print(value);
       AppRespEntity<List<MixAlbum>> data = AppRespEntity.fromJson(value);
       if (data.code == 200) {
         return Future(() => data);
@@ -233,7 +234,7 @@ class MixApi extends MusicApi {
   @override
   Future<AppRespEntity<List<MixSong>>> artistSong({required MixArtist artist, required int page, required int size}) {
     var ss = JsonMapper.serialize(artist).replaceAll("\n", "").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
-    return invokeMethod(method: "music.artist.song", params: [ss, page, size]).then((value) {
+    return invokeMethod(method: "music.artist.detail.song", params: [ss, page, size]).then((value) {
       AppRespEntity<List<MixSong>> data = AppRespEntity.fromJson(value);
       if (data.code == 200) {
         return Future(() => data);
@@ -293,8 +294,14 @@ class MixApi extends MusicApi {
 
   @override
   List<String> keys({required String obj}) {
-    var check = current?.evaluate("Object.keys($obj)").rawResult as List?;
-    return check?.map((e) => "$e").toList() ?? [];
+    JsEvalResult? result = current?.evaluate("Object.keys($obj)");
+
+    if (result?.isError == true) {
+      return [];
+    } else {
+      var check = result?.rawResult as List?;
+      return check?.map((e) => "$e").toList() ?? [];
+    }
   }
 
   ///是否包含某个key

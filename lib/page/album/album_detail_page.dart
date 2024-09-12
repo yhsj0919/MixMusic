@@ -175,7 +175,7 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
 
   ///获取专辑
   Future<void> getAlbumInfo({int page = 0}) {
-    return api.albumInfo(site: album.value?.site ?? "", album: album.value!, page: page).then((value) {
+    return api.albumInfo(site: album.value?.package ?? "", album: album.value!, page: page).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         album.value = value.data;

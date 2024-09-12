@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/constant.dart';
 import 'package:mix_music/page/api_controller.dart';
 import 'package:mix_music/utils/sp.dart';
 
@@ -23,7 +24,7 @@ class _CookiePageState extends State<CookiePage> {
             itemCount: api.plugins.length,
             itemBuilder: (context, index) {
               var plugin = api.getPlugin(index);
-              var cookie = Sp.getString("${Sp.KEY_COOKIE}_${plugin.site}");
+              var cookie = Sp.getString("${Constant.KEY_COOKIE}_${plugin.package }");
 
               return ListTile(
                 leading: ClipRRect(
@@ -53,7 +54,7 @@ class _CookiePageState extends State<CookiePage> {
                       confirm: TextButton(
                           onPressed: () {
                             print(controller.text);
-                            Sp.setString("${Sp.KEY_COOKIE}_${plugin.site}", controller.text);
+                            Sp.setString("${Constant.KEY_COOKIE}_${plugin.package }", controller.text);
                             Get.back();
                             setState(() {});
                           },

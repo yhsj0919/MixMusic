@@ -175,7 +175,7 @@ class _RankDetailPageState extends State<RankDetailPage> {
 
   ///获取专辑
   Future<void> getRankInfo({int page = 0}) {
-    return api.rankInfo(site: rank.value?.site ?? "", rank: rank.value!, page: page).then((value) {
+    return api.rankInfo(site: rank.value?.package  ?? "", rank: rank.value!, page: page).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         rank.value = value.data;

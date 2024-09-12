@@ -26,7 +26,7 @@ Future<List<PluginsInfo>> getSystemPlugins({required String rootDir}) async {
       var file = File(ext.path);
       final content = await file.readAsString();
 
-      var info = _parseExtension(content);
+      var info = parseExtension(content);
 
       if (info?.name?.isNotEmpty == true) {
         info!.path = ext.path;
@@ -36,21 +36,31 @@ Future<List<PluginsInfo>> getSystemPlugins({required String rootDir}) async {
   }
   return plugins;
 }
-
 ///解析插件
-PluginsInfo? _parseExtension(String extension) {
-  Map<String, dynamic> result = {};
-  RegExp reg = RegExp(r'@(\w+)\s+(.*)');
-  Iterable<RegExpMatch> matches = reg.allMatches(extension);
-  for (RegExpMatch match in matches) {
-    result[match.group(1)!] = match.group(2);
+PluginsInfo? parseExtension(String extension) {
+  RegExp regex = RegExp(r'==MixMusicPlugin==([\s\S]*?)==\/MixMusicPlugin==');
+  Match? match = regex.firstMatch(extension);
+
+  if (match != null) {
+    var info = match.group(1)?.trim() ?? "";
+
+    Map<String, dynamic> result = {};
+    RegExp reg = RegExp(r'@(\w+)\s+(.*)');
+    Iterable<RegExpMatch> matches = reg.allMatches(info);
+    for (RegExpMatch match in matches) {
+      result[match.group(1)!] = match.group(2);
+    }
+
+    if (result.isNotEmpty) {
+      result["code"] = extension.replaceAll("\r", "");
+    } else {
+      return null;
+    }
+
+    return JsonMapper.deserialize<PluginsInfo>(json.encode(result));
+  } else {
+    return null;
   }
-  try {
-    result["method"] = json.decode(result["method"]);
-  } catch (e) {
-    result["method"] = [];
-  }
-  return JsonMapper.deserialize<PluginsInfo>(json.encode(result));
 }
 
 ///js扩展
@@ -83,5 +93,19 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
       print('crypto 结果: $evalFetchResult');
     }
     return this;
+  }
+}
+
+///js扩展
+extension MethodExtension on JavascriptRuntime {
+  bool contains({required String key, String obj = "music"}) {
+    var check = evaluate("'$key' in $obj").rawResult as bool;
+    return check;
+  }
+
+  List<String> keys({required String obj}) {
+    var check = evaluate("Object.keys($obj)").rawResult as List;
+
+    return check.map((e) => "$e").toList();
   }
 }

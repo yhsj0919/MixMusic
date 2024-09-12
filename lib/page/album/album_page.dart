@@ -57,7 +57,7 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
                         )),
                         IconButton(
                             onPressed: () {
-                              controller.open(api.albumPlugins[tabController.index].site);
+                              controller.open(api.albumPlugins[tabController.index].package );
                             },
                             icon: const Icon(Icons.filter_list))
                       ],

@@ -54,7 +54,7 @@ class _PlayBarState extends State<PlayBar> {
                         borderRadius: BorderRadius.circular(16),
                         onTap: () async {
                           Navigator.of(context).push(OpacityRoute(
-                            widget: PhonePlaying(),
+                            builder: (BuildContext context) => PhonePlaying(),
                           ));
                         },
                         child: Hero(

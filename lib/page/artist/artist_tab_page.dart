@@ -35,7 +35,7 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
   @override
   void initState() {
     super.initState();
-    widget.controller._addState(widget.plugin.site ?? "", this);
+    widget.controller._addState(widget.plugin.package  ?? "", this);
     refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
     getPlayList(type: currentType);
     getPlayListType();
@@ -72,7 +72,7 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
 
   ///获取歌单
   Future<void> getPlayList({Map<String, dynamic>? type, int page = 0}) {
-    return api.artistList(site: widget.plugin.site!, type: type, page: page).then((value) {
+    return api.artistList(site: widget.plugin.package !, type: type, page: page).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         artistList.clear();
@@ -96,7 +96,7 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
 
   ///获取歌单类型
   Future<void> getPlayListType() {
-    return api.artistType(site: widget.plugin.site!).then((value) {
+    return api.artistType(site: widget.plugin.package !).then((value) {
       artistType.clear();
       artistType.addAll(value.data ?? []);
     }).catchError((e) {

@@ -1,12 +1,8 @@
+import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Sp {
   static late SharedPreferences _prefs;
-  static String KEY_MATCH_VIP = "KEY_MATCH_VIP";
-  static String KEY_MATCH_SITE = "KEY_MATCH_SITE";
-  static String KEY_HOME_SITE = "KEY_HOME_SITE";
-  static String KEY_FIRST_IN = "KEY_FIRST_IN";
-  static String KEY_COOKIE = "KEY_COOKIE";
 
   static Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -58,5 +54,42 @@ class Sp {
 
   static List<String>? getStringList(String key) {
     return _prefs.getStringList(key);
+  }
+
+  static List<T>? getList<T>(String key) {
+    final list = _prefs.getStringList(key);
+    if (list == null) {
+      return null;
+    }
+    // 尝试将字符串列表转换为目标类型 T 的列表
+    return list.map((item) => JsonMapper.fromJson<T>(item)!).toList();
+  }
+
+  static Future<bool> setList(String key, List<dynamic> value) {
+    return _prefs.setStringList(key, value.where((item) => item != null).map((e) => JsonMapper.toJson(e)).toList());
+  }
+
+  static Future<bool?> addList<T>(String key, T value, {bool Function(T oldValue, T newValue)? check}) {
+    var list = _prefs.getStringList(key)?.map((a) => JsonMapper.fromJson<T>(a)!).toList() ?? [];
+    var tmpList = list.where((old) {
+      if (check == null) return false;
+      return check.call(old, value);
+    });
+
+    if (tmpList.isEmpty == true) {
+      list.add(value);
+    } else {
+      return Future.error("数据已存在");
+    }
+
+    return setList(key, list);
+  }
+
+  static Future<bool?> removeList<T>(String key,  {required bool Function(T old) check}) {
+    var list = _prefs.getStringList(key)?.map((a) => JsonMapper.fromJson<T>(a)!).toList() ?? [];
+    list.removeWhere((old) {
+      return check.call(old);
+    });
+    return setList(key, list);
   }
 }

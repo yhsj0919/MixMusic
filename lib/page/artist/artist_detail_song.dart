@@ -85,7 +85,7 @@ class _ArtistDetailSongState extends State<ArtistDetailSong> with AutomaticKeepA
 
   ///获取歌单
   Future<void> artistSong({required MixArtist artist, int page = 0}) {
-    return api.artistSong(site: widget.artist.site, artist: artist, page: page).then((value) {
+    return api.artistSong(site: widget.artist.package , artist: artist, page: page).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         songList.clear();

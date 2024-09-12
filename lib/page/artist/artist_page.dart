@@ -60,7 +60,7 @@ class _ArtistPageState extends State<ArtistPage> with TickerProviderStateMixin {
                         IconButton(
                             onPressed: () {
                               if (api.artistPlugins.isNotEmpty) {
-                                controller.open(api.artistPlugins[tabController.index].site);
+                                controller.open(api.artistPlugins[tabController.index].package );
                               }
                             },
                             icon: const Icon(Icons.filter_list))

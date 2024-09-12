@@ -169,7 +169,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
 
   ///获取歌单
   Future<void> getPlayListInfo({int page = 0}) {
-    return api.playListInfo(site: playlist.value?.site ?? "", playlist: playlist.value!, page: page).then((value) {
+    return api.playListInfo(site: playlist.value?.package  ?? "", playlist: playlist.value!, page: page).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         songList.clear();

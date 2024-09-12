@@ -38,7 +38,7 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
   @override
   void initState() {
     super.initState();
-    widget.controller._addState(widget.plugin.site ?? "", this);
+    widget.controller._addState(widget.plugin.package  ?? "", this);
     refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
     getRankList();
   }
@@ -99,7 +99,7 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
 
   ///获取专辑
   Future<void> getRankList() {
-    return api.rankList(site: widget.plugin.site!).then((value) {
+    return api.rankList(site: widget.plugin.package !).then((value) {
       pageEntity.value = value.page;
 
       rankTypeList.clear();

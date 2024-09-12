@@ -59,7 +59,7 @@ class _PlayListPageState extends State<PlayListPage> with TickerProviderStateMix
                         )),
                         IconButton(
                             onPressed: () {
-                              controller.open(api.playListPlugins[tabController.index].site);
+                              controller.open(api.playListPlugins[tabController.index].package );
                             },
                             icon: const Icon(Icons.filter_list))
                       ],

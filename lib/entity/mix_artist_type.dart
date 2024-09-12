@@ -2,14 +2,14 @@ import 'package:dart_json_mapper/dart_json_mapper.dart';
 
 @jsonSerializable
 class MixArtistType {
-  String site;
+  String package;
   dynamic id;
   String? name;
 
   List<MixArtistType>? subType = const [];
 
   MixArtistType({
-    required this.site,
+    required this.package,
     this.id,
     this.name,
     this.subType = const [],

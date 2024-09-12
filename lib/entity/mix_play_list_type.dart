@@ -1,17 +1,15 @@
 import 'package:dart_json_mapper/dart_json_mapper.dart';
 
-import 'mix_song.dart';
-
 @jsonSerializable
 class MixPlaylistType {
-  String site;
+  String package;
   dynamic id;
   String? name;
 
   List<MixPlaylistType>? subType = const [];
 
   MixPlaylistType({
-    required this.site,
+    required this.package,
     required this.id,
     required this.name,
     this.subType = const [],

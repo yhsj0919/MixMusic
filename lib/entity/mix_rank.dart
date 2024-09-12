@@ -4,7 +4,7 @@ import 'mix_song.dart';
 
 @jsonSerializable
 class MixRank {
-  String site;
+  String package;
   dynamic id;
 
   String? title;
@@ -16,7 +16,7 @@ class MixRank {
   List<MixSong>? songs = const [];
 
   MixRank({
-    required this.site,
+    required this.package,
     required this.id,
     required this.title,
     required this.pic,

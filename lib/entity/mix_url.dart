@@ -2,7 +2,7 @@ import 'package:dart_json_mapper/dart_json_mapper.dart';
 
 @jsonSerializable
 class MixUrl {
-  String site;
+  String package;
   String? name;
   dynamic quality;
   String? prefix;
@@ -12,7 +12,7 @@ class MixUrl {
   String? url;
 
   MixUrl({
-    required this.site,
+    required this.package,
     this.name,
     this.quality,
     this.prefix,

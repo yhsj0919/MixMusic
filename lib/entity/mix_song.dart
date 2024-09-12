@@ -7,7 +7,7 @@ import 'mix_url.dart';
 
 @jsonSerializable
 class MixSong {
-  String site;
+  String package;
   dynamic id;
   String? title;
   dynamic subTitle;
@@ -21,7 +21,7 @@ class MixSong {
   dynamic listenCount;
 
   MixSong({
-    required this.site,
+    required this.package,
     required this.id,
     required this.title,
     this.subTitle,

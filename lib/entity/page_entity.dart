@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'package:dart_json_mapper/dart_json_mapper.dart';
 
 class PageEntity {
   bool? first;
@@ -41,7 +39,7 @@ class PageEntity {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> resp = Map<String, dynamic>();
+    final Map<String, dynamic> resp = <String, dynamic>{};
     resp['first'] = first;
     resp['last'] = last;
     resp['page'] = page;
@@ -53,8 +51,9 @@ class PageEntity {
     return resp;
   }
 
+  @override
   String toString() {
-    final Map<String, dynamic> map = new Map<String, dynamic>();
+    final Map<String, dynamic> map = <String, dynamic>{};
     map['first'] = first;
     map['last'] = last;
     map['page'] = page;

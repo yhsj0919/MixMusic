@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
+import 'package:mix_music/constant.dart';
 import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/app_image.dart';
 
@@ -21,9 +22,7 @@ class _MatchSitePageState extends State<MatchSitePage> {
   @override
   void initState() {
     super.initState();
-    matchVip.value = ApiFactory.getMatchVip();
-    plugins.value = ApiFactory.getPlugins().where((element) => element.method?.contains("searchMusic") == true).toList();
-    matchSite.addAll(ApiFactory.getMatchSite());
+    plugins.value = ApiFactory.getSearchPlugins();
   }
 
   @override
@@ -39,8 +38,7 @@ class _MatchSitePageState extends State<MatchSitePage> {
                 onChanged: (value) {
                   matchVip.value = value;
 
-                  Sp.setBool(Sp.KEY_MATCH_VIP, value);
-                  ApiFactory.matchVip(value);
+                  Sp.setBool(Constant.KEY_MATCH_VIP, value);
                 },
               )),
           ListTile(
@@ -57,15 +55,14 @@ class _MatchSitePageState extends State<MatchSitePage> {
                         title: Text(plugin.name ?? ""),
                         subtitle: Text(plugin.version ?? ""),
                         secondary: AppImage(url: '${plugin.icon}', width: 40, height: 40),
-                        value: matchSite.contains(plugin.site),
+                        value: matchSite.contains(plugin.package ),
                         onChanged: (bool? value) {
                           if (value == true) {
-                            matchSite.add(plugin.site ?? "");
+                            matchSite.add(plugin.package  ?? "");
                           } else {
-                            matchSite.remove(plugin.site ?? "");
+                            matchSite.remove(plugin.package  ?? "");
                           }
-                          ApiFactory.setMatchSite(matchSite.value);
-                          Sp.setStringList(Sp.KEY_MATCH_SITE, matchSite.toList());
+                          Sp.setStringList(Constant.KEY_MATCH_SITE, matchSite.toList());
                         },
                       ));
                 },

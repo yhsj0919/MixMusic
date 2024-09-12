@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/constant.dart';
 import 'package:mix_music/page/home/home_page.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/sp.dart';
-
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -28,7 +28,7 @@ class _WelcomePageState extends State<WelcomePage> {
   void initState() {
     super.initState();
 
-    firstIn = Sp.getBool(Sp.KEY_FIRST_IN) ?? true;
+    firstIn = Sp.getBool(Constant.KEY_FIRST_IN) ?? true;
 
     ///循环执行
     ///间隔1秒
@@ -42,7 +42,7 @@ class _WelcomePageState extends State<WelcomePage> {
         if (firstIn) {
           Get.offAndToNamed(Routes.permission);
         } else {
-          Get.off(const HomePage());
+          Get.off(() => const HomePage());
         }
       }
       setState(() {});

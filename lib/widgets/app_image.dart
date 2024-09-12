@@ -3,21 +3,14 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 
 class AppImage extends StatefulWidget {
-  const AppImage({
-    Key? key,
-    required this.url,
-    this.width = 50,
-    this.height = 50,
-    this.fit = BoxFit.cover,
-    this.radius,
-    this.animationDuration,
-  }) : super(key: key);
+  const AppImage({Key? key, required this.url, this.width = 50, this.height = 50, this.fit = BoxFit.cover, this.radius, this.animationDuration, this.border}) : super(key: key);
   final String url;
   final double? width;
   final double? height;
   final double? radius;
   final int? animationDuration;
   final BoxFit fit;
+  final BoxBorder? border;
 
   @override
   _AppImageState createState() => _AppImageState();
@@ -49,7 +42,7 @@ class _AppImageState extends State<AppImage> with SingleTickerProviderStateMixin
                 fit: widget.fit,
                 width: widget.width,
                 height: widget.height,
-                border: Border.all(color: Colors.black12, width: 1.0),
+                border: widget.border,
                 borderRadius: BorderRadius.all(Radius.circular(widget.radius ?? 8)),
                 loadStateChanged: (ExtendedImageState state) {
                   switch (state.extendedImageLoadState) {

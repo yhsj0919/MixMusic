@@ -1,18 +1,17 @@
 import 'package:dart_json_mapper/dart_json_mapper.dart';
-import 'package:mix_music/entity/mix_rank.dart';
 
-import 'mix_song.dart';
+import 'mix_rank.dart';
 
 @jsonSerializable
 class MixRankType {
-  String site;
+  String package;
   dynamic id;
   String? title;
 
   List<MixRank>? rankList = const [];
 
   MixRankType({
-    required this.site,
+    required this.package,
     required this.id,
     required this.title,
     this.rankList = const [],

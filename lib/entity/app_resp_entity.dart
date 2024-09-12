@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import 'package:dart_json_mapper/dart_json_mapper.dart';
-import 'package:mix_music/entity/page_entity.dart';
+
+import 'page_entity.dart';
 
 class AppRespEntity<T> {
   int? code;
@@ -45,8 +46,9 @@ class AppRespEntity<T> {
     return resp;
   }
 
+  @override
   String toString() {
-    final Map<String, dynamic> map = new Map<String, dynamic>();
+    final Map<String, dynamic> map =  <String, dynamic>{};
     map['code'] = code;
     map['msg'] = msg;
     map['data'] = data.toString();

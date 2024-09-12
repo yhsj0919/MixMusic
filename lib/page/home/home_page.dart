@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/player/music_controller.dart';
@@ -15,6 +16,7 @@ import '../../entity/mix_play_list.dart';
 import '../../widgets/message.dart';
 import '../api_controller.dart';
 import '../app_playing/play_bar.dart';
+import 'home_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,22 +26,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  MusicController music = Get.put(MusicController());
-  ApiController api = Get.put(ApiController());
-  RxList<MixPlaylist> playlist = RxList();
-  RxList<MixAlbum> albumList = RxList();
-  RxList<MixSong> songList = RxList();
-
-  RxnString homeSite = RxnString();
+  HomeController controller = Get.put(HomeController());
 
   @override
   void initState() {
     super.initState();
-    homeSite.value = Sp.getString(Sp.KEY_HOME_SITE) ?? api.recPlugins.firstOrNull?.site;
-
-    getPlayListRec();
-    getAlbumRec();
-    getSongRec();
   }
 
   @override
@@ -61,9 +52,9 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.search)),
           IconButton(
               onPressed: () async {
-                Get.toNamed(Routes.mine);
+                Get.toNamed(Routes.setting);
               },
-              icon: const Icon(Icons.person)),
+              icon: const Icon(Icons.settings)),
         ],
       ),
       body: SingleChildScrollView(
@@ -142,10 +133,10 @@ class _HomePageState extends State<HomePage> {
               child: Obx(
                 () => ListView.separated(
                   physics: const BouncingScrollPhysics(),
-                  itemCount: playlist.length,
+                  itemCount: controller.playlist.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (BuildContext context, int index) {
-                    var item = playlist[index];
+                    var item = controller.playlist[index];
                     return InkWell(
                       child: SizedBox(
                         width: 80,
@@ -192,10 +183,10 @@ class _HomePageState extends State<HomePage> {
               child: Obx(
                 () => ListView.separated(
                   physics: const BouncingScrollPhysics(),
-                  itemCount: albumList.length,
+                  itemCount: controller.albumList.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (BuildContext context, int index) {
-                    var item = albumList[index];
+                    var item = controller.albumList[index];
                     return InkWell(
                       child: SizedBox(
                         width: 80,
@@ -237,12 +228,12 @@ class _HomePageState extends State<HomePage> {
             Obx(
               () => ListView.builder(
                 physics: const BouncingScrollPhysics(),
-                itemCount: songList.length,
+                itemCount: controller.songList.length,
                 shrinkWrap: true,
                 itemBuilder: (BuildContext context, int index) {
-                  var song = songList[index];
+                  var song = controller.songList[index];
                   return Obx(() => ListTile(
-                        selected: music.currentMusic.value?.id == song.id,
+                        selected: controller.music.currentMusic.value?.id == song.id,
                         leading: AppImage(url: song.pic ?? ""),
                         title: Row(
                           children: [
@@ -263,7 +254,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         subtitle: Text(song.subTitle ?? "", overflow: TextOverflow.ellipsis, maxLines: 1),
                         onTap: () {
-                          music.playList(list: songList, index: index);
+                          controller.music.playList(list: controller.songList, index: index);
                         },
                       ));
                 },
@@ -274,41 +265,5 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  ///获取歌单
-  Future<void> getPlayListRec() {
-    return api.playListRec(site: homeSite.value ?? "").then((value) {
-      playlist.clear();
-      playlist.addAll(value?.data ?? []);
-
-      // showComplete("操作成功");
-    }).catchError((e) {
-      showError(e);
-    });
-  }
-
-  ///获取专辑
-  Future<void> getAlbumRec() {
-    return api.albumRec(site: homeSite.value ?? "").then((value) {
-      albumList.clear();
-      albumList.addAll(value?.data ?? []);
-
-      // showComplete("操作成功");
-    }).catchError((e) {
-      showError(e);
-    });
-  }
-
-  ///获取新歌
-  Future<void> getSongRec() {
-    return api.songRec(site: homeSite.value ?? "").then((value) {
-      songList.clear();
-      songList.addAll(value?.data ?? []);
-
-      // showComplete("操作成功");
-    }).catchError((e) {
-      showError(e);
-    });
   }
 }

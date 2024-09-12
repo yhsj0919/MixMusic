@@ -37,7 +37,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
   @override
   void initState() {
     super.initState();
-    widget.controller._addState(widget.plugin.site ?? "", this);
+    widget.controller._addState(widget.plugin.package  ?? "", this);
     refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
     getAlbumList();
     getAlbumType();
@@ -74,7 +74,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
 
   ///获取专辑
   Future<void> getAlbumList({String? type, int page = 0}) {
-    return api.albumList(site: widget.plugin.site!, type: type, page: page).then((value) {
+    return api.albumList(site: widget.plugin.package !, type: type, page: page).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         albumList.clear();
@@ -98,7 +98,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
 
   ///获取专辑类型
   Future<void> getAlbumType() {
-    return api.albumType(site: widget.plugin.site!).then((value) {
+    return api.albumType(site: widget.plugin.package !).then((value) {
       albumType.clear();
       albumType.addAll(value.data ?? []);
 

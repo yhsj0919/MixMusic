@@ -27,29 +27,16 @@ class ApiController extends GetxController {
   RxList<PluginsInfo> artistPlugins = RxList();
   RxList<PluginsInfo> recPlugins = RxList();
   RxList<PluginsInfo> parsePlugins = RxList();
-  var pluginRoot = "";
 
   @override
   Future<void> onInit() async {
     super.onInit();
 
-    var matchVip = Sp.getBool(Sp.KEY_MATCH_VIP) ?? false;
-    ApiFactory.matchVip(matchVip);
-
-    var list = Sp.getStringList(Sp.KEY_MATCH_SITE);
-    ApiFactory.setMatchSite((list ?? []).toSet());
-
     initPlugins();
   }
 
   initPlugins() async {
-    if (Platform.isAndroid) {
-      pluginRoot = "storage/emulated/0/MixMusic/plugins";
-    } else {
-      pluginRoot = "${(await getApplicationDocumentsDirectory()).path}/MixMusic/plugins";
-    }
-
-    await ApiFactory.init(pluginRoot: pluginRoot);
+    ApiFactory.init();
 
     getPlugins();
   }
@@ -59,23 +46,23 @@ class ApiController extends GetxController {
   }
 
   PluginsInfo getPluginWithSite(String site) {
-    return plugins.firstWhere((element) => element.site == site);
+    return plugins.firstWhere((element) => element.package == site);
   }
 
   List<String> getArtistDetailMethod(String? site) {
-    var plugin = plugins.firstWhere((element) => element.site == site);
+    var plugin = plugins.firstWhere((element) => element.package == site);
 
     var method = <String>[];
-    if (plugin.method?.contains("artistSong") == true) {
-      method.add("artistSong");
-    }
-
-    if (plugin.method?.contains("artistAlbum") == true) {
-      method.add("artistAlbum");
-    }
-    if (plugin.method?.contains("artistMv") == true) {
-      method.add("artistMv");
-    }
+    // if (plugin.method?.contains("artistSong") == true) {
+    //   method.add("artistSong");
+    // }
+    //
+    // if (plugin.method?.contains("artistAlbum") == true) {
+    //   method.add("artistAlbum");
+    // }
+    // if (plugin.method?.contains("artistMv") == true) {
+    //   method.add("artistMv");
+    // }
 
     return method;
   }
@@ -83,18 +70,18 @@ class ApiController extends GetxController {
   ///获取插件
   void getPlugins() {
     plugins.addAll(ApiFactory.getPlugins());
-    playListPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("playList") == true));
-    searchPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("searchMusic") == true));
-    albumPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("albumList") == true));
-    rankPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("rankList") == true));
-    artistPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("artistList") == true));
-    recPlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("playListRec") == true));
-    parsePlugins.addAll(ApiFactory.getPlugins().where((e) => e.method?.contains("parsePlayList") == true));
+    playListPlugins.addAll(ApiFactory.getPlayListPlugins());
+    searchPlugins.addAll(ApiFactory.getSearchPlugins());
+    albumPlugins.addAll(ApiFactory.getAlbumPlugins());
+    rankPlugins.addAll(ApiFactory.getRankPlugins());
+    artistPlugins.addAll(ApiFactory.getArtistPlugins());
+    recPlugins.addAll(ApiFactory.getRecPlugins());
+    parsePlugins.addAll(ApiFactory.getParsePlugins());
   }
 
   ///搜索音乐
   Future<AppRespEntity<List<MixSong>>> searchSong({required String site, required String keyword, int page = 0, int size = 20}) async {
-    return ApiFactory.api(site: site)!.searchSong(keyword: keyword, page: page, size: size);
+    return ApiFactory.api(package: site)!.searchSong(keyword: keyword, page: page, size: size);
   }
 
   // void playUrl({required MixSong song}) async {
@@ -109,90 +96,87 @@ class ApiController extends GetxController {
   // }
   ///歌单分类
   Future<AppRespEntity<List<MixPlaylistType>>> playListType({required String site}) async {
-    return ApiFactory.api(site: site)!.playListType();
+    return ApiFactory.api(package: site)!.playListType();
   }
 
   ///歌单
   Future<AppRespEntity<List<MixPlaylist>>?> playListRec({required String site}) async {
-    return ApiFactory.api(site: site)?.playListRec();
+    return ApiFactory.api(package: site)?.playListRec();
   }
 
   ///专辑
   Future<AppRespEntity<List<MixAlbum>>?> albumRec({required String site}) async {
-    return ApiFactory.api(site: site)?.albumRec();
+    return ApiFactory.api(package: site)?.albumRec();
   }
 
   ///新歌
   Future<AppRespEntity<List<MixSong>>?> songRec({required String site}) async {
-    return ApiFactory.api(site: site)?.songRec();
+    return ApiFactory.api(package: site)?.songRec();
   }
 
   ///歌单
   Future<AppRespEntity<List<MixPlaylist>>> playList({required String site, String? type, int page = 0, int size = 20}) async {
-    return ApiFactory.api(site: site)!.playList(type: type, page: page, size: size);
+    return ApiFactory.api(package: site)!.playList(type: type, page: page, size: size);
   }
 
   ///歌单
   Future<List<MixPlaylist?>> parsePlayList({required List<String> sites, String? url}) async {
-    return ApiFactory.parsePlayList(sites: sites, url: url);
+    return ApiFactory.parsePlayList(packages: sites, url: url);
   }
 
   ///歌单详情
   Future<AppRespEntity<MixPlaylist>> playListInfo({required String site, required MixPlaylist playlist, int page = 0, int size = 20}) async {
-    return ApiFactory.api(site: site)!.playListInfo(playlist: playlist, page: page, size: size);
+    return ApiFactory.api(package: site)!.playListInfo(playlist: playlist, page: page, size: size);
   }
 
   ///专辑分类
   Future<AppRespEntity<List<MixAlbumType>>> albumType({required String site}) async {
-    return ApiFactory.api(site: site)!.albumType();
+    return ApiFactory.api(package: site)!.albumType();
   }
 
   ///专辑
   Future<AppRespEntity<List<MixAlbum>>> albumList({required String site, String? type, int page = 0, int size = 20}) async {
-    return ApiFactory.api(site: site)!.albumList(type: type, page: page, size: size);
+    return ApiFactory.api(package: site)!.albumList(type: type, page: page, size: size);
   }
 
   ///专辑详情
   Future<AppRespEntity<MixAlbum>> albumInfo({required String site, required MixAlbum album, int page = 0, int size = 20}) async {
-    return ApiFactory.api(site: site)!.albumInfo(album: album, page: page, size: size);
+    return ApiFactory.api(package: site)!.albumInfo(album: album, page: page, size: size);
   }
 
   ///榜单
   Future<AppRespEntity<List<MixRankType>>> rankList({required String site}) async {
-    return ApiFactory.api(site: site)!.rankList();
+    return ApiFactory.api(package: site)!.rankList();
   }
 
   ///榜单详情
   Future<AppRespEntity<MixRank>> rankInfo({required String site, required MixRank rank, int page = 0, int size = 20}) async {
-    return ApiFactory.api(site: site)!.rankInfo(rank: rank, page: page, size: size);
+    return ApiFactory.api(package: site)!.rankInfo(rank: rank, page: page, size: size);
   }
 
   ///歌手分类
   Future<AppRespEntity<List<MixArtistType>>> artistType({required String site}) async {
-    return ApiFactory.api(site: site)!.artistType();
+    return ApiFactory.api(package: site)!.artistType();
   }
 
   ///歌单
   Future<AppRespEntity<List<MixArtist>>> artistList({required String site, Map<String, dynamic>? type, int page = 0, int size = 20}) async {
-    return ApiFactory.api(site: site)!.artistList(type: type, page: page, size: size);
+    return ApiFactory.api(package: site)!.artistList(type: type, page: page, size: size);
   }
 
   ///歌单详情
   Future<AppRespEntity<MixArtist>> artistInfo({required String site, required MixArtist artist}) async {
-    return ApiFactory.api(site: site)!.artistInfo(artist: artist);
+    return ApiFactory.api(package: site)!.artistInfo(artist: artist);
   }
 
   Future<AppRespEntity<List<MixSong>>> artistSong({required String site, required MixArtist artist, int page = 0, int size = 20}) async {
-    return ApiFactory.api(site: site)!.artistSong(artist: artist, page: page, size: size);
+    return ApiFactory.api(package: site)!.artistSong(artist: artist, page: page, size: size);
   }
 
   Future<AppRespEntity<List<MixAlbum>>> artistAlbum({required String site, required MixArtist artist, int page = 0, int size = 20}) async {
-    return ApiFactory.api(site: site)!.artistAlbum(artist: artist, page: page, size: size);
+    return ApiFactory.api(package: site)!.artistAlbum(artist: artist, page: page, size: size);
   }
 
-  Future<dynamic> invokeMethod({required PluginsInfo plugin, required String method, List<String> params = const []}) async {
-    return (await MixApi.api(plugins: plugin)).invokeMethod(method: method, params: params);
-  }
 
   @override
   void onClose() {

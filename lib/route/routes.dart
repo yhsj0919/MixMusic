@@ -4,12 +4,12 @@ import 'package:mix_music/page/album/album_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
 import 'package:mix_music/page/artist/artist_page.dart';
 import 'package:mix_music/page/home/home_page.dart';
-import 'package:mix_music/page/mine/mine_page.dart';
+import 'package:mix_music/page/setting/extension_page.dart';
+import 'package:mix_music/page/setting/setting_page.dart';
 import 'package:mix_music/page/parse/parse_play_list.dart';
 import 'package:mix_music/page/permission/permission_page.dart';
 import 'package:mix_music/page/playlist/play_list_detail_page.dart';
 import 'package:mix_music/page/playlist/playlist_page.dart';
-import 'package:mix_music/page/plugins/plugins_page.dart';
 import 'package:mix_music/page/rank/rank_detail_page.dart';
 import 'package:mix_music/page/rank/rank_page.dart';
 import 'package:mix_music/page/search/search_page.dart';
@@ -25,14 +25,14 @@ class Routes {
 
   // static const key = 1;
   static const String permission = "/permission";
-  static const String plugins = "/plugins";
+  static const String extension = "/extension";
   static const String welcome = "/welcome";
 
   static const String main = "/main";
   static const String appPlaying = "/appPlaying";
   static const String appPlayList = "/appPlayList";
   static const String search = "/search";
-  static const String mine = "/mine";
+  static const String setting = "/setting";
   static const String home = "/";
   static const String playList = "/playList";
   static const String playListDetail = "/playlistDetail";
@@ -51,12 +51,12 @@ class Routes {
   static List<GetPage> routes = [
     GetPage(name: welcome, page: () => const WelcomePage()),
     GetPage(name: permission, page: () => const PermissionPage()),
-    GetPage(name: plugins, page: () => const PluginsPage()),
+    GetPage(name: extension, page: () => const ExtensionPage()),
     GetPage(name: matchSite, page: () => const MatchSitePage()),
     GetPage(name: homeSite, page: () => const HomeSitePage()),
     GetPage(name: cookieSetting, page: () => const CookiePage()),
     GetPage(name: home, page: () => const HomePage()),
-    GetPage(name: mine, page: () => const MinePage()),
+    GetPage(name: setting, page: () => const SettingPage()),
     GetPage(name: search, page: () => const SearchPage()),
     GetPage(name: appPlayList, page: () => AppPlayListPage()),
     GetPage(name: playList, page: () => const PlayListPage()),

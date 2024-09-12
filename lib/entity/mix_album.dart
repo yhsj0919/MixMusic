@@ -4,7 +4,7 @@ import 'mix_artist.dart';
 import 'mix_song.dart';
 @jsonSerializable
 class MixAlbum {
-  String site;
+  String package;
   dynamic id;
   String? title;
   String? pic;
@@ -16,7 +16,7 @@ class MixAlbum {
   List<MixSong>? songs = const [];
 
   MixAlbum({
-    required this.site,
+    required this.package,
     required this.id,
     required this.title,
     required this.pic,

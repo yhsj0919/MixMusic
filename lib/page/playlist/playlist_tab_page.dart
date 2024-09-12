@@ -35,7 +35,7 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
   @override
   void initState() {
     super.initState();
-    widget.controller._addState(widget.plugin.site ?? "", this);
+    widget.controller._addState(widget.plugin.package  ?? "", this);
     refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
     getPlayList();
     getPlayListType();
@@ -72,7 +72,7 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
 
   ///获取歌单
   Future<void> getPlayList({String? type, int page = 0}) {
-    return api.playList(site: widget.plugin.site!, type: type, page: page).then((value) {
+    return api.playList(site: widget.plugin.package !, type: type, page: page).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         playlist.clear();
@@ -96,7 +96,7 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
 
   ///获取歌单类型
   Future<void> getPlayListType() {
-    return api.playListType(site: widget.plugin.site!).then((value) {
+    return api.playListType(site: widget.plugin.package !).then((value) {
       playlistType.clear();
       playlistType.addAll(value.data ?? []);
     }).catchError((e) {

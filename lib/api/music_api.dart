@@ -1,17 +1,21 @@
+import 'package:flutter_js/flutter_js.dart';
 import 'package:mix_music/entity/app_resp_entity.dart';
 import 'package:mix_music/entity/mix_artist_type.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
+import 'package:mix_music/entity/plugins_info.dart';
 
 import '../entity/mix_album.dart';
 import '../entity/mix_album_type.dart';
 import '../entity/mix_artist.dart';
-import '../entity/mix_banner.dart';
 import '../entity/mix_play_list.dart';
+import '../entity/mix_rank.dart';
 import '../entity/mix_rank_type.dart';
 import '../entity/mix_song.dart';
-import '../entity/mix_rank.dart';
 
 abstract class MusicApi {
+  PluginsInfo? plugins;
+  JavascriptRuntime? current;
+
   ///歌单推荐
   Future<AppRespEntity<List<MixPlaylist>>> playListRec();
 
@@ -63,9 +67,20 @@ abstract class MusicApi {
   ///获取歌手详情
   Future<AppRespEntity<MixArtist>> artistInfo({required MixArtist artist});
 
+  ///歌手歌曲
   Future<AppRespEntity<List<MixSong>>> artistSong({required MixArtist artist, required int page, required int size});
 
+  ///歌手专辑
   Future<AppRespEntity<List<MixAlbum>>> artistAlbum({required MixArtist artist, required int page, required int size});
 
+  ///执行方法
   Future<dynamic> invokeMethod({required String method, List<String> params = const []});
+
+  ///获取所有的key
+  List<String> keys({required String obj});
+
+  ///是否包含某个key
+  bool contains({required String key, String obj = "music"});
+
+  void dispose();
 }

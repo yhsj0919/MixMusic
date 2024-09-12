@@ -1,116 +1,124 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_js/quickjs/ffi.dart';
-import 'package:mix_music/api/mix_api.dart';
+import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
-import 'package:mix_music/utils/plugins_ext.dart';
+import 'package:mix_music/api/mix_api.dart';
+import 'package:mix_music/utils/sp.dart';
 
 import '../entity/mix_song.dart';
 import '../entity/plugins_info.dart';
 import 'music_api.dart';
 
 class ApiFactory {
+  ApiFactory._();
+
   static final List<PluginsInfo> _plugins = [];
   static final _apis = <String, MusicApi>{};
-  static final _matchSite = <String>{};
-  static bool _matchVip = false;
-  static var _pluginRoot = "";
 
-  static matchVip(bool match) {
-    _matchVip = match;
+  static MusicApi? getPlugin(String? package) {
+    return _apis[package];
   }
 
-  static bool getMatchVip() {
-    return _matchVip;
+  static init() {
+    List<PluginsInfo> plugins = Sp.getList(Constant.KEY_EXTENSION) ?? [];
+    _plugins.clear();
+    _apis.clear();
+    _plugins.addAll(plugins);
+
+    for (var element in _plugins) {
+      var api = MixApi.api(plugins: element);
+      _apis[element.package!] = api;
+    }
   }
 
-  static setMatchSite(Set<String> sites) {
-    _matchSite.clear();
-    _matchSite.addAll(sites);
+  /// 获取搜索api
+  static List<PluginsInfo> getSearchPlugins() {
+    return getPlugins(key: "search");
   }
 
-  static Set<String> getMatchSite() {
-    return _matchSite;
+  /// 获取歌单api
+  static List<PluginsInfo> getPlayListPlugins() {
+    return getPlugins(key: "playList");
   }
 
-  static PluginsInfo getPlugin(int index) {
-    return _plugins[index];
+  static List<PluginsInfo> getUrlPlugins() {
+    return getPlugins(key: "url");
   }
 
-  static List<PluginsInfo> getPlugins() {
-    return _plugins;
+  static List<PluginsInfo> getAlbumPlugins() {
+    return getPlugins(key: "album");
   }
 
-  static init({required String pluginRoot}) async {
-    _pluginRoot = pluginRoot;
+  static List<PluginsInfo> getRecPlugins() {
+    return getPlugins(key: "rec");
+  }
 
-    await getSystemPlugins(rootDir: pluginRoot).then((value) {
-      _plugins.clear();
-      _apis.clear();
-      _plugins.addAll(value);
-      _plugins.forEach((element) async {
-        var api = await MixApi.api(plugins: element);
-        _apis[element.site!] = api;
-      });
+  static List<PluginsInfo> getRankPlugins() {
+    return getPlugins(key: "rank");
+  }
+
+  static List<PluginsInfo> getArtistPlugins() {
+    return getPlugins(key: "artist");
+  }
+
+  static List<PluginsInfo> getParsePlugins() {
+    return getPlugins(key: "parse");
+  }
+
+  static List<PluginsInfo> getPlugins({String? key}) {
+    if (key == null) return _plugins;
+
+    var list = <PluginsInfo>[];
+    _apis.forEach((mapKey, value) {
+      if (value.contains(key: key)) {
+        list.add(_plugins.firstWhere((v) => v.package == mapKey));
+      }
     });
-  }
-
-  static reFreshPlugins() async {
-    await getSystemPlugins(rootDir: _pluginRoot).then((value) {
-      _plugins.clear();
-      _apis.clear();
-      _plugins.addAll(value);
-      _plugins.forEach((element) async {
-        var api = await MixApi.api(plugins: element);
-        _apis[element.site!] = api;
-      });
-    });
+    return list;
   }
 
   /// 工厂方法
-  static MusicApi? api({required String site}) {
-    if (_apis.containsKey(site)) {
-      return _apis[site];
+  static MusicApi? api({required String package}) {
+    if (_apis.containsKey(package)) {
+      return _apis[package];
     }
     return null;
   }
 
   ///获取播放地址
-  static Future<MixSong> playUrl({required String site, required MixSong song}) {
-    if (song.vip == 1 && _matchVip && !_matchSite.contains(site) && _matchSite.isNotEmpty) {
-      return matchMusic(sites: _matchSite.toList(), name: song.title, artist: song.artist?.first.name).then((value) {
-        return value.firstOrNull ?? song;
-      });
-    } else {
-      return api(site: site)!.playUrl(song);
-    }
+  static Future<MixSong> playUrl({required String package, required MixSong song}) {
+    return api(package: package)!.playUrl(song);
   }
 
-  static Future<List<MixSong>> _searchMusic({required String site, required String? name, required String? artist}) async {
+  static Future<List<MixSong>> _searchMusic({required String package, required String? name, required String? artist}) async {
     var keyWord = "$name $artist";
     try {
-      var value = await ApiFactory.api(site: site)?.searchSong(keyword: keyWord, page: 0, size: 20);
+      var value = await ApiFactory.api(package: package)?.searchSong(keyword: keyWord, page: 0, size: 20);
       return value?.data ?? [];
     } catch (e) {
       return [];
     }
   }
 
-  static Future<MixPlaylist?> _parsePlayList({required String site, required String? url}) async {
+  static Future<MixPlaylist?> _parsePlayList({required String package, required String? url}) async {
     try {
-      var value = await ApiFactory.api(site: site)?.parsePlayList(url: url);
+      var value = await ApiFactory.api(package: package)?.parsePlayList(url: url);
       return value?.data;
     } catch (e) {
       return null;
     }
   }
 
-  static Future<List<MixSong>> matchMusic({required List<String> sites, required String? name, required String? artist}) async {
-    var value = await Future.wait(sites.map((e) => _searchMusic(site: e, name: name, artist: artist)));
+  static Future<List<MixSong>> matchMusic({required List<String> packages, required String? name, required String? artist}) async {
+    var value = await Future.wait(packages.map((e) => _searchMusic(package: e, name: name, artist: artist)));
 
     var datas = value
         .map((e) {
-          e.forEach((element) {
-            print('${element.site}  ${element.title}>>${name}  ${element.subTitle}>>${artist}');
-          });
+          for (var element in e) {
+            if (kDebugMode) {
+              print('${element.package}  ${element.title}>>$name  ${element.subTitle}>>$artist');
+            }
+          }
           var data = e.firstWhereOrNull((element) =>
               (element.title.toString().replaceAll(" ", "").toLowerCase().startsWith(name.toString().replaceAll(" ", "").toLowerCase()) ||
                   name.toString().replaceAll(" ", "").toLowerCase().startsWith(element.title.toString().replaceAll(" ", "").toLowerCase())) &&
@@ -123,7 +131,7 @@ class ApiFactory {
 
     try {
       var urls = (await Future.wait(datas.map((e) {
-        return ApiFactory.api(site: e!.site)!.playUrl(e);
+        return ApiFactory.api(package: e!.package)!.playUrl(e);
       })))
           .where((element) => element.url?.isNotEmpty == true)
           .toList();
@@ -134,8 +142,8 @@ class ApiFactory {
     }
   }
 
-  static Future<List<MixPlaylist?>> parsePlayList({required List<String> sites, required String? url}) async {
-    var value = await Future.wait(sites.map((e) => _parsePlayList(site: e, url: url)));
+  static Future<List<MixPlaylist?>> parsePlayList({required List<String> packages, required String? url}) async {
+    var value = await Future.wait(packages.map((e) => _parsePlayList(package: e, url: url)));
 
     var datas = value.where((element) => element != null).toList();
 

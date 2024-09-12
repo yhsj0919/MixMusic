@@ -43,7 +43,7 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
     super.initState();
     artist.value = Get.arguments;
 
-    detailMethod.addAll(api.getArtistDetailMethod(artist.value?.site));
+    detailMethod.addAll(api.getArtistDetailMethod(artist.value?.package ));
 
     tabController = TabController(length: detailMethod.length, vsync: this);
 
@@ -170,7 +170,7 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
   ///获取歌单
   Future<void> getPlayListInfo({int page = 0}) {
     return Future(() => null);
-    // return api.playListInfo(site: artist.value?.site ?? "", playlist: playlist.value!, page: page).then((value) {
+    // return api.playListInfo(site: artist.value?.package  ?? "", playlist: playlist.value!, page: page).then((value) {
     //   pageEntity.value = value.page;
     //   if (page == 0) {
     //     songList.clear();

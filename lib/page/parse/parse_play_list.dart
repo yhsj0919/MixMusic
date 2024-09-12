@@ -88,7 +88,7 @@ class _ParsePlayListState extends State<ParsePlayList> {
                       leading: AppImage(url: item.pic ?? ""),
                       title: Text("${item.title}", maxLines: 1),
                       subtitle: Text("${item.subTitle}", maxLines: 1),
-                      trailing: Text("${item.site}", maxLines: 1),
+                      trailing: Text("${item.package }", maxLines: 1),
                       onTap: () {
                         Get.toNamed(Routes.playListDetail, arguments: item);
                       },
@@ -112,7 +112,7 @@ class _ParsePlayListState extends State<ParsePlayList> {
       return Future(() => null);
     }
 
-    return api.parsePlayList(sites: api.parsePlugins.map((element) => element.site!).toList(), url: url).then((value) {
+    return api.parsePlayList(sites: api.parsePlugins.map((element) => element.package !).toList(), url: url).then((value) {
       if (value.isEmpty) {
         showInfo("没有匹配到数据");
       }

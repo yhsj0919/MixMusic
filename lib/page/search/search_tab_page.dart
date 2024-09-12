@@ -99,7 +99,7 @@ class _SearchTabPageState extends State<SearchTabPage> with AutomaticKeepAliveCl
     if (keyword.isEmpty) {
       return Future(() => null);
     }
-    return api.searchSong(site: widget.plugin.site!, keyword: keyword, page: page, size: size).then((value) {
+    return api.searchSong(site: widget.plugin.package !, keyword: keyword, page: page, size: size).then((value) {
       pageEntity.value = value.page;
       if (page == 0) {
         songList.clear();

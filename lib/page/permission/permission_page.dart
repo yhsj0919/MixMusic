@@ -5,6 +5,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:mix_music/constant.dart';
 import 'package:mix_music/page/home/home_page.dart';
 import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/message.dart';
@@ -192,7 +193,7 @@ class _PermissionPageState extends State<PermissionPage> {
                 onPressed: storageStatus.value && manageStatus.value && dirExists.value
                     ? () async {
                         await api.initPlugins();
-                        await Sp.setBool(Sp.KEY_FIRST_IN, false);
+                        await Sp.setBool(Constant.KEY_FIRST_IN, false);
                         Get.offAndToNamed(Routes.main);
                       }
                     : null,

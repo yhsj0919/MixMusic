@@ -36,7 +36,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   #文件选择
-  file_picker: ^8.0.3
+  file_picker: ^8.1.2
   permission_handler: ^11.3.1
   path_provider: ^2.1.4
   #js插件处理
@@ -82,6 +82,7 @@ dependencies:
   squiggly_slider: ^1.0.5
   gap: ^3.0.1
   cached_network_image: ^3.3.1
+  flutter_speed_dial: ^7.0.0
 
 
 dev_dependencies:

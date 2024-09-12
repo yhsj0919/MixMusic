@@ -88,6 +88,7 @@ class MixApi extends MusicApi {
     }
     var ss = JsonMapper.serialize(song).replaceAll("\n", "").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
     return invokeMethod(method: "music.url.playUrl", params: [ss]).then((value) {
+
       AppRespEntity<MixSong> data = AppRespEntity.fromJson(value);
       if (data.code == 200) {
         data.data?.lyric ??= lyric;

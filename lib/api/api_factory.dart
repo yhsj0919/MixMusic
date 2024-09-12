@@ -15,11 +15,17 @@ class ApiFactory {
   static final List<PluginsInfo> _plugins = [];
   static final _apis = <String, MusicApi>{};
 
-  static MusicApi? getPlugin(String? package) {
-    return _apis[package];
+  static final _matchSite = <String>{};
+  static bool _matchVip = false;
+
+  static PluginsInfo? getPlugin(String? package) {
+    return _plugins.firstWhereOrNull((e) => e.package == package);
   }
 
   static init() async {
+    //初始化音源匹配
+    initMatch();
+
     List<PluginsInfo> plugins = Sp.getList(Constant.KEY_EXTENSION) ?? [];
     _plugins.clear();
     _apis.clear();
@@ -29,6 +35,13 @@ class ApiFactory {
       var api = MixApi.api(plugins: element);
       _apis[element.package!] = await api;
     }
+  }
+
+  static initMatch() async {
+    _matchSite.clear();
+    //初始化音源匹配
+    _matchVip = Sp.getBool(Constant.KEY_MATCH_VIP) ?? false;
+    _matchSite.addAll(Sp.getStringList(Constant.KEY_MATCH_SITE) ?? []);
   }
 
   /// 获取搜索api
@@ -95,7 +108,13 @@ class ApiFactory {
 
   ///获取播放地址
   static Future<MixSong> playUrl({required String package, required MixSong song}) {
-    return api(package: package)!.playUrl(song);
+    if (song.vip == 1 && _matchVip && !_matchSite.contains(package) && _matchSite.isNotEmpty) {
+      return matchMusic(packages: _matchSite.toList(), name: song.title, artist: song.artist?.first.name).then((value) {
+        return value.firstOrNull ?? song;
+      });
+    } else {
+      return api(package: package)!.playUrl(song);
+    }
   }
 
   static Future<List<MixSong>> _searchMusic({required String package, required String? name, required String? artist}) async {

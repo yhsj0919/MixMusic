@@ -46,6 +46,8 @@ class _MatchSitePageState extends State<MatchSitePage> {
                     onChanged: (value) {
                       matchVip.value = value;
                       Sp.setBool(Constant.KEY_MATCH_VIP, value);
+
+                      ApiFactory.initMatch();
                     },
                   ),
                 ),
@@ -77,6 +79,7 @@ class _MatchSitePageState extends State<MatchSitePage> {
                           matchSite.remove(plugin.package ?? "");
                         }
                         Sp.setStringList(Constant.KEY_MATCH_SITE, matchSite.toList());
+                        ApiFactory.initMatch();
                       },
                     ),
                   ),

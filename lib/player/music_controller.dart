@@ -95,7 +95,7 @@ class MusicController extends GetxController {
 
   ///播放音乐
   void play({required MixSong music}) {
-    if (music.id == currentMusic.value?.id && music.package  == currentMusic.value?.package  && Player.state == PlayerState.playing) {
+    if (music.id == currentMusic.value?.id && music.package == currentMusic.value?.package && Player.state == PlayerState.playing) {
       print('同一首歌，不进行其他操作');
       return;
     }
@@ -109,10 +109,10 @@ class MusicController extends GetxController {
     currentMusic.value = music;
     theme.getColorScheme(music.pic);
 
-    musicIndex.value = musicList.indexWhere((element) => element.id == music.id && element.package  == music.package );
+    musicIndex.value = musicList.indexWhere((element) => element.id == music.id && element.package == music.package);
     Player.stop();
-    ApiFactory.playUrl(package: music.package , song: music).then((value) {
-      musicIndex.value = musicList.indexWhere((element) => element.id == music.id && element.package  == music.package );
+    ApiFactory.playUrl(package: music.package, song: music).then((value) {
+      musicIndex.value = musicList.indexWhere((element) => element.id == music.id && element.package == music.package);
       music.url = value.url;
       music.lyric = value.lyric;
       currentMusic.value = music;
@@ -123,8 +123,8 @@ class MusicController extends GetxController {
           lyric.value = "暂无歌词";
           lyricModel.value = LyricsModelBuilder.create().bindLyricToMain("暂无歌词").getModel();
         }
-        if (music.package  != value.package ) {
-          showComplete('音频来自:${value.package }');
+        if (music.package != value.package) {
+          showComplete('音频来自:${ApiFactory.getPlugin(value.package)?.name ?? "未知"}');
         }
         isBuffering.value = true;
         Player.playMediaItem(music.mediaItem()).then((value) {

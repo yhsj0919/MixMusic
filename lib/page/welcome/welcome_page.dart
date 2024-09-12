@@ -19,6 +19,7 @@ class _WelcomePageState extends State<WelcomePage> {
   Timer? _timer;
 
   ///记录当前的时间
+  int timeText = 1000;
   int currentTimer = 0;
   int totalTime = 1000;
 
@@ -35,6 +36,7 @@ class _WelcomePageState extends State<WelcomePage> {
     _timer = Timer.periodic(const Duration(milliseconds: 5), (timer) {
       ///自增
       currentTimer += 5;
+      timeText -= 5;
 
       ///到5秒后停止
       if (currentTimer >= totalTime) {
@@ -75,7 +77,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   value: currentTimer / totalTime,
                 ),
                 Text(
-                  "${currentTimer ~/ 1000}",
+                  "${timeText ~/ 200}",
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],

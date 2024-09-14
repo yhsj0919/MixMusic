@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,9 @@ import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
+import 'package:mix_music/widgets/SliverDelegate.dart';
 import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/page_sliver_view.dart';
 
 import '../../entity/page_entity.dart';
 import '../../player/music_controller.dart';
@@ -30,9 +33,15 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
   Rxn<PageEntity> pageEntity = Rxn();
   Rxn<MixAlbum> album = Rxn();
 
+  RxBool _isVisible = RxBool(false);
+
   @override
   void initState() {
     super.initState();
+    Future.delayed(const Duration(milliseconds: 100)).then((value) {
+      _isVisible.value = true;
+    });
+
     album.value = Get.arguments;
 
     refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
@@ -45,88 +54,9 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight;
     return Scaffold(
       floatingActionButton: PlayBar(),
-      body: ExtendedNestedScrollView(
-        headerSliverBuilder: (BuildContext c, bool f) {
-          return [
-            SliverAppBar(
-              expandedHeight: 200,
-              flexibleSpace: FlexibleSpaceBar(
-                  title: Text(
-                    album.value?.title ?? "专辑",
-                    style: TextStyle(color: Theme.of(context).textTheme.titleMedium?.color),
-                    maxLines: f ? 1 : null,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  // collapseMode: CollapseMode.parallax,
-                  background: Stack(
-                    children: [
-                      AppImage(
-                        url: album.value?.pic ?? "",
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.width,
-                        animationDuration: 0,
-                        radius: 0,
-                      ),
-                      BlurRectWidget(border: Border.all(color: Colors.transparent)),
-                    ],
-                  )),
-              forceElevated: f,
-              pinned: true,
-              actions: [
-                IconButton(
-                    onPressed: () {
-                      showDialog(
-                        useRootNavigator: false,
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('关于'),
-                            content: Text(album.value?.desc ?? ""),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(); // 关闭对话框
-                                },
-                                child: const Text('关闭'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    icon: const Icon(Icons.info_outline_rounded))
-              ],
-            ),
-            SliverPersistentHeader(
-                pinned: true,
-                delegate: _SliverDelegate(
-                    minHeight: 50,
-                    maxHeight: 50,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(16))),
-                      child: Row(
-                        children: [
-                          Icon(Icons.play_circle, color: Theme.of(context).colorScheme.primary),
-                          TextButton(
-                              onPressed: () {
-                                music.playList(list: songList, index: 0);
-                              },
-                              child: const Text("播放全部")),
-                          Obx(() => Text("${songList.length}/${album.value?.songCount ?? "0"}")),
-                        ],
-                      ),
-                    ))),
-            SliverPersistentHeader(pinned: true, delegate: _SliverDelegate(minHeight: 1, maxHeight: 1, child: Container(color: Theme.of(context).dividerColor.withOpacity(0.2)))),
-          ];
-        },
-        pinnedHeaderSliverHeightBuilder: () {
-          return pinnedHeaderHeight;
-        },
-        onlyOneScrollInBody: true,
-        // physics: NeverScrollableScrollPhysics(),
-        body: Obx(
-          () => PageListView(
+      body: Stack(children: [
+        Obx(
+          () => PageSliverView(
             controller: refreshController,
             onRefresh: () {
               return getAlbumInfo();
@@ -134,42 +64,155 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
             onLoad: () {
               return getAlbumInfo(page: pageEntity.value?.page ?? 0);
             },
-            itemCount: songList.length,
-            itemBuilder: (BuildContext context, int index) {
-              var song = songList[index];
-              return Obx(() => ListTile(
-                    selected: music.currentMusic.value?.id == song.id,
-                    leading: AppImage(url: song.pic ?? ""),
-                    title: Row(
-                      children: [
-                        Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
-                        song.vip == 1
-                            ? Container(
-                                alignment: Alignment.center,
-                                margin: const EdgeInsets.symmetric(horizontal: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-                                  border: Border.all(width: 1, color: Colors.green),
+            slivers: [
+              SliverAppBar.large(
+                expandedHeight: 220,
+                leading: Container(),
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    width: double.infinity,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: CachedNetworkImage(
+                        imageUrl: album.value?.pic ?? "",
+                        fit: BoxFit.cover,
+                        useOldImageOnUrlChange: true,
+                      ),
+                    ),
+                  ),
+                ),
+                title: Text(album.value?.title ?? ""),
+              ),
+              PinnedHeaderSliver(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: const BorderRadius.all(Radius.circular(16))),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              album.value?.title ?? "",
+                              style: Theme.of(context).textTheme.titleMedium,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  album.value?.artist?.map((v) => v.name).join(",") ?? "",
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
                                 ),
-                                child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
-                              )
-                            : Container(),
-                      ],
-                    ),
-                    subtitle: Text(
-                      song.subTitle ?? "",
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                    onTap: () {
-                      music.playList(list: songList, index: index);
-                    },
-                  ));
-            },
+                                Container(width: 16),
+                                Obx(() => Text("${songList.length}/${album.value?.songCount ?? "0"}")),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(width: 16),
+                      IconButton.filledTonal(
+                          onPressed: () {
+                            music.playList(list: songList, index: 0);
+                          },
+                          icon: const SizedBox(width: 100, height: 30, child: Icon(Icons.play_arrow_rounded, size: 30))),
+                      // Container(width: 8),
+                    ],
+                  ),
+                ),
+              ),
+              PinnedHeaderSliver(
+                child: Container(height: 1, color: Theme.of(context).dividerColor.withOpacity(0.2)),
+              ),
+              SliverList.builder(
+                itemCount: songList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  var song = songList[index];
+                  return Obx(() => ListTile(
+                        selected: music.currentMusic.value?.id == song.id,
+                        leading: AppImage(url: song.pic ?? ""),
+                        title: Row(
+                          children: [
+                            Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            song.vip == 1
+                                ? Container(
+                                    alignment: Alignment.center,
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+                                      border: Border.all(width: 1, color: Colors.green),
+                                    ),
+                                    child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
+                                  )
+                                : Container(),
+                          ],
+                        ),
+                        subtitle: Text(
+                          song.subTitle ?? "",
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                        onTap: () {
+                          music.playList(list: songList, index: index);
+                        },
+                      ));
+                },
+              ),
+            ],
           ),
         ),
-      ),
+        Obx(() => AnimatedOpacity(
+            duration: const Duration(milliseconds: 500),
+            opacity: _isVisible.value ? 1.0 : 0.0,
+            child: Row(
+              children: [
+                Container(
+                  height: 64,
+                  alignment: Alignment.centerLeft,
+                  margin: EdgeInsets.only(top: statusBarHeight),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  child: IconButton.filledTonal(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      icon: const Icon(Icons.arrow_back_rounded)),
+                ),
+                Expanded(child: Container(height: 1)),
+                Container(
+                    height: 64,
+                    alignment: Alignment.centerLeft,
+                    margin: EdgeInsets.only(top: statusBarHeight),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: IconButton.filledTonal(
+                        onPressed: () {
+                          showDialog(
+                            useRootNavigator: false,
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('关于'),
+                                content: Text(album.value?.desc ?? ""),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(); // 关闭对话框
+                                    },
+                                    child: const Text('关闭'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        icon: const Icon(Icons.info_outline_rounded)))
+              ],
+            ))),
+      ]),
     );
   }
 
@@ -203,33 +246,5 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
       }
       showError(e);
     });
-  }
-}
-
-class _SliverDelegate extends SliverPersistentHeaderDelegate {
-  _SliverDelegate({
-    required this.minHeight,
-    required this.maxHeight,
-    required this.child,
-  });
-
-  final double minHeight; //最小高度
-  final double maxHeight; //最大高度
-  final Widget child; //孩子
-
-  @override
-  double get minExtent => minHeight;
-
-  @override
-  double get maxExtent => max(maxHeight, minHeight);
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox.expand(child: child);
-  }
-
-  @override //是否需要重建
-  bool shouldRebuild(_SliverDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight || minHeight != oldDelegate.minHeight || child != oldDelegate.child;
   }
 }

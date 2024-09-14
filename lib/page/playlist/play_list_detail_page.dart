@@ -8,6 +8,7 @@ import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
+import 'package:mix_music/widgets/SliverDelegate.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/page_list_view.dart';
 
@@ -98,7 +99,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
             ),
             SliverPersistentHeader(
                 pinned: true,
-                delegate: _SliverDelegate(
+                delegate: SliverDelegate(
                     minHeight: 50,
                     maxHeight: 50,
                     child: Container(
@@ -116,7 +117,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                         ],
                       ),
                     ))),
-            SliverPersistentHeader(pinned: true, delegate: _SliverDelegate(minHeight: 1, maxHeight: 1, child: Container(color: Theme.of(context).dividerColor.withOpacity(0.2)))),
+            SliverPersistentHeader(pinned: true, delegate: SliverDelegate(minHeight: 1, maxHeight: 1, child: Container(color: Theme.of(context).dividerColor.withOpacity(0.2)))),
           ];
         },
         pinnedHeaderSliverHeightBuilder: () {
@@ -190,30 +191,3 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   }
 }
 
-class _SliverDelegate extends SliverPersistentHeaderDelegate {
-  _SliverDelegate({
-    required this.minHeight,
-    required this.maxHeight,
-    required this.child,
-  });
-
-  final double minHeight; //最小高度
-  final double maxHeight; //最大高度
-  final Widget child; //孩子
-
-  @override
-  double get minExtent => minHeight;
-
-  @override
-  double get maxExtent => max(maxHeight, minHeight);
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox.expand(child: child);
-  }
-
-  @override //是否需要重建
-  bool shouldRebuild(_SliverDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight || minHeight != oldDelegate.minHeight || child != oldDelegate.child;
-  }
-}

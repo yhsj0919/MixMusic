@@ -12,6 +12,7 @@ import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/theme/new_surface_theme.dart';
 import 'package:mix_music/theme/surface_color_enum.dart';
 import 'package:mix_music/theme/theme_controller.dart';
+import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/ext.dart';
 
 import '../../../player/ui_mix.dart';
@@ -74,20 +75,16 @@ class _PhonePlayingState extends State<PhonePlaying> {
                                 width: double.infinity,
                                 height: showCover.value ? 250 : 0,
                                 duration: const Duration(milliseconds: 200),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(24),
-                                  child: CachedNetworkImage(
-                                    imageUrl: music.currentMusic.value?.pic?.toString() ?? "",
-                                    fit: BoxFit.cover,
-                                    useOldImageOnUrlChange: true,
-                                  ),
+                                child: AppImage(
+                                  radius: 24,
+                                  url: music.currentMusic.value?.pic?.toString() ?? "",
                                 )),
                           )),
                       const Gap(8),
                       Expanded(
                           child: Obx(() => AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 500),
-                                child: _showLrc.value ? Obx(()=>buildLrc(context)) : Container(),
+                                child: _showLrc.value ? Obx(() => buildLrc(context)) : Container(),
                               ))),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

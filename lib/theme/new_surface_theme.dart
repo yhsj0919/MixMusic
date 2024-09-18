@@ -43,7 +43,7 @@ class NewSurfaceTheme {
           3,
         );
       case SurfaceColorEnum.surfaceContainerHighest:
-        return Theme.of(context).colorScheme.surfaceVariant;
+        return Theme.of(context).colorScheme.surfaceContainerHighest;
     }
   }
 }

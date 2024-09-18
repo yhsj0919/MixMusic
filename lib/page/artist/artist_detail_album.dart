@@ -31,7 +31,9 @@ class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> with AutomaticKee
   void initState() {
     super.initState();
     refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
-    artistSong(artist: widget.artist);
+    Future.delayed(const Duration(milliseconds: 300)).then((v) {
+      artistSong(artist: widget.artist);
+    });
   }
 
   @override
@@ -51,7 +53,7 @@ class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> with AutomaticKee
         itemBuilder: (BuildContext context, int index) {
           var item = albumList[index];
           return ListTile(
-            leading: AppImage(url: item.pic ?? ""),
+            leading: Hero(tag: "${item.package}${item.id}${item.pic}", child: AppImage(url: item.pic ?? "")),
             title: Text("${item.title}", maxLines: 1),
             subtitle: Text("${item.subTitle}", maxLines: 1),
             onTap: () {

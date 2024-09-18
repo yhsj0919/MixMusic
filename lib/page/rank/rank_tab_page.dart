@@ -39,7 +39,9 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
     super.initState();
     widget.controller._addState(widget.plugin.package ?? "", this);
     refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
-    getRankList();
+    Future.delayed(const Duration(milliseconds: 300)).then((v) {
+      getRankList();
+    });
   }
 
   @override
@@ -78,13 +80,27 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
                 ?.map(
                   (e) => InkWell(
                     borderRadius: const BorderRadius.all(Radius.circular(8)),
-                    child: GridTile(
-                      footer: BlurRectWidget(
-                        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8)),
-                        child: Center(child: Text(e.title ?? "", maxLines: 1)),
-                      ),
-                      child: AppImage(url: e.pic ?? ""),
-                    ),
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: GridTile(
+                          footer: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                              alignment: Alignment.bottomRight,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  color: Theme.of(context).colorScheme.secondaryContainer,
+                                  child: Text(
+                                    "${e.title}",
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              )),
+                          child: Hero(tag: "${e.package}${e.id}${e.pic}", child: AppImage(url: e.pic ?? "", radius: 16)),
+                        )),
                     onTap: () {
                       Get.toNamed(Routes.rankDetail, arguments: e);
                     },

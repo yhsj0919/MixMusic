@@ -33,15 +33,18 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
   late TabController tabController;
 
   RxList<String> detailMethod = RxList();
+  final RxBool _isVisible = RxBool(false);
 
   @override
   void initState() {
     super.initState();
+    Future.delayed(const Duration(milliseconds: 100)).then((value) {
+      _isVisible.value = true;
+    });
+
     artist.value = Get.arguments;
 
     detailMethod.addAll(ApiFactory.getArtistMethod(artist.value?.package));
-
-    print(detailMethod);
 
     tabController = TabController(length: detailMethod.length, vsync: this);
 
@@ -52,99 +55,138 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double width = MediaQuery.of(context).size.width;
+
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight;
     return Scaffold(
       floatingActionButton: PlayBar(),
-      body: ExtendedNestedScrollView(
-        headerSliverBuilder: (BuildContext c, bool f) {
-          return [
-            SliverAppBar(
-              expandedHeight: 200,
-              flexibleSpace: FlexibleSpaceBar(
-                  title: Text(
-                    artist.value?.name ?? "歌手",
-                    style: TextStyle(color: Theme.of(context).textTheme.titleMedium?.color),
-                    maxLines: f ? 1 : null,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  // collapseMode: CollapseMode.parallax,
-                  background: Stack(
-                    children: [
-                      AppImage(
-                        url: artist.value?.pic ?? "",
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.width,
-                        animationDuration: 0,
-                        radius: 0,
-                      ),
-                      BlurRectWidget(border: Border.all(color: Colors.transparent)),
-                    ],
-                  )),
-              forceElevated: f,
-              pinned: true,
-              actions: [
-                IconButton(
-                    onPressed: () {
-                      showDialog(
-                        useRootNavigator: false,
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('关于'),
-                            content: Text(artist.value?.desc ?? ""),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(); // 关闭对话框
-                                },
-                                child: const Text('关闭'),
+      body: Stack(
+        children: [
+          ExtendedNestedScrollView(
+            headerSliverBuilder: (BuildContext c, bool f) {
+              return [
+                SliverAppBar.large(
+                  expandedHeight: 240,
+                  surfaceTintColor: Colors.transparent,
+                  leading: Container(),
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Stack(
+                      children: [
+                        Hero(
+                            tag: "${artist.value?.package}${artist.value?.id}${artist.value?.pic}",
+                            child: Container(
+                                margin: EdgeInsets.only(left: 16, right: 16, top: statusBarHeight + 4, bottom: 0),
+                                height: 240,
+                                width: width,
+                                child: AppImage(
+                                  url: artist.value?.pic ?? "",
+                                  radius: 24,
+                                  width: width,
+                                ))),
+                        Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                            width: double.infinity,
+                            height: double.infinity,
+                            alignment: Alignment.bottomRight,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(24),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                color: Theme.of(context).colorScheme.secondaryContainer,
+                                child: Obx(() => Text(
+                                      artist.value?.name ?? "",
+                                      style: Theme.of(context).textTheme.titleLarge,
+                                    )),
                               ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    icon: const Icon(Icons.info_outline_rounded))
-              ],
-            ),
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _SliverDelegate(
-                minHeight: 50,
-                maxHeight: 50,
-                child: Container(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  child: TabBar(
-                    // 指示器颜色
-                    controller: tabController,
-                    isScrollable: true,
-                    tabs: detailMethod.map((element) {
-                      if (element == "song") {
-                        return const Tab(text: "歌曲");
-                      }
-                      if (element == "album") {
-                        return const Tab(text: "专辑");
-                      }
-                      if (element == "mv") {
-                        return const Tab(text: "MV");
-                      }
-
-                      return const Tab(text: "未知");
-                    }).toList(),
+                            )),
+                      ],
+                    ),
+                  ),
+                  title: Text(
+                    artist.value?.name ?? "",
                   ),
                 ),
-              ),
+                PinnedHeaderSliver(
+                  child: Container(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    child: TabBar(
+                      // 指示器颜色
+                      controller: tabController,
+                      isScrollable: true,
+                      tabs: detailMethod.map((element) {
+                        if (element == "song") {
+                          return const Tab(text: "歌曲");
+                        }
+                        if (element == "album") {
+                          return const Tab(text: "专辑");
+                        }
+                        if (element == "mv") {
+                          return const Tab(text: "MV");
+                        }
+
+                        return const Tab(text: "未知");
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ];
+            },
+            pinnedHeaderSliverHeightBuilder: () {
+              return pinnedHeaderHeight;
+            },
+            onlyOneScrollInBody: true,
+            // physics: NeverScrollableScrollPhysics(),
+            body: Column(
+              children: <Widget>[Expanded(child: _buildTabBarView())],
             ),
-          ];
-        },
-        pinnedHeaderSliverHeightBuilder: () {
-          return pinnedHeaderHeight;
-        },
-        onlyOneScrollInBody: true,
-        // physics: NeverScrollableScrollPhysics(),
-        body: Column(
-          children: <Widget>[Expanded(child: _buildTabBarView())],
-        ),
+          ),
+          Obx(() => AnimatedOpacity(
+              duration: const Duration(milliseconds: 500),
+              opacity: _isVisible.value ? 1.0 : 0.0,
+              child: Row(
+                children: [
+                  Container(
+                    height: 64,
+                    alignment: Alignment.centerLeft,
+                    margin: EdgeInsets.only(top: statusBarHeight),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: IconButton.filledTonal(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        icon: const Icon(Icons.arrow_back_rounded)),
+                  ),
+                  Expanded(child: Container(height: 1)),
+                  Container(
+                      height: 64,
+                      alignment: Alignment.centerLeft,
+                      margin: EdgeInsets.only(top: statusBarHeight),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      child: IconButton.filledTonal(
+                          onPressed: () {
+                            showDialog(
+                              useRootNavigator: false,
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('关于'),
+                                  content: Text(artist.value?.desc ?? ""),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop(); // 关闭对话框
+                                      },
+                                      child: const Text('关闭'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.info_outline_rounded)))
+                ],
+              ))),
+        ],
       ),
     );
   }

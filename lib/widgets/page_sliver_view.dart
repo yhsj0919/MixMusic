@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class PageSliverView extends StatefulWidget {
+class PageSliverView extends StatelessWidget {
   PageSliverView({
     Key? key,
     required this.slivers,
@@ -27,11 +27,6 @@ class PageSliverView extends StatefulWidget {
   final bool? shrinkWrap;
 
   @override
-  State<PageSliverView> createState() => _PageSliverViewState();
-}
-
-class _PageSliverViewState extends State<PageSliverView> {
-  @override
   Widget build(BuildContext context) {
     return EasyRefresh(
         header: const MaterialHeader(),
@@ -45,14 +40,14 @@ class _PageSliverViewState extends State<PageSliverView> {
           messageText: '更新于 %T',
           hapticFeedback: true,
         ),
-        controller: widget.controller,
-        onRefresh: widget.onRefresh,
-        onLoad: widget.onLoad,
+        controller: controller,
+        onRefresh: onRefresh,
+        onLoad: onLoad,
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          controller: widget.scrollController,
-          shrinkWrap: widget.shrinkWrap ?? false,
-          slivers: widget.slivers,
+          controller: scrollController,
+          shrinkWrap: shrinkWrap ?? false,
+          slivers: slivers,
         ));
   }
 }

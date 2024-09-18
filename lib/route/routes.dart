@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/page/album/album_detail_page.dart';
 import 'package:mix_music/page/album/album_page.dart';
@@ -14,6 +15,7 @@ import 'package:mix_music/page/rank/rank_detail_page.dart';
 import 'package:mix_music/page/rank/rank_page.dart';
 import 'package:mix_music/page/search/search_page.dart';
 import 'package:mix_music/page/setting/home_site_page.dart';
+import 'package:mix_music/widgets/OpacityRoute.dart';
 
 import '../page/artist/artist_detail_page.dart';
 import '../page/setting/cookie_page.dart';
@@ -49,25 +51,25 @@ class Routes {
   static const String parsePlayList = "/parsePlayList";
 
   static List<GetPage> routes = [
-    GetPage(name: welcome, page: () => const WelcomePage()),
-    GetPage(name: permission, page: () => const PermissionPage()),
-    GetPage(name: extension, page: () => const ExtensionPage()),
-    GetPage(name: matchSite, page: () => const MatchSitePage()),
-    GetPage(name: homeSite, page: () => const HomeSitePage()),
-    GetPage(name: cookieSetting, page: () => const CookiePage()),
-    GetPage(name: home, page: () => const HomePage()),
-    GetPage(name: setting, page: () => const SettingPage()),
-    GetPage(name: search, page: () => const SearchPage()),
-    GetPage(name: appPlayList, page: () => AppPlayListPage()),
-    GetPage(name: playList, page: () => const PlayListPage()),
-    GetPage(name: playListDetail, page: () => const PlayListDetailPage()),
-    GetPage(name: album, page: () => const AlbumPage()),
-    GetPage(name: albumDetail, page: () => const AlbumDetailPage()),
-    GetPage(name: rank, page: () => const RankPage()),
-    GetPage(name: rankDetail, page: () => const RankDetailPage()),
-    GetPage(name: artist, page: () => const ArtistPage()),
-    GetPage(name: artistDetail, page: () => const ArtistDetailPage()),
-    GetPage(name: parsePlayList, page: () => const ParsePlayList()),
+    GetPage(name: welcome, page: () => const WelcomePage(), customTransition: MyCustomTransition()),
+    GetPage(name: permission, page: () => const PermissionPage(), customTransition: MyCustomTransition()),
+    GetPage(name: extension, page: () => const ExtensionPage(), customTransition: MyCustomTransition()),
+    GetPage(name: matchSite, page: () => const MatchSitePage(), customTransition: MyCustomTransition()),
+    GetPage(name: homeSite, page: () => const HomeSitePage(), customTransition: MyCustomTransition()),
+    GetPage(name: cookieSetting, page: () => const CookiePage(), customTransition: MyCustomTransition()),
+    GetPage(name: home, page: () => const HomePage(), customTransition: MyCustomTransition()),
+    GetPage(name: setting, page: () => const SettingPage(), customTransition: MyCustomTransition()),
+    GetPage(name: search, page: () => const SearchPage(), customTransition: MyCustomTransition()),
+    GetPage(name: appPlayList, page: () => AppPlayListPage(), customTransition: MyCustomTransition()),
+    GetPage(name: playList, page: () => const PlayListPage(), customTransition: MyCustomTransition()),
+    GetPage(name: playListDetail, page: () => PlayListDetailPage(), customTransition: MyCustomTransition()),
+    GetPage(name: album, page: () => const AlbumPage(), customTransition: MyCustomTransition()),
+    GetPage(name: albumDetail, page: () => const AlbumDetailPage(), customTransition: MyCustomTransition()),
+    GetPage(name: rank, page: () => const RankPage(), customTransition: MyCustomTransition()),
+    GetPage(name: rankDetail, page: () => const RankDetailPage(), customTransition: MyCustomTransition()),
+    GetPage(name: artist, page: () => const ArtistPage(), customTransition: MyCustomTransition()),
+    GetPage(name: artistDetail, page: () => const ArtistDetailPage(), customTransition: MyCustomTransition()),
+    GetPage(name: parsePlayList, page: () => const ParsePlayList(), customTransition: MyCustomTransition()),
   ];
 
 // static Route<dynamic> getRoute(RouteSettings settings) {
@@ -80,4 +82,11 @@ class Routes {
 //       return GetPageRoute(settings: settings, page: () => Center(child: Text("404", style: Theme.of(Get.context!).textTheme.displayLarge)));
 //   }
 // }
+}
+
+class MyCustomTransition extends CustomTransition {
+  @override
+  Widget buildTransition(BuildContext context, Curve? curve, Alignment? alignment, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+    return Opacity(opacity: animation.value, child: child);
+  }
 }

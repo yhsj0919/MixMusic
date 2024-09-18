@@ -17,12 +17,8 @@ class AppImage extends StatefulWidget {
 }
 
 class _AppImageState extends State<AppImage> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
   @override
   void initState() {
-    _controller = AnimationController(vsync: this, duration: Duration(milliseconds: widget.animationDuration ?? 500), lowerBound: 0.0, upperBound: 1.0);
-
     super.initState();
   }
 
@@ -31,47 +27,39 @@ class _AppImageState extends State<AppImage> with SingleTickerProviderStateMixin
     return ClipRRect(
       borderRadius: BorderRadius.all(Radius.circular(widget.radius ?? 8)),
       child: widget.url.isNotEmpty
-          ? RepaintBoundary(
-              child: ExtendedImage(
-                image: CachedNetworkImageProvider(
-                  widget.url,
-                  headers: const {
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.35'
-                  },
-                ),
-                fit: widget.fit,
-                width: widget.width,
-                height: widget.height,
-                border: widget.border,
-                borderRadius: BorderRadius.all(Radius.circular(widget.radius ?? 8)),
-                loadStateChanged: (ExtendedImageState state) {
-                  switch (state.extendedImageLoadState) {
-                    case LoadState.loading:
-                      _controller.reset();
-                      return Container(width: widget.width, height: widget.height, color: Colors.black12, alignment: Alignment.center);
-                    case LoadState.completed:
-                      _controller.forward();
-                      return FadeTransition(
-                        opacity: _controller,
-                        child: ExtendedRawImage(
-                          fit: widget.fit,
-                          image: state.extendedImageInfo?.image,
-                          width: widget.width,
-                          height: widget.height,
-                        ),
-                      );
-                    case LoadState.failed:
-                      _controller.reset();
-                      state.imageProvider.evict();
-                      return GestureDetector(
-                        child: Container(color: Colors.black12),
-                        onTap: () {
-                          state.reLoadImage();
-                        },
-                      );
-                  }
+          ? ExtendedImage(
+              image: CachedNetworkImageProvider(
+                widget.url,
+                headers: const {
+                  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36 Edg/117.0.2045.35'
                 },
               ),
+              fit: widget.fit,
+              width: widget.width,
+              height: widget.height,
+              border: widget.border,
+              borderRadius: BorderRadius.all(Radius.circular(widget.radius ?? 8)),
+              loadStateChanged: (ExtendedImageState state) {
+                switch (state.extendedImageLoadState) {
+                  case LoadState.loading:
+                    return Container(width: widget.width, height: widget.height, color: Colors.black12, alignment: Alignment.center);
+                  case LoadState.completed:
+                    return ExtendedRawImage(
+                      fit: widget.fit,
+                      image: state.extendedImageInfo?.image,
+                      width: widget.width,
+                      height: widget.height,
+                    );
+                  case LoadState.failed:
+                    state.imageProvider.evict();
+                    return GestureDetector(
+                      child: Container(color: Colors.black12),
+                      onTap: () {
+                        state.reLoadImage();
+                      },
+                    );
+                }
+              },
             )
           : Container(
               width: widget.width,
@@ -83,7 +71,6 @@ class _AppImageState extends State<AppImage> with SingleTickerProviderStateMixin
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 }

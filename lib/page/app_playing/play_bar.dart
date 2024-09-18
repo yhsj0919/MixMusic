@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/widgets/OpacityRoute.dart';
+import 'package:mix_music/widgets/app_image.dart';
 
 import 'phone_playing.dart';
 
@@ -53,9 +54,11 @@ class _PlayBarState extends State<PlayBar> {
                     InkWell(
                         borderRadius: BorderRadius.circular(16),
                         onTap: () async {
+                          // if (music.currentMusic.value != null) {
                           Navigator.of(context).push(OpacityRoute(
                             builder: (BuildContext context) => PhonePlaying(),
                           ));
+                          // }
                         },
                         child: Hero(
                           tag: "BarCover",
@@ -67,9 +70,8 @@ class _PlayBarState extends State<PlayBar> {
                                     width: 56,
                                     height: 56,
                                   )
-                                : CachedNetworkImage(
-                                    imageUrl: music.currentMusic.value?.pic ?? "",
-                                    useOldImageOnUrlChange: true,
+                                : AppImage(
+                                    url: music.currentMusic.value?.pic ?? "",
                                     width: 56,
                                     height: 56,
                                     fit: BoxFit.cover,

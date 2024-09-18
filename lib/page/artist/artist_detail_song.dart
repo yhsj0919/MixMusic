@@ -32,7 +32,10 @@ class _ArtistDetailSongState extends State<ArtistDetailSong> with AutomaticKeepA
   void initState() {
     super.initState();
     refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
-    artistSong(artist: widget.artist);
+
+    Future.delayed(const Duration(milliseconds: 300)).then((v) {
+      artistSong(artist: widget.artist);
+    });
   }
 
   @override

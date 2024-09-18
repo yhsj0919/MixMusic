@@ -1,23 +1,17 @@
-import 'dart:math';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
-import 'package:mix_music/widgets/BlurRectWidget.dart';
-import 'package:mix_music/widgets/SliverDelegate.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/page_sliver_view.dart';
 
 import '../../entity/page_entity.dart';
 import '../../player/music_controller.dart';
 import '../../widgets/message.dart';
-import '../../widgets/page_list_view.dart';
 
 class AlbumDetailPage extends StatefulWidget {
   const AlbumDetailPage({super.key});
@@ -33,7 +27,7 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
   Rxn<PageEntity> pageEntity = Rxn();
   Rxn<MixAlbum> album = Rxn();
 
-  RxBool _isVisible = RxBool(false);
+  final RxBool _isVisible = RxBool(false);
 
   @override
   void initState() {
@@ -45,13 +39,16 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
     album.value = Get.arguments;
 
     refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
-    getAlbumInfo();
+    Future.delayed(const Duration(milliseconds: 200)).then((value) {
+      getAlbumInfo();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight;
+    final double width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       floatingActionButton: PlayBar(),
       body: Stack(children: [
@@ -66,23 +63,40 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
             },
             slivers: [
               SliverAppBar.large(
-                expandedHeight: 220,
+                expandedHeight: 240,
+                surfaceTintColor: Colors.transparent,
                 leading: Container(),
                 flexibleSpace: FlexibleSpaceBar(
-                  background: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    width: double.infinity,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: CachedNetworkImage(
-                        imageUrl: album.value?.pic ?? "",
-                        fit: BoxFit.cover,
-                        useOldImageOnUrlChange: true,
-                      ),
-                    ),
+                  background: Stack(
+                    children: [
+                      Hero(
+                          tag: "${album.value?.package}${album.value?.id}${album.value?.pic}",
+                          child: Container(
+                              margin: EdgeInsets.only(left: 16, right: 16, top: statusBarHeight + 4, bottom: 0),
+                              height: 240,
+                              width: width,
+                              child: AppImage(
+                                url: album.value?.pic ?? "",
+                                radius: 24,
+                                width: width,
+                              ))),
+                      Container(
+                          margin: const EdgeInsets.only(right: 24, bottom: 8),
+                          width: double.infinity,
+                          height: double.infinity,
+                          alignment: Alignment.bottomRight,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(24),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              color: Theme.of(context).colorScheme.secondaryContainer,
+                              child: Obx(() => Text("${songList.length}/${album.value?.songCount ?? "0"}")),
+                            ),
+                          )),
+                    ],
                   ),
                 ),
-                title: Text(album.value?.title ?? ""),
+                // title: Text("专辑"),
               ),
               PinnedHeaderSliver(
                 child: Container(
@@ -101,15 +115,11 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            Row(
-                              children: [
-                                Text(
-                                  album.value?.artist?.map((v) => v.name).join(",") ?? "",
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
-                                ),
-                                Container(width: 16),
-                                Obx(() => Text("${songList.length}/${album.value?.songCount ?? "0"}")),
-                              ],
+                            Text(
+                              album.value?.artist?.map((v) => v.name).join(",") ?? "",
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),

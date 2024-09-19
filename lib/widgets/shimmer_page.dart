@@ -9,52 +9,43 @@ class ShimmerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Shimmer.fromColors(
-            baseColor: NewSurfaceTheme.getSurfaceColor(SurfaceColorEnum.surfaceContainerHighest, context),
-            highlightColor: NewSurfaceTheme.getSurfaceColor(SurfaceColorEnum.surface, context),
-            child: Column(
-              children: List.generate(8, (index) {
-                return ListTile(
-                  leading: Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8), // 设置圆角
-                      border: Border.all(width: 1),
-                    ),
-                  ),
-                  title: Container(
-                    margin: const EdgeInsets.only(bottom: 4),
-                    height: 25,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4), // 设置圆角
-                    ),
-                  ),
-                  subtitle: Container(
-                    height: 25,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4), // 设置圆角
-                    ),
-                  ),
-                );
-
-                Flexible(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    height: 65.0,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16), // 设置圆角
-                      border: Border.all(width: 1),
-                    ),
-                  ),
-                );
-              }),
-            )));
+      body: Shimmer.fromColors(
+        baseColor: NewSurfaceTheme.getSurfaceColor(SurfaceColorEnum.surfaceContainerHighest, context),
+        highlightColor: NewSurfaceTheme.getSurfaceColor(SurfaceColorEnum.surface, context),
+        child: Column(
+          children: List.generate(8, (index) {
+            return Flexible(
+                child: ListTile(
+              leading: Container(
+                height: 55,
+                width: 55,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8), // 设置圆角
+                  border: Border.all(width: 1),
+                ),
+              ),
+              title: Container(
+                margin: const EdgeInsets.only(bottom: 4),
+                height: 25,
+                width: 100,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4), // 设置圆角
+                ),
+              ),
+              subtitle: Container(
+                height: 25,
+                width: 100,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4), // 设置圆角
+                ),
+              ),
+            ));
+          }),
+        ),
+      ),
+    );
   }
 }

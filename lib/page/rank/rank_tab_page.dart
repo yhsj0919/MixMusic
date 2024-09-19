@@ -10,7 +10,8 @@ import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/message.dart';
-import 'package:mix_music/widgets/page_sliver_view.dart';
+import 'package:mix_music/widgets/page_custom_scroll_view.dart';
+import 'package:mix_music/widgets/page_nested_scroll_view.dart';
 
 import '../../entity/mix_rank.dart';
 import '../../route/routes.dart';
@@ -50,7 +51,7 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Obx(
-        () => PageSliverView(
+        () => PageCustomScrollView(
           controller: refreshController,
           onRefresh: () {
             return getRankList();

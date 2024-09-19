@@ -11,6 +11,7 @@ import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/message.dart';
+import 'package:mix_music/widgets/shimmer_page.dart';
 
 import '../../widgets/page_list_view.dart';
 
@@ -30,48 +31,56 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
   RxList<MixPlaylist> playlist = RxList();
   RxList<MixPlaylistType> playlistType = RxList();
   String? currentType;
+  RxBool firstLoad = RxBool(true);
 
   @override
   void initState() {
     super.initState();
     widget.controller._addState(widget.plugin.package ?? "", this);
     refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
-    getPlayList();
-    getPlayListType();
+    Future.delayed(const Duration(milliseconds: 300)).then((v) {
+      getPlayList();
+      getPlayListType();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Obx(
-      () => PageListView(
-        controller: refreshController,
-        onRefresh: () {
-          return getPlayList(type: currentType);
-        },
-        onLoad: () {
-          return getPlayList(type: currentType, page: pageEntity.value?.page ?? 0);
-        },
-        scrollController: SubordinateScrollController(context.findAncestorStateOfType<ExtendedNestedScrollViewState>()!.innerController),
-        itemCount: playlist.length,
-        itemBuilder: (BuildContext context, int index) {
-          var item = playlist[index];
-          return ListTile(
-            leading: AppImage(url: item.pic ?? ""),
-            title: Text("${item.title}", maxLines: 1),
-            subtitle: Text("${item.subTitle}", maxLines: 1),
-            onTap: () {
-              Get.toNamed(Routes.playListDetail, arguments: item);
-            },
-          );
-        },
-      ),
+      () => AnimatedSwitcher(
+          duration: const Duration(milliseconds: 600),
+          child: firstLoad.value
+              ? const ShimmerPage()
+              : PageListView(
+                  controller: refreshController,
+                  onRefresh: () {
+                    return getPlayList(type: currentType);
+                  },
+                  onLoad: () {
+                    return getPlayList(type: currentType, page: pageEntity.value?.page ?? 0);
+                  },
+                  scrollController: SubordinateScrollController(context.findAncestorStateOfType<ExtendedNestedScrollViewState>()!.innerController),
+                  itemCount: playlist.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    var item = playlist[index];
+                    return ListTile(
+                      leading: Hero(tag: "${item.package}${item.id}${item.pic}", child: AppImage(url: item.pic ?? "")),
+                      title: Text("${item.title}", maxLines: 1),
+                      subtitle: Text("${item.subTitle}", maxLines: 1),
+                      onTap: () {
+                        Get.toNamed(Routes.playListDetail, arguments: item);
+                      },
+                    );
+                  },
+                )),
     );
   }
 
   ///获取歌单
   void getPlayList({String? type, int page = 0}) {
     ApiFactory.api(package: widget.plugin.package!)?.playList(type: type, page: page, size: 20).then((value) {
+      firstLoad.value = false;
       pageEntity.value = value.page;
       if (page == 0) {
         playlist.clear();
@@ -84,6 +93,7 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
       }
       // showComplete("操作成功");
     }).catchError((e) {
+      firstLoad.value = false;
       if (page == 0) {
         refreshController.finishRefresh(IndicatorResult.fail, true);
       } else {

@@ -50,11 +50,11 @@ const music = {
                         id: element['assetId'],
                         pic: `${element["pic"]}@w_400,h_400`,
                         title: element['title'],
-                        subTitle: element["artist"].map(function (ar) {
+                        subTitle: element["artist"]?.map(function (ar) {
                             return ar["name"]
                         }).join(","),
                         vip: element["isVip"],
-                        artist: element["artist"].map(function (ar) {
+                        artist: element["artist"]?.map(function (ar) {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
@@ -128,12 +128,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }
@@ -153,7 +148,6 @@ const music = {
         },
         list: function playList(type, page = 0, size = 20) {
             const params = {pageNo: parseInt(page) + 1, pageSize: size, timestamp: Date.now(), appid: 16073360,}
-            console.log(type)
             if (type !== "null") {
                 params["subCateId"] = type
             }
@@ -162,12 +156,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }
@@ -200,8 +189,6 @@ const music = {
             })
         },
         info: function playListInfo(playlist, page = 0, size = 20) {
-            console.log(playlist)
-            console.log(typeof playlist)
             const myPlaylist = JSON.parse(playlist)
             const params = {
                 id: myPlaylist["id"],
@@ -215,12 +202,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }
@@ -240,11 +222,11 @@ const music = {
                         id: element['assetId'],
                         pic: `${element["pic"]}@w_400,h_400`,
                         title: element['title'],
-                        subTitle: element["artist"].map(function (ar) {
+                        subTitle: element["artist"]?.map(function (ar) {
                             return ar["name"]
                         }).join(","),
                         vip: element["isVip"],
-                        artist: element["artist"].map(function (ar) {
+                        artist: element["artist"]?.map(function (ar) {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
@@ -285,18 +267,14 @@ const music = {
         },
         list: function albumList(type, page = 0, size = 20) {
             const params = {pageNo: parseInt(page) + 1, pageSize: size, timestamp: Date.now(), appid: 16073360,}
-            console.log(type)
+
             params['sign'] = paramsSign(params)
             return axios.get('https://api-qianqian.taihe.com/v1/album/list', {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }
@@ -307,10 +285,10 @@ const music = {
                         id: element['albumAssetCode'],
                         pic: `${element["pic"]}@w_400,h_400`,
                         title: element['title'],
-                        subTitle: element["artist"].map(function (ar) {
+                        subTitle: element["artist"]?.map(function (ar) {
                             return ar["name"]
                         }).join(","),
-                        artist: element["artist"].map(function (ar) {
+                        artist: element["artist"]?.map(function (ar) {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
@@ -338,8 +316,6 @@ const music = {
             })
         },
         info: function albumInfo(album, page = 0, size = 20) {
-            console.log(album)
-            console.log(typeof album)
             const myAlbum = JSON.parse(album)
             const params = {albumAssetCode: myAlbum["id"], timestamp: Date.now(), appid: 16073360}
             params['sign'] = paramsSign(params)
@@ -347,12 +323,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }
@@ -417,12 +388,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }
@@ -450,12 +416,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }
@@ -492,12 +453,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }
@@ -510,11 +466,11 @@ const music = {
                         id: element['assetId'],
                         pic: `${element["pic"]}@w_400,h_400`,
                         title: element['title'],
-                        subTitle: element["artist"].map(function (ar) {
+                        subTitle: element["artist"]?.map(function (ar) {
                             return ar["name"]
                         }).join(","),
                         vip: element["isVip"],
-                        artist: element["artist"].map(function (ar) {
+                        artist: element["artist"]?.map(function (ar) {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
@@ -543,12 +499,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }
@@ -578,12 +529,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }
@@ -601,11 +547,11 @@ const music = {
                         id: element['assetId'],
                         pic: `${element["pic"]}@w_400,h_400`,
                         title: element['title'],
-                        subTitle: element["artist"].map(function (ar) {
+                        subTitle: element["artist"]?.map(function (ar) {
                             return ar["name"]
                         }).join(","),
                         vip: element["isVip"],
-                        artist: element["artist"].map(function (ar) {
+                        artist: element["artist"]?.map(function (ar) {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
@@ -727,15 +673,9 @@ const music = {
             params["pageSize"] = size
             params["timestamp"] = Date.now()
             params["appid"] = 16073360
-            console.log(type)
             params['sign'] = paramsSign(params)
             return axios.get('https://api-qianqian.taihe.com/v1/artist/list', {params}, {headers: headers}).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }
@@ -778,12 +718,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }
@@ -802,11 +737,11 @@ const music = {
                         id: element['assetId'],
                         pic: `${element["pic"]}@w_400,h_400`,
                         title: element['title'],
-                        subTitle: element["artist"].map(function (ar) {
+                        subTitle: element["artist"]?.map(function (ar) {
                             return ar["name"]
                         }).join(","),
                         vip: element["isVip"],
-                        artist: element["artist"].map(function (ar) {
+                        artist: element["artist"]?.map(function (ar) {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
@@ -871,11 +806,11 @@ const music = {
                             id: element['assetId'],
                             pic: `${element["pic"]}@w_400,h_400`,
                             title: element['title'],
-                            subTitle: element["artist"].map(function (ar) {
+                            subTitle: element["artist"]?.map(function (ar) {
                                 return ar["name"]
                             }).join(","),
                             vip: element["isVip"],
-                            artist: element["artist"].map(function (ar) {
+                            artist: element["artist"]?.map(function (ar) {
                                 return {
                                     package: "xyz.yhsj.baidu",
                                     id: ar["artistCode"],
@@ -931,10 +866,10 @@ const music = {
                             id: element['albumAssetCode'],
                             pic: `${element["pic"]}@w_400,h_400`,
                             title: element['title'],
-                            subTitle: element["artist"].map(function (ar) {
+                            subTitle: element["artist"]?.map(function (ar) {
                                 return ar["name"]
                             }).join(","),
-                            artist: element["artist"].map(function (ar) {
+                            artist: element["artist"]?.map(function (ar) {
                                 return {
                                     package: "xyz.yhsj.baidu",
                                     id: ar["artistCode"],
@@ -965,31 +900,22 @@ const music = {
     },
     parse: {
         playlist: function parsePlayList(url) {
-            console.log(url)
             if (!url.toString().includes("music.91q.com") && !url.toString().includes("music.taihe.com")) {
                 return JSON.stringify({code: 500, msg: "暂不支持此链接"})
             }
-            console.log(url)
             var id
             let pattern = /[/][\d]+[?]*/g
             let matches = url.toString().match(pattern)
             if (matches !== null) {
                 id = matches[0].slice(1, -1)
             }
-            console.log(url)
-            console.log(id)
             const params = {id: id, pageNo: 1, pageSize: 10, timestamp: Date.now(), appid: 16073360}
             params['sign'] = paramsSign(params)
             return axios.get('https://api-qianqian.taihe.com/v1/tracklist/info', {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
                 }

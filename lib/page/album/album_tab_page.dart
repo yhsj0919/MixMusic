@@ -12,6 +12,7 @@ import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/message.dart';
+import 'package:mix_music/widgets/shimmer_page.dart';
 
 import '../../widgets/page_list_view.dart';
 
@@ -33,48 +34,56 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
   String? currentType;
 
   bool typeEmpty = false;
+  RxBool firstLoad = RxBool(true);
 
   @override
   void initState() {
     super.initState();
     widget.controller._addState(widget.plugin.package ?? "", this);
     refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
-    getAlbumList();
-    getAlbumType();
+    Future.delayed(const Duration(milliseconds: 300)).then((v) {
+      getAlbumList();
+      getAlbumType();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Obx(
-      () => PageListView(
-        controller: refreshController,
-        onRefresh: () {
-          return getAlbumList(type: currentType);
-        },
-        onLoad: () {
-          return getAlbumList(type: currentType, page: pageEntity.value?.page ?? 0);
-        },
-        scrollController: SubordinateScrollController(context.findAncestorStateOfType<ExtendedNestedScrollViewState>()!.innerController),
-        itemCount: albumList.length,
-        itemBuilder: (BuildContext context, int index) {
-          var item = albumList[index];
-          return ListTile(
-            leading: AppImage(url: item.pic ?? ""),
-            title: Text("${item.title}", maxLines: 1),
-            subtitle: Text("${item.subTitle}", maxLines: 1),
-            onTap: () {
-              Get.toNamed(Routes.albumDetail, arguments: item);
-            },
-          );
-        },
-      ),
+      () => AnimatedSwitcher(
+          duration: const Duration(milliseconds: 600),
+          child: firstLoad.value
+              ? const ShimmerPage()
+              : PageListView(
+                  controller: refreshController,
+                  onRefresh: () {
+                    return getAlbumList(type: currentType);
+                  },
+                  onLoad: () {
+                    return getAlbumList(type: currentType, page: pageEntity.value?.page ?? 0);
+                  },
+                  scrollController: SubordinateScrollController(context.findAncestorStateOfType<ExtendedNestedScrollViewState>()!.innerController),
+                  itemCount: albumList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    var item = albumList[index];
+                    return ListTile(
+                      leading: Hero(tag: "${item.package}${item.id}${item.pic}", child: AppImage(url: item.pic ?? "")),
+                      title: Text("${item.title}", maxLines: 1),
+                      subtitle: Text("${item.subTitle}", maxLines: 1),
+                      onTap: () {
+                        Get.toNamed(Routes.albumDetail, arguments: item);
+                      },
+                    );
+                  },
+                )),
     );
   }
 
   ///获取专辑
   void getAlbumList({String? type, int page = 0}) {
     ApiFactory.api(package: widget.plugin.package ?? "")?.albumList(type: type, page: page, size: 20).then((value) {
+      firstLoad.value = false;
       pageEntity.value = value.page;
       if (page == 0) {
         albumList.clear();
@@ -87,6 +96,8 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
       }
       // showComplete("操作成功");
     }).catchError((e) {
+      firstLoad.value = false;
+
       if (page == 0) {
         refreshController.finishRefresh(IndicatorResult.fail, true);
       } else {

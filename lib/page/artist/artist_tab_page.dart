@@ -68,7 +68,7 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
                 itemBuilder: (BuildContext context, int index) {
                   var item = artistList[index];
                   return ListTile(
-                    minTileHeight: 60,
+                    minTileHeight: 64,
                     leading: Hero(tag: "${item.package}${item.id}${item.pic}", child: AppImage(url: item.pic ?? "")),
                     title: Text("${item.name}", maxLines: 1),
                     // subtitle: const Text("", maxLines: 1),

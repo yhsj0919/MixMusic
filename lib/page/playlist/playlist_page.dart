@@ -52,6 +52,7 @@ class _PlayListPageState extends State<PlayListPage> with TickerProviderStateMix
                           child: TabBar(
                         isScrollable: true,
                         controller: tabController,
+                        dividerHeight: 0,
                         tabs: plugins
                             .map((item) => Tab(
                                   text: item.name,
@@ -66,7 +67,10 @@ class _PlayListPageState extends State<PlayListPage> with TickerProviderStateMix
                           icon: const Icon(Icons.filter_list))
                     ],
                   )),
-            )
+            ),
+            PinnedHeaderSliver(
+              child: Container(height: 1, color: Theme.of(context).dividerColor.withOpacity(0.2)),
+            ),
           ];
         },
         pinnedHeaderSliverHeightBuilder: () {

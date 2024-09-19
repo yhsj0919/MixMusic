@@ -5,14 +5,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class PageSliverView extends StatelessWidget {
-  PageSliverView({
+class PageNestedScrollView extends StatelessWidget {
+  PageNestedScrollView({
     Key? key,
-    required this.slivers,
     this.onRefresh,
     this.onLoad,
-    this.shrinkWrap,
     required this.controller,
+    required this.headerSliverBuilder,
+    required this.body,
     this.scrollController,
   }) : super(key: key);
 
@@ -21,10 +21,8 @@ class PageSliverView extends StatelessWidget {
 
   EasyRefreshController controller;
   ScrollController? scrollController;
-
-  final List<Widget> slivers;
-
-  final bool? shrinkWrap;
+  final NestedScrollViewHeaderSliversBuilder headerSliverBuilder;
+  final Widget body;
 
   @override
   Widget build(BuildContext context) {
@@ -43,11 +41,11 @@ class PageSliverView extends StatelessWidget {
         controller: controller,
         onRefresh: onRefresh,
         onLoad: onLoad,
-        child: CustomScrollView(
+        child: NestedScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           controller: scrollController,
-          shrinkWrap: shrinkWrap ?? false,
-          slivers: slivers,
+          headerSliverBuilder: headerSliverBuilder,
+          body: body,
         ));
   }
 }

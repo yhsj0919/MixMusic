@@ -17,14 +17,21 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
   var controller = TextEditingController(text: "");
+
+  SearchPageController searchController = SearchPageController();
+
   RxString keyWord = RxString("");
   final double bottomBarHeight = 46;
   List<PluginsInfo> plugins = [];
 
+  late TabController tabController;
+
   @override
   void initState() {
     super.initState();
+
     plugins = ApiFactory.getSearchPlugins();
+    tabController = TabController(length: plugins.length, vsync: this);
   }
 
   @override
@@ -34,49 +41,47 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
 
     return Scaffold(
       floatingActionButton: PlayBar(),
-      body:  DefaultTabController(
-          length: plugins.length,
-          child: ExtendedNestedScrollView(
-            headerSliverBuilder: (BuildContext c, bool f) {
-              return [
-                SliverSearchAppBar(
-                  hintText: "请输入关键字",
-                  forceElevated: f,
-                  pinned: true,
-                  onSubmitted: (value) {
-                    keyWord.value = value;
-                  },
-                  bottom: PreferredSize(
-                      preferredSize: Size.fromHeight(bottomBarHeight),
-                      child: TabBar(
-                        isScrollable: true,
-                        tabs: plugins
-                            .map((item) => Tab(
-                                  text: item.name,
-                                  // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
-                                ))
-                            .toList(),
-                      )),
-                  textEditingController: controller,
-                )
-              ];
-            },
-            pinnedHeaderSliverHeightBuilder: () {
-              return pinnedHeaderHeight;
-            },
-            onlyOneScrollInBody: true,
-            body: Column(
-              children: <Widget>[Expanded(child: _buildTabBarView())],
-            ),
-          ),
+      body: ExtendedNestedScrollView(
+        headerSliverBuilder: (BuildContext c, bool f) {
+          return [
+            SliverSearchAppBar(
+              hintText: "请输入关键字",
+              forceElevated: f,
+              pinned: true,
+              onSubmitted: (value) {
+                searchController.search(keyword: value);
+              },
+              bottom: PreferredSize(
+                  preferredSize: Size.fromHeight(bottomBarHeight),
+                  child: TabBar(
+                    controller: tabController,
+                    isScrollable: true,
+                    tabs: plugins
+                        .map((item) => Tab(
+                              text: item.name,
+                              // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
+                            ))
+                        .toList(),
+                  )),
+              textEditingController: controller,
+            )
+          ];
+        },
+        pinnedHeaderSliverHeightBuilder: () {
+          return pinnedHeaderHeight;
+        },
+        onlyOneScrollInBody: true,
+        body: Column(
+          children: <Widget>[Expanded(child: _buildTabBarView())],
         ),
+      ),
     );
   }
 
   Widget _buildTabBarView() {
     return TabBarView(
-      children: plugins.map((element) => Obx(() => SearchTabPage(plugin: element, keyWord: keyWord.value))).toList(),
+      controller: tabController,
+      children: plugins.map((element) => SearchTabPage(plugin: element, controller: searchController)).toList(),
     );
   }
 }
-

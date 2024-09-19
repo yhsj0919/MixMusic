@@ -147,6 +147,7 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
               child: firstLoad.value
                   ? const ShimmerPage()
                   : ListView.builder(
+                      padding: const EdgeInsets.only(top: 0),
                       itemCount: songList.length,
                       itemBuilder: (BuildContext context, int index) {
                         var song = songList[index];

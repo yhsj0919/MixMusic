@@ -14,6 +14,7 @@ showInfo(dynamic message) {
 }
 
 showError(dynamic message) {
+  print(message);
   Future.delayed(const Duration(milliseconds: 350)).then(
     (value) => Get.snackbar("错误", "$message",
         maxWidth: 500,

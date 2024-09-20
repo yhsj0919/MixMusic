@@ -41,7 +41,7 @@ const music = {
                             pic: 'https://new.myfreemp3juices.cc/favicon-32x32.png',
                             artist: [{
                                 package: 'xyz.yhsj.myfreemp3',
-                                name: element['artist']
+                                title: element['artist']
                             }],
                             url: element['url']
                         };

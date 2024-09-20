@@ -3,7 +3,7 @@ import 'package:dart_json_mapper/dart_json_mapper.dart';
 
 import 'mix_album.dart';
 import 'mix_artist.dart';
-import 'mix_url.dart';
+import 'mix_quality.dart';
 
 @jsonSerializable
 class MixSong {
@@ -14,7 +14,7 @@ class MixSong {
   List<MixArtist>? artist = const [];
   MixAlbum? album;
   String? url;
-  List<MixUrl>? urls;
+  List<MixQuality>? quality;
   String? pic;
   String? lyric;
   int? vip;
@@ -28,7 +28,7 @@ class MixSong {
     this.artist = const [],
     this.album,
     this.url,
-    this.urls,
+    this.quality,
     required this.pic,
     this.lyric,
     this.listenCount,
@@ -40,7 +40,7 @@ class MixSong {
       id: url ?? "",
       album: album?.title,
       title: title ?? "",
-      artist: artist?.isNotEmpty == true ? artist?.first.name : "未知",
+      artist: artist?.isNotEmpty == true ? artist?.first.title : "未知",
       duration: const Duration(milliseconds: 10),
       artUri: Uri.parse(pic ?? ""),
     );

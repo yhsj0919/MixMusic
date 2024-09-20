@@ -4,14 +4,14 @@ import 'package:dart_json_mapper/dart_json_mapper.dart';
 class MixArtistType {
   String package;
   dynamic id;
-  String? name;
+  String? title;
 
   List<MixArtistType>? subType = const [];
 
   MixArtistType({
     required this.package,
     this.id,
-    this.name,
+    this.title,
     this.subType = const [],
   });
 }

@@ -1,13 +1,3 @@
-// ==PluginsInfo==
-// @name         ShyBotQQ
-// @site         ShyBotQQ
-// @version      0.0.1
-// @author       yhsj
-// @icon         https://shybot.top/favicon.ico
-// @webSite      https://shybot.top
-// @method       ["searchMusic","playUrl"]
-// ==/PluginsInfo==
-
 // ==MixMusicPlugin==
 // @name         ShyBotQQ
 // @site         qq
@@ -59,7 +49,7 @@ const music = {
                         artist: [{
                             package: 'xyz.yhsj.shybotqq',
                             id: '',
-                            name: element['singer'],
+                            title: element['singer'],
                         }],
                         album: {
                             package: 'xyz.yhsj.shybotqq',

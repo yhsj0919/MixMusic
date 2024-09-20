@@ -161,7 +161,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ListTile(title: Text(type.name ?? "")),
+        ListTile(title: Text(type.title ?? "")),
         Container(
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -171,7 +171,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
             runSpacing: 8,
             children: type.subType
                     ?.map((e) => ActionChip(
-                          label: Text(e.name ?? ""),
+                          label: Text(e.title ?? ""),
                           onPressed: () {
                             currentType = e.id.toString();
 

@@ -69,6 +69,7 @@ class MixApi extends MusicApi {
   Future<AppRespEntity<MixPlaylist>> playListInfo({required MixPlaylist playlist, required int page, required int size}) {
     var ss = JsonMapper.serialize(playlist).replaceAll("\n", "").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
     return invokeMethod(method: "music.playList.info", params: [ss, page, size]).then((value) {
+      print(json.encode(value));
       AppRespEntity<MixPlaylist> data = AppRespEntity.fromJson(value);
 
       if (data.code == 200) {
@@ -88,7 +89,6 @@ class MixApi extends MusicApi {
     }
     var ss = JsonMapper.serialize(song).replaceAll("\n", "").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
     return invokeMethod(method: "music.url.playUrl", params: [ss]).then((value) {
-
       AppRespEntity<MixSong> data = AppRespEntity.fromJson(value);
       if (data.code == 200) {
         data.data?.lyric ??= lyric;

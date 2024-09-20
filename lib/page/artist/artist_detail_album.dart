@@ -10,6 +10,7 @@ import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/message.dart';
+import 'package:mix_music/widgets/shimmer_page.dart';
 
 import '../../widgets/page_list_view.dart';
 
@@ -26,6 +27,7 @@ class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> with AutomaticKee
   late EasyRefreshController refreshController;
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixAlbum> albumList = RxList();
+  RxBool firstLoad = RxBool(true);
 
   @override
   void initState() {
@@ -40,27 +42,32 @@ class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> with AutomaticKee
   Widget build(BuildContext context) {
     super.build(context);
     return Obx(
-      () => PageListView(
-        controller: refreshController,
-        onRefresh: () {
-          return artistSong(artist: widget.artist);
-        },
-        onLoad: () {
-          return artistSong(artist: widget.artist, page: pageEntity.value?.page ?? 0);
-        },
-        scrollController: SubordinateScrollController(context.findAncestorStateOfType<ExtendedNestedScrollViewState>()!.innerController),
-        itemCount: albumList.length,
-        itemBuilder: (BuildContext context, int index) {
-          var item = albumList[index];
-          return ListTile(
-            leading: Hero(tag: "${item.package}${item.id}${item.pic}", child: AppImage(url: item.pic ?? "")),
-            title: Text("${item.title}", maxLines: 1),
-            subtitle: Text("${item.subTitle}", maxLines: 1),
-            onTap: () {
-              Get.toNamed(Routes.albumDetail, arguments: item);
-            },
-          );
-        },
+      () => AnimatedSwitcher(
+        duration: const Duration(milliseconds: 600),
+        child: firstLoad.value
+            ? const ShimmerPage()
+            : PageListView(
+                controller: refreshController,
+                onRefresh: () {
+                  return artistSong(artist: widget.artist);
+                },
+                onLoad: () {
+                  return artistSong(artist: widget.artist, page: pageEntity.value?.page ?? 0);
+                },
+                scrollController: SubordinateScrollController(context.findAncestorStateOfType<ExtendedNestedScrollViewState>()!.innerController),
+                itemCount: albumList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  var item = albumList[index];
+                  return ListTile(
+                    leading: Hero(tag: "${item.package}${item.id}${item.pic}", child: AppImage(url: item.pic ?? "")),
+                    title: Text("${item.title}", maxLines: 1),
+                    subtitle: Text("${item.subTitle}", maxLines: 1),
+                    onTap: () {
+                      Get.toNamed(Routes.albumDetail, arguments: item);
+                    },
+                  );
+                },
+              ),
       ),
     );
   }
@@ -68,6 +75,7 @@ class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> with AutomaticKee
   ///获取歌单
   void artistSong({required MixArtist artist, int page = 0}) {
     ApiFactory.api(package: widget.artist.package)?.artistAlbum(artist: artist, page: page, size: 20).then((value) {
+      firstLoad.value = false;
       pageEntity.value = value.page;
       if (page == 0) {
         albumList.clear();
@@ -80,6 +88,7 @@ class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> with AutomaticKee
       }
       // showComplete("操作成功");
     }).catchError((e) {
+      firstLoad.value = false;
       if (page == 0) {
         refreshController.finishRefresh(IndicatorResult.fail, true);
       } else {

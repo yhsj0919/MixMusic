@@ -33,12 +33,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData;
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data
                 if (respData["errno"] !== 22000) {
                     const resp = {code: 500, msg: data["errmsg"], data: null};
                     return JSON.stringify(resp)
@@ -54,11 +49,12 @@ const music = {
                             return ar["name"]
                         }).join(","),
                         vip: element["isVip"],
+                        quality: getQualities(element["rateFileInfo"], element["assetId"]),
                         artist: element["artist"]?.map(function (ar) {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
-                                name: ar["name"],
+                                title: ar["name"],
                                 pic: `${ar["pic"]}`
                             }
                         }),
@@ -97,12 +93,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(async function (data) {
-                let respData;
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: respData["errmsg"], data: null}
                 }
@@ -137,9 +128,9 @@ const music = {
                     return {
                         package: 'xyz.yhsj.baidu',
                         id: element['id'],
-                        name: element['categoryName'],
+                        title: element['categoryName'],
                         subType: element['subCate'].map(function (element) {
-                            return {package: 'xyz.yhsj.baidu', id: element['id'], name: element['categoryName'],}
+                            return {package: 'xyz.yhsj.baidu', id: element['id'], title: element['categoryName'],}
                         })
                     }
                 })
@@ -189,6 +180,7 @@ const music = {
             })
         },
         info: function playListInfo(playlist, page = 0, size = 20) {
+
             const myPlaylist = JSON.parse(playlist)
             const params = {
                 id: myPlaylist["id"],
@@ -202,6 +194,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
+                console.log(JSON.stringify(data))
                 let respData = data.data
                 if (respData["errno"] !== 22000) {
                     return {code: 500, msg: data["errmsg"], data: null}
@@ -226,11 +219,12 @@ const music = {
                             return ar["name"]
                         }).join(","),
                         vip: element["isVip"],
+                        quality: getQualities(element["rateFileInfo"], element["assetId"]),
                         artist: element["artist"]?.map(function (ar) {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
-                                name: ar["name"],
+                                title: ar["name"],
                                 pic: `${ar["pic"]}`
                             }
                         }),
@@ -292,7 +286,7 @@ const music = {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
-                                name: ar["name"],
+                                title: ar["name"],
                                 pic: `${ar["pic"]}`
                             }
                         }),
@@ -337,7 +331,7 @@ const music = {
                         return ar["name"]
                     }).join(","),
                     artist: result["artist"]?.map(function (ar) {
-                        return {package: "xyz.yhsj.baidu", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                        return {package: "xyz.yhsj.baidu", id: ar["artistCode"], title: ar["name"], pic: `${ar["pic"]}`}
                     }),
                     desc: result["introduce"],
                 }
@@ -351,11 +345,12 @@ const music = {
                             return ar["name"]
                         }).join(","),
                         vip: element["isVip"],
+                        quality: getQualities(element["rateFileInfo"], element["assetId"]),
                         artist: result["artist"]?.map(function (ar) {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
-                                name: ar["name"],
+                                title: ar["name"],
                                 pic: `${ar["pic"]}`
                             }
                         }),
@@ -436,7 +431,7 @@ const music = {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
-                                name: ar["name"],
+                                title: ar["name"],
                                 pic: `${ar["pic"]}`
                             }
                         }),
@@ -470,11 +465,12 @@ const music = {
                             return ar["name"]
                         }).join(","),
                         vip: element["isVip"],
+                        quality: getQualities(element["rateFileInfo"], element["assetId"]),
                         artist: element["artist"]?.map(function (ar) {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
-                                name: ar["name"],
+                                title: ar["name"],
                                 pic: `${ar["pic"]}`
                             }
                         }),
@@ -551,11 +547,12 @@ const music = {
                             return ar["name"]
                         }).join(","),
                         vip: element["isVip"],
+                        quality: getQualities(element["rateFileInfo"], element["assetId"]),
                         artist: element["artist"]?.map(function (ar) {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
-                                name: ar["name"],
+                                title: ar["name"],
                                 pic: `${ar["pic"]}`
                             }
                         }),
@@ -584,86 +581,86 @@ const music = {
             const newArray = [{
                 package: 'xyz.yhsj.baidu',
                 id: "artistFristLetter",
-                name: '首字母',
-                subType: [{package: 'xyz.yhsj.baidu', id: "", name: '全部'}, {
+                title: '首字母',
+                subType: [{package: 'xyz.yhsj.baidu', id: "", title: '全部'}, {
                     package: 'xyz.yhsj.baidu',
                     id: 'A',
-                    name: 'A'
+                    title: 'A'
                 }, {
                     package: 'xyz.yhsj.baidu',
                     id: 'B',
-                    name: 'B'
-                }, {package: 'xyz.yhsj.baidu', id: 'C', name: 'C'}, {package: 'xyz.yhsj.baidu', id: 'D', name: 'D'}, {
+                    title: 'B'
+                }, {package: 'xyz.yhsj.baidu', id: 'C', title: 'C'}, {package: 'xyz.yhsj.baidu', id: 'D', title: 'D'}, {
                     package: 'xyz.yhsj.baidu',
                     id: 'E',
-                    name: 'E'
-                }, {package: 'xyz.yhsj.baidu', id: 'F', name: 'F'}, {package: 'xyz.yhsj.baidu', id: 'G', name: 'G'}, {
+                    title: 'E'
+                }, {package: 'xyz.yhsj.baidu', id: 'F', title: 'F'}, {package: 'xyz.yhsj.baidu', id: 'G', title: 'G'}, {
                     package: 'xyz.yhsj.baidu',
                     id: 'H',
-                    name: 'H'
-                }, {package: 'xyz.yhsj.baidu', id: 'I', name: 'I'}, {package: 'xyz.yhsj.baidu', id: 'J', name: 'J'}, {
+                    title: 'H'
+                }, {package: 'xyz.yhsj.baidu', id: 'I', title: 'I'}, {package: 'xyz.yhsj.baidu', id: 'J', title: 'J'}, {
                     package: 'xyz.yhsj.baidu',
                     id: 'K',
-                    name: 'K'
-                }, {package: 'xyz.yhsj.baidu', id: 'L', name: 'L'}, {package: 'xyz.yhsj.baidu', id: 'M', name: 'M'}, {
+                    title: 'K'
+                }, {package: 'xyz.yhsj.baidu', id: 'L', title: 'L'}, {package: 'xyz.yhsj.baidu', id: 'M', title: 'M'}, {
                     package: 'xyz.yhsj.baidu',
                     id: 'N',
-                    name: 'N'
-                }, {package: 'xyz.yhsj.baidu', id: 'O', name: 'O'}, {package: 'xyz.yhsj.baidu', id: 'P', name: 'P'}, {
+                    title: 'N'
+                }, {package: 'xyz.yhsj.baidu', id: 'O', title: 'O'}, {package: 'xyz.yhsj.baidu', id: 'P', title: 'P'}, {
                     package: 'xyz.yhsj.baidu',
                     id: 'Q',
-                    name: 'Q'
-                }, {package: 'xyz.yhsj.baidu', id: 'R', name: 'R'}, {package: 'xyz.yhsj.baidu', id: 'S', name: 'S'}, {
+                    title: 'Q'
+                }, {package: 'xyz.yhsj.baidu', id: 'R', title: 'R'}, {package: 'xyz.yhsj.baidu', id: 'S', title: 'S'}, {
                     package: 'xyz.yhsj.baidu',
                     id: 'T',
-                    name: 'T'
-                }, {package: 'xyz.yhsj.baidu', id: 'U', name: 'U'}, {package: 'xyz.yhsj.baidu', id: 'V', name: 'V'}, {
+                    title: 'T'
+                }, {package: 'xyz.yhsj.baidu', id: 'U', title: 'U'}, {package: 'xyz.yhsj.baidu', id: 'V', title: 'V'}, {
                     package: 'xyz.yhsj.baidu',
                     id: 'W',
-                    name: 'W'
-                }, {package: 'xyz.yhsj.baidu', id: 'X', name: 'X'}, {package: 'xyz.yhsj.baidu', id: 'Y', name: 'Y'}, {
+                    title: 'W'
+                }, {package: 'xyz.yhsj.baidu', id: 'X', title: 'X'}, {package: 'xyz.yhsj.baidu', id: 'Y', title: 'Y'}, {
                     package: 'xyz.yhsj.baidu',
                     id: 'Z',
-                    name: 'Z'
-                }, {package: 'xyz.yhsj.baidu', id: 'other', name: '#'},]
+                    title: 'Z'
+                }, {package: 'xyz.yhsj.baidu', id: 'other', title: '#'},]
             }, {
                 package: 'xyz.yhsj.baidu',
                 id: "artistGender",
-                name: '性别',
-                subType: [{package: 'xyz.yhsj.baidu', id: "", name: '全部'}, {
+                title: '性别',
+                subType: [{package: 'xyz.yhsj.baidu', id: "", title: '全部'}, {
                     package: 'xyz.yhsj.baidu',
                     id: '男',
-                    name: '男'
+                    title: '男'
                 }, {
                     package: 'xyz.yhsj.baidu',
                     id: '女',
-                    name: '女'
-                }, {package: 'xyz.yhsj.baidu', id: '组合', name: '组合'}, {
+                    title: '女'
+                }, {package: 'xyz.yhsj.baidu', id: '组合', title: '组合'}, {
                     package: 'xyz.yhsj.baidu',
                     id: '乐队',
-                    name: '乐队'
+                    title: '乐队'
                 }]
             }, {
                 package: 'xyz.yhsj.baidu',
                 id: "artistRegion",
-                name: '地区',
-                subType: [{package: 'xyz.yhsj.baidu', id: "", name: '全部'}, {
+                title: '地区',
+                subType: [{package: 'xyz.yhsj.baidu', id: "", title: '全部'}, {
                     package: 'xyz.yhsj.baidu',
                     id: '内地',
-                    name: '内地'
+                    title: '内地'
                 }, {
                     package: 'xyz.yhsj.baidu',
                     id: '港台',
-                    name: '港台'
-                }, {package: 'xyz.yhsj.baidu', id: '欧美', name: '欧美'}, {
+                    title: '港台'
+                }, {package: 'xyz.yhsj.baidu', id: '欧美', title: '欧美'}, {
                     package: 'xyz.yhsj.baidu',
                     id: '韩国',
-                    name: '韩国'
+                    title: '韩国'
                 }, {
                     package: 'xyz.yhsj.baidu',
                     id: '日本',
-                    name: '日本'
-                }, {package: 'xyz.yhsj.baidu', id: '其他', name: '其他'}]
+                    title: '日本'
+                }, {package: 'xyz.yhsj.baidu', id: '其他', title: '其他'}]
             }]
             return {code: 200, msg: '操作成功', data: newArray}
         },
@@ -685,7 +682,7 @@ const music = {
                         package: 'xyz.yhsj.baidu',
                         id: element['artistCode'],
                         pic: element["pic"],
-                        name: element['name'],
+                        title: element['name'],
                     }
                 })
                 return {
@@ -741,11 +738,12 @@ const music = {
                             return ar["name"]
                         }).join(","),
                         vip: element["isVip"],
+                        quality: getQualities(element["rateFileInfo"], element["assetId"]),
                         artist: element["artist"]?.map(function (ar) {
                             return {
                                 package: "xyz.yhsj.baidu",
                                 id: ar["artistCode"],
-                                name: ar["name"],
+                                title: ar["name"],
                                 pic: `${ar["pic"]}`
                             }
                         }),
@@ -790,12 +788,7 @@ const music = {
                     headers: headers,
                     params: params
                 }).then(function (data) {
-                    let respData
-                    if (typeof data.data === 'string') {
-                        respData = JSON.parse(data.data)
-                    } else {
-                        respData = data.data
-                    }
+                    const respData = data.data
                     if (respData["errno"] !== 22000) {
                         return {code: 500, msg: data["errmsg"], data: null}
                     }
@@ -810,11 +803,12 @@ const music = {
                                 return ar["name"]
                             }).join(","),
                             vip: element["isVip"],
+                            quality: getQualities(element["rateFileInfo"], element["assetId"]),
                             artist: element["artist"]?.map(function (ar) {
                                 return {
                                     package: "xyz.yhsj.baidu",
                                     id: ar["artistCode"],
-                                    name: ar["name"],
+                                    title: ar["name"],
                                     pic: `${ar["pic"]}`
                                 }
                             }),
@@ -850,12 +844,7 @@ const music = {
                     headers: headers,
                     params: params
                 }).then(function (data) {
-                    let respData
-                    if (typeof data.data === 'string') {
-                        respData = JSON.parse(data.data)
-                    } else {
-                        respData = data.data
-                    }
+                    const respData = data.data
                     if (respData["errno"] !== 22000) {
                         return {code: 500, msg: data["errmsg"], data: null}
                     }
@@ -873,7 +862,7 @@ const music = {
                                 return {
                                     package: "xyz.yhsj.baidu",
                                     id: ar["artistCode"],
-                                    name: ar["name"],
+                                    title: ar["name"],
                                     pic: `${ar["pic"]}`
                                 }
                             }),
@@ -934,6 +923,24 @@ const music = {
         }
     }
 }
+
+function getQualities(qualities, id) {
+    const myQualities = [];
+
+    // 遍历键值对
+    for (const [key, value] of Object.entries(qualities)) {
+        myQualities.push({
+            package: "xyz.yhsj.baidu",
+            id: id,
+            title: value["format"],
+            quality: key,
+            size: value["size"],
+        });
+    }
+
+    return myQualities
+}
+
 
 function paramsSign(params) {
     const paramsString = Object.entries(params).map(([key, value]) => `${key}=${value}`).sort().join('&')

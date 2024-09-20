@@ -56,6 +56,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                   child: TabBar(
                     controller: tabController,
                     isScrollable: true,
+                    tabAlignment: TabAlignment.start,
                     tabs: plugins
                         .map((item) => Tab(
                               text: item.name,

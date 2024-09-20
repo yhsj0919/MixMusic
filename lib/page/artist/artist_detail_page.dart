@@ -94,7 +94,7 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                                 color: Theme.of(context).colorScheme.secondaryContainer,
                                 child: Obx(() => Text(
-                                      artist.value?.name ?? "",
+                                      artist.value?.title ?? "",
                                       style: Theme.of(context).textTheme.titleLarge,
                                     )),
                               ),
@@ -103,7 +103,7 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
                     ),
                   ),
                   title: Text(
-                    artist.value?.name ?? "",
+                    artist.value?.title ?? "",
                   ),
                 ),
                 PinnedHeaderSliver(

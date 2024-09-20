@@ -4,14 +4,14 @@ import 'package:dart_json_mapper/dart_json_mapper.dart';
 class MixArtist {
   String package;
   dynamic id;
-  String? name;
+  String? title;
   String? pic;
   String? desc;
 
   MixArtist({
     required this.package,
     required this.id,
-    required this.name,
+    required this.title,
     this.desc,
     this.pic,
   });

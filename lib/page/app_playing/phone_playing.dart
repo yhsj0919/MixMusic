@@ -2,11 +2,11 @@ import 'dart:math';
 
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader_widget.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/page/app_playlist/app_download_type_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/theme/new_surface_theme.dart';
@@ -14,6 +14,7 @@ import 'package:mix_music/theme/surface_color_enum.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/ext.dart';
+import 'package:mix_music/widgets/message.dart';
 
 import '../../../player/ui_mix.dart';
 
@@ -92,8 +93,10 @@ class _PhonePlayingState extends State<PhonePlaying> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Obx(() => Text(music.currentMusic.value?.title ?? "N/A", style: Theme.of(context).textTheme.headlineSmall)),
+                            Obx(() => Text(music.currentMusic.value?.album?.title ?? "N/A",
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.outline))),
                             Obx(() => Text(music.currentMusic.value?.subTitle ?? "N/A",
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.outline))),
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.outline))),
                           ],
                         ),
                       ),
@@ -209,7 +212,11 @@ class _PhonePlayingState extends State<PhonePlaying> {
                             children: [
                               IconButton(onPressed: () {}, icon: Icon(Icons.chat_rounded)),
                               Expanded(child: Container()),
-                              IconButton(onPressed: () {}, icon: Icon(Icons.download_rounded)),
+                              IconButton(
+                                  onPressed: () {
+                                    showBottomDownload(context);
+                                  },
+                                  icon: Icon(Icons.download_rounded)),
                               Expanded(child: Container()),
                               IconButton(
                                   onPressed: () {
@@ -316,7 +323,39 @@ class _PhonePlayingState extends State<PhonePlaying> {
               ],
             ),
             margin: const EdgeInsets.all(16),
-            child: AppPlayListPage(),
+            child: AppPlayListPage(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          );
+        }).then((value) {});
+  }
+
+  void showBottomDownload(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        scrollControlDisabledMaxHeightRatio: 3 / 4,
+        builder: (BuildContext context) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: const BorderRadius.all(Radius.circular(16)),
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 12.0,
+                  color: Theme.of(context).shadowColor.withOpacity(0.1),
+                ),
+              ],
+            ),
+            margin: const EdgeInsets.all(16),
+            child: AppDownloadTypePage(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+            ),
           );
         }).then((value) {});
   }

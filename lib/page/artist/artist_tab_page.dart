@@ -70,7 +70,7 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
                   return ListTile(
                     minTileHeight: 64,
                     leading: Hero(tag: "${item.package}${item.id}${item.pic}", child: AppImage(url: item.pic ?? "")),
-                    title: Text("${item.name}", maxLines: 1),
+                    title: Text("${item.title}", maxLines: 1),
                     // subtitle: const Text("", maxLines: 1),
                     onTap: () {
                       Get.toNamed(Routes.artistDetail, arguments: item);
@@ -155,7 +155,7 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ListTile(title: Text(type.name ?? "")),
+        ListTile(title: Text(type.title ?? "")),
         Container(
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -166,7 +166,7 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
             children: type.subType
                     ?.map((e) => ActionChip(
                           backgroundColor: currentType[type.id] == e.id ? Theme.of(context).colorScheme.primary.withOpacity(0.5) : null,
-                          label: Text(e.name ?? ""),
+                          label: Text(e.title ?? ""),
                           onPressed: () {
                             currentType[type.id] = e.id;
 

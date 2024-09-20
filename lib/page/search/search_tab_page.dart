@@ -96,6 +96,7 @@ class _SearchTabPageState extends State<SearchTabPage> with AutomaticKeepAliveCl
 
   void searchSong({required String? keyword, int page = 0, int size = 20}) {
     if (keyword?.isNotEmpty != true) {
+      refreshController.finishRefresh(IndicatorResult.success, true);
       return;
     }
     if (page == 0) {
@@ -115,7 +116,7 @@ class _SearchTabPageState extends State<SearchTabPage> with AutomaticKeepAliveCl
       // showComplete("操作成功");
     }).catchError((e) {
       dataLoad.value = false;
-      print(e);
+
       if (page == 0) {
         refreshController.finishRefresh(IndicatorResult.fail, true);
       } else {
@@ -142,7 +143,7 @@ class SearchPageController {
     pages[package] = _tabState;
   }
 
-  void search({ required String keyword}) {
+  void search({required String keyword}) {
     this.keyword = keyword;
     pages.forEach((key, value) {
       value?.search(keyword: keyword);

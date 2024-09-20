@@ -119,7 +119,7 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
-                                  album.value?.artist?.map((v) => v.name).join(",") ?? "",
+                                  album.value?.artist?.map((v) => v.title).join(",") ?? "",
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,

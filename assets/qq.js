@@ -34,7 +34,6 @@ function getUid() {
 const music = {
     search: {
         music: async function (key, page = 0, size = 20) {
-
             // 定义查询参数
             const params = {
                 data: JSON.stringify({
@@ -65,12 +64,8 @@ const music = {
                 params: params,
             }).then(function (data) {
 
-                let respData;
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data
+
                 if (respData["code"] !== 0) {
                     return {
                         code: 500,
@@ -88,7 +83,7 @@ const music = {
                             mid: element["mid"],
                             mediaId: element["file"]["media_mid"]
                         },
-                        urls: getUrls(element["file"]),
+                        quality: getQualities(element["file"], element["mid"]),
                         pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                         title: element['title'],
                         subTitle: element["singer"].map(function (ar) {
@@ -99,7 +94,7 @@ const music = {
                             return {
                                 package: "xyz.yhsj.qq",
                                 id: ar["mid"],
-                                name: ar["title"],
+                                title: ar["title"],
                                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
                             }
                         }),
@@ -188,13 +183,7 @@ const music = {
                 params: params
             }).then(async function (data) {
 
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -263,13 +252,7 @@ const music = {
                 params: params
             }).then(function (data) {
 
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -285,12 +268,12 @@ const music = {
                     return {
                         package: 'xyz.yhsj.qq',
                         id: element['group_id'],
-                        name: element['group_name'],
+                        title: element['group_name'],
                         subType: element['v_item'].map(function (element) {
                             return {
                                 package: 'xyz.yhsj.qq',
                                 id: element['id'],
-                                name: element['name'],
+                                title: element['name'],
                             };
                         })
                     };
@@ -327,13 +310,7 @@ const music = {
             }).then(function (data) {
 
 
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -409,13 +386,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -448,7 +419,7 @@ const music = {
                             mid: element["mid"],
                             mediaId: element["file"]["media_mid"]
                         },
-                        urls: getUrls(element["file"]),
+                        quality: getQualities(element["file"], element["mid"]),
                         pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                         title: element['title'],
                         subTitle: element["singer"].map(function (ar) {
@@ -459,7 +430,7 @@ const music = {
                             return {
                                 package: "xyz.yhsj.qq",
                                 id: ar["mid"],
-                                name: ar["name"],
+                                title: ar["name"],
                                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
                             }
                         }),
@@ -517,13 +488,7 @@ const music = {
                 params: params
             }).then(function (data) {
 
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -538,12 +503,12 @@ const music = {
                 const newArray = [{
                     package: 'xyz.yhsj.qq',
                     id: null,
-                    name: "区域",
+                    title: "区域",
                     subType: result.map(function (element) {
                         return {
                             package: 'xyz.yhsj.qq',
                             id: element['id'],
-                            name: element['name'],
+                            title: element['name'],
                         };
                     })
                 }]
@@ -576,13 +541,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -604,7 +563,12 @@ const music = {
                             return ar["name"]
                         }).join(","),
                         artist: element["singers"].map(function (ar) {
-                            return {package: "xyz.yhsj.qq", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                            return {
+                                package: "xyz.yhsj.qq",
+                                id: ar["artistCode"],
+                                title: ar["name"],
+                                pic: `${ar["pic"]}`
+                            }
                         }),
                     };
                 });
@@ -670,13 +634,7 @@ const music = {
                 params: params
             }).then(function (data) {
 
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -706,7 +664,7 @@ const music = {
                         return {
                             package: "xyz.yhsj.qq",
                             id: ar["mid"],
-                            name: ar["name"],
+                            title: ar["name"],
                             pic: `https://y.qq.com/music/photo_new/T001R300x300M000${ar["mid"]}.jpg`
                         }
                     }),
@@ -720,7 +678,7 @@ const music = {
                             mid: element["songInfo"]["mid"],
                             mediaId: element["songInfo"]["file"]["media_mid"]
                         },
-                        urls: getUrls(element["songInfo"]["file"]),
+                        quality: getQualities(element["songInfo"]["file"], element["songInfo"]["mid"]),
                         pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
                         title: element["songInfo"]['title'],
                         subTitle: element["songInfo"]["singer"].map(function (ar) {
@@ -731,7 +689,7 @@ const music = {
                             return {
                                 package: "xyz.yhsj.qq",
                                 id: ar["mid"],
-                                name: ar["name"],
+                                title: ar["name"],
                                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
                             }
                         }),
@@ -782,13 +740,7 @@ const music = {
                 params: params
             }).then(function (data) {
 
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -841,13 +793,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -869,7 +815,12 @@ const music = {
                             return ar["name"]
                         }).join(","),
                         artist: element["singers"].map(function (ar) {
-                            return {package: "xyz.yhsj.qq", id: ar["artistCode"], name: ar["name"], pic: `${ar["pic"]}`}
+                            return {
+                                package: "xyz.yhsj.qq",
+                                id: ar["artistCode"],
+                                title: ar["name"],
+                                pic: `${ar["pic"]}`
+                            }
                         }),
                     };
                 });
@@ -900,12 +851,8 @@ const music = {
                 params: params,
             }).then(function (data) {
 
-                let respData;
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data
+
                 if (respData["code"] !== 0) {
                     return {
                         code: 500,
@@ -922,7 +869,7 @@ const music = {
                             mid: element["mid"],
                             mediaId: element["file"]["media_mid"]
                         },
-                        urls: getUrls(element["file"]),
+                        quality: getQualities(element["file"], element["mid"]),
                         pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                         title: element['title'],
                         subTitle: element["singer"].map(function (ar) {
@@ -933,7 +880,7 @@ const music = {
                             return {
                                 package: "xyz.yhsj.qq",
                                 id: ar["mid"],
-                                name: ar["title"],
+                                title: ar["title"],
                                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
                             }
                         }),
@@ -977,21 +924,10 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData;
-
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data
 
                 if (respData["code"] !== 0) {
-                    return {
-                        code: 500,
-                        msg: '请求失败',
-                        data: null
-                    };
+                    return {code: 500, msg: '请求失败', data: null};
                 }
 
                 const result = respData["rankList"]["data"]["group"]
@@ -1048,13 +984,7 @@ const music = {
                 params: params
             }).then(function (data) {
 
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -1086,7 +1016,7 @@ const music = {
                             mid: element["mid"],
                             mediaId: element["file"]["media_mid"]
                         },
-                        urls: getUrls(element["file"]),
+                        quality: getQualities(element["file"], element["mid"]),
                         pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["mid"]}.jpg`,
                         title: element['title'],
                         subTitle: element["singer"].map(function (ar) {
@@ -1097,7 +1027,7 @@ const music = {
                             return {
                                 package: "xyz.yhsj.qq",
                                 id: ar["mid"],
-                                name: ar["name"],
+                                title: ar["name"],
                                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
                             }
                         }),
@@ -1162,13 +1092,7 @@ const music = {
                 params: params
             }).then(function (data) {
                 console.log(JSON.stringify(data))
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -1180,22 +1104,22 @@ const music = {
 
                 const result = respData["singerList"]["data"]["tags"]
 
-                var group = [
-                    {id: "area", name: "区域"},
-                    {id: "genre", name: "类型"},
-                    {id: "index", name: "首字母"},
-                    {id: "sex", name: "性别"},
-                ]
+                const group = [
+                    {id: "area", title: "区域"},
+                    {id: "genre", title: "类型"},
+                    {id: "index", title: "首字母"},
+                    {id: "sex", title: "性别"},
+                ];
                 const newArray = group.map(function (element) {
                     return {
                         package: 'xyz.yhsj.qq',
                         id: element['id'],
-                        name: element['name'],
+                        title: element['title'],
                         subType: result[element['id']].map(function (element) {
                             return {
                                 package: 'xyz.yhsj.qq',
                                 id: element['id'],
-                                name: element['name'],
+                                title: element['name'],
                             };
                         })
                     };
@@ -1242,13 +1166,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -1265,7 +1183,7 @@ const music = {
                         package: 'xyz.yhsj.qq',
                         id: element['singer_mid'],
                         pic: element["singer_pic"],
-                        name: element['singer_name'],
+                        title: element['singer_name'],
                     };
                 });
                 return {
@@ -1317,13 +1235,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -1378,13 +1290,7 @@ const music = {
                     headers: headers,
                     params: params
                 }).then(function (data) {
-                    let respData;
-
-                    if (typeof data.data === 'string') {
-                        respData = JSON.parse(data.data)
-                    } else {
-                        respData = data.data
-                    }
+                    const respData = data.data
 
                     if (respData["code"] !== 0) {
                         return {
@@ -1405,7 +1311,7 @@ const music = {
                                 mid: element["songInfo"]["mid"],
                                 mediaId: element["songInfo"]["file"]["media_mid"]
                             },
-                            urls: getUrls(element["songInfo"]["file"]),
+                            quality: getQualities(element["songInfo"]["file"], element["songInfo"]["mid"]),
                             pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
                             title: element["songInfo"]['title'],
                             subTitle: element["songInfo"]["singer"].map(function (ar) {
@@ -1416,7 +1322,7 @@ const music = {
                                 return {
                                     package: "xyz.yhsj.qq",
                                     id: ar["mid"],
-                                    name: ar["name"],
+                                    title: ar["name"],
                                     pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
                                 }
                             }),
@@ -1475,13 +1381,7 @@ const music = {
                 }).then(function (data) {
                     console.log(JSON.stringify(data))
 
-                    let respData;
-
-                    if (typeof data.data === 'string') {
-                        respData = JSON.parse(data.data)
-                    } else {
-                        respData = data.data
-                    }
+                    const respData = data.data
 
                     if (respData["code"] !== 0) {
                         return {
@@ -1583,13 +1483,7 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                let respData;
-
-                if (typeof data.data === 'string') {
-                    respData = JSON.parse(data.data)
-                } else {
-                    respData = data.data
-                }
+                const respData = data.data;
 
                 if (respData["code"] !== 0) {
                     return {
@@ -1622,7 +1516,7 @@ const music = {
     }
 }
 
-function getUrls(urls) {
+function getQualities(qualities, mid) {
 
     //             "media_mid": "002OWTIf4Tq1Xx",
     //             "size_24aac": 0,
@@ -1651,132 +1545,165 @@ function getUrls(urls) {
     //     {q: "size_dts", s: "D00A", e: ".flac"},
     //     {q: "size_hires", s: "RS01", e: ".flac"},
     // ];
-    const myUrls = [];
+    const myQualities = [];
 
-    if (urls["size_24aac"] !== 0) {
-        myUrls.push({
+    if (qualities["size_24aac"] !== 0) {
+        myQualities.push({
             package: "xyz.yhsj.qq",
-            name: "24aac",
+            id: {
+                mid: mid,
+                mediaId: qualities["media_mid"],
+                prefix: "C100",
+                suffix: "m4a",
+            },
+            title: "24aac",
             quality: 24,
-            prefix: "C100",
-            suffix: "m4a",
-            size: urls["size_24aac"],
-            mid: urls["media_mid"]
+            size: qualities["size_24aac"],
         })
     }
-    if (urls["size_48aac"] !== 0) {
-        myUrls.push({
+    if (qualities["size_48aac"] !== 0) {
+        myQualities.push({
             package: "xyz.yhsj.qq",
-            name: "48aac",
+            id: {
+                mid: mid,
+                mediaId: qualities["media_mid"],
+                prefix: "C200",
+                suffix: "m4a",
+            },
+            title: "48aac",
             quality: 48,
-            prefix: "C200",
-            suffix: "m4a",
-            size: urls["size_48aac"],
-            mid: urls["media_mid"]
+            size: qualities["size_48aac"],
         })
     }
-    if (urls["size_96aac"] !== 0) {
-        myUrls.push({
+    if (qualities["size_96aac"] !== 0) {
+        myQualities.push({
             package: "xyz.yhsj.qq",
-            name: "96aac",
+            id: {
+                mid: mid,
+                mediaId: qualities["media_mid"],
+                prefix: "C400",
+                suffix: "m4a",
+            },
+            title: "96aac",
             quality: 96,
-            prefix: "C400",
-            suffix: "m4a",
-            size: urls["size_96aac"],
-            mid: urls["media_mid"]
+            size: qualities["size_96aac"],
         })
     }
-    if (urls["size_128mp3"] !== 0) {
-        myUrls.push({
+    if (qualities["size_128mp3"] !== 0) {
+        myQualities.push({
             package: "xyz.yhsj.qq",
-            name: "128mp3",
+            id: {
+                mid: mid,
+                mediaId: qualities["media_mid"],
+                prefix: "M500",
+                suffix: "mp3",
+            },
+            title: "128mp3",
             quality: 128,
-            prefix: "M500",
-            suffix: "mp3",
-            size: urls["size_128mp3"],
-            mid: urls["media_mid"]
+            size: qualities["size_128mp3"],
         })
     }
-    if (urls["size_192ogg"] !== 0) {
-        myUrls.push({
+    if (qualities["size_192ogg"] !== 0) {
+        myQualities.push({
             package: "xyz.yhsj.qq",
-            name: "192ogg",
+            id: {
+                mid: mid,
+                mediaId: qualities["media_mid"],
+                prefix: "O600",
+                suffix: "ogg",
+            },
+            title: "192ogg",
             quality: 192,
-            prefix: "O600",
-            suffix: "ogg",
-            size: urls["size_192ogg"],
-            mid: urls["media_mid"]
+            size: qualities["size_192ogg"],
         })
     }
-    if (urls["size_192aac"] !== 0) {
-        myUrls.push({
+    if (qualities["size_192aac"] !== 0) {
+        myQualities.push({
             package: "xyz.yhsj.qq",
-            name: "192aac",
+            id: {
+                mid: mid,
+                mediaId: qualities["media_mid"],
+                prefix: "C600",
+                suffix: "m4a",
+            },
+            title: "192aac",
             quality: 192,
-            prefix: "C600",
-            suffix: "m4a",
-            size: urls["size_192aac"],
-            mid: urls["media_mid"]
+            size: qualities["size_192aac"],
         })
     }
-    if (urls["size_320mp3"] !== 0) {
-        myUrls.push({
+    if (qualities["size_320mp3"] !== 0) {
+        myQualities.push({
             package: "xyz.yhsj.qq",
-            name: "320mp3",
+            id: {
+                mid: mid,
+                mediaId: qualities["media_mid"],
+                prefix: "M800",
+                suffix: "mp3",
+            },
+            title: "320mp3",
             quality: 320,
-            prefix: "M800",
-            suffix: "mp3",
-            size: urls["size_320mp3"],
-            mid: urls["media_mid"]
+            size: qualities["size_320mp3"],
         })
     }
-    if (urls["size_flac"] !== 0) {
-        myUrls.push({
+    if (qualities["size_flac"] !== 0) {
+        myQualities.push({
             package: "xyz.yhsj.qq",
-            name: "flac",
+            id: {
+                mid: mid,
+                mediaId: qualities["media_mid"],
+                prefix: "F000",
+                suffix: "flac",
+            },
+            title: "flac",
             quality: 1000,
-            prefix: "F000",
-            suffix: "flac",
-            size: urls["size_flac"],
-            mid: urls["media_mid"]
+            size: qualities["size_flac"],
         })
     }
-    if (urls["size_ape"] !== 0) {
-        myUrls.push({
+    if (qualities["size_ape"] !== 0) {
+        myQualities.push({
             package: "xyz.yhsj.qq",
-            name: "ape",
+            id: {
+                mid: mid,
+                mediaId: qualities["media_mid"],
+                prefix: "A000",
+                suffix: "ape",
+            },
+            title: "ape",
             quality: 1000,
-            prefix: "A000",
-            suffix: "ape",
-            size: urls["size_ape"],
-            mid: urls["media_mid"]
+            size: qualities["size_ape"],
         })
     }
-    if (urls["size_dts"] !== 0) {
-        myUrls.push({
+    if (qualities["size_dts"] !== 0) {
+        myQualities.push({
             package: "xyz.yhsj.qq",
-            name: "dts",
+            id: {
+                mid: mid,
+                mediaId: qualities["media_mid"],
+                prefix: "D00A",
+                suffix: "flac",
+            },
+            title: "dts",
             quality: 1000,
-            prefix: "D00A",
-            suffix: "flac",
-            size: urls["size_dts"],
-            mid: urls["media_mid"]
+            size: qualities["size_dts"],
         })
     }
 
-    if (urls["size_hires"] !== 0) {
-        myUrls.push({
+    if (qualities["size_hires"] !== 0) {
+        myQualities.push({
             package: "xyz.yhsj.qq",
-            name: "hires",
+            id: {
+                mid: mid,
+                mediaId: qualities["media_mid"],
+                prefix: "RS01",
+                suffix: "flac"
+            },
+            title: "hires",
             quality: 1000,
-            prefix: "RS01",
-            suffix: "flac",
-            size: urls["size_hires"],
-            mid: urls["media_mid"]
+            size: qualities["size_hires"],
         })
     }
 
-    return myUrls
+    return myQualities
 }
 
 

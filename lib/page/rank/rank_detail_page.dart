@@ -10,6 +10,7 @@ import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/shimmer_page.dart';
 
 import '../../entity/page_entity.dart';
 import '../../player/music_controller.dart';
@@ -30,6 +31,7 @@ class _RankDetailPageState extends State<RankDetailPage> {
   Rxn<PageEntity> pageEntity = Rxn();
   Rxn<MixRank> rank = Rxn();
   final RxBool _isVisible = RxBool(false);
+  RxBool firstLoad = RxBool(true);
 
   @override
   void initState() {
@@ -120,47 +122,52 @@ class _RankDetailPageState extends State<RankDetailPage> {
             onlyOneScrollInBody: true,
             // physics: NeverScrollableScrollPhysics(),
             body: Obx(
-              () => PageListView(
-                controller: refreshController,
-                onRefresh: () {
-                  return getRankInfo();
-                },
-                onLoad: () {
-                  return getRankInfo(page: pageEntity.value?.page ?? 0);
-                },
-                itemCount: songList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  var song = songList[index];
-                  return Obx(() => ListTile(
-                        selected: music.currentMusic.value?.id == song.id,
-                        leading: AppImage(url: song.pic ?? ""),
-                        title: Row(
-                          children: [
-                            Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
-                            song.vip == 1
-                                ? Container(
-                                    alignment: Alignment.center,
-                                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-                                      border: Border.all(width: 1, color: Colors.green),
-                                    ),
-                                    child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
-                                  )
-                                : Container(),
-                          ],
-                        ),
-                        subtitle: Text(
-                          song.subTitle ?? "",
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                        onTap: () {
-                          music.playList(list: songList, index: index);
+              () => AnimatedSwitcher(
+                duration: const Duration(milliseconds: 600),
+                child: firstLoad.value
+                    ? const ShimmerPage()
+                    : PageListView(
+                        controller: refreshController,
+                        onRefresh: () {
+                          return getRankInfo();
                         },
-                      ));
-                },
+                        onLoad: () {
+                          return getRankInfo(page: pageEntity.value?.page ?? 0);
+                        },
+                        itemCount: songList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          var song = songList[index];
+                          return Obx(() => ListTile(
+                                selected: music.currentMusic.value?.id == song.id,
+                                leading: AppImage(url: song.pic ?? ""),
+                                title: Row(
+                                  children: [
+                                    Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
+                                    song.vip == 1
+                                        ? Container(
+                                            alignment: Alignment.center,
+                                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                                            decoration: BoxDecoration(
+                                              borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+                                              border: Border.all(width: 1, color: Colors.green),
+                                            ),
+                                            child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
+                                          )
+                                        : Container(),
+                                  ],
+                                ),
+                                subtitle: Text(
+                                  song.subTitle ?? "",
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                                onTap: () {
+                                  music.playList(list: songList, index: index);
+                                },
+                              ));
+                        },
+                      ),
               ),
             ),
           ),
@@ -218,6 +225,7 @@ class _RankDetailPageState extends State<RankDetailPage> {
   ///获取专辑
   void getRankInfo({int page = 0}) {
     ApiFactory.api(package: rank.value?.package ?? "")?.rankInfo(rank: rank.value!, page: page, size: 20).then((value) {
+      firstLoad.value = false;
       pageEntity.value = value.page;
       if (page == 0) {
         rank.value = value.data;
@@ -232,6 +240,7 @@ class _RankDetailPageState extends State<RankDetailPage> {
 
       // showComplete("操作成功");
     }).catchError((e) {
+      firstLoad.value = false;
       print(e);
       if (page == 0) {
         refreshController.finishRefresh(IndicatorResult.fail, true);
@@ -240,33 +249,5 @@ class _RankDetailPageState extends State<RankDetailPage> {
       }
       showError(e);
     });
-  }
-}
-
-class _SliverDelegate extends SliverPersistentHeaderDelegate {
-  _SliverDelegate({
-    required this.minHeight,
-    required this.maxHeight,
-    required this.child,
-  });
-
-  final double minHeight; //最小高度
-  final double maxHeight; //最大高度
-  final Widget child; //孩子
-
-  @override
-  double get minExtent => minHeight;
-
-  @override
-  double get maxExtent => max(maxHeight, minHeight);
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox.expand(child: child);
-  }
-
-  @override //是否需要重建
-  bool shouldRebuild(_SliverDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight || minHeight != oldDelegate.minHeight || child != oldDelegate.child;
   }
 }

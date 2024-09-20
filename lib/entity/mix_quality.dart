@@ -1,24 +1,20 @@
 import 'package:dart_json_mapper/dart_json_mapper.dart';
 
 @jsonSerializable
-class MixUrl {
+class MixQuality {
   String package;
-  String? name;
+  String? title;
+  dynamic id;
   dynamic quality;
-  String? prefix;
-  String? suffix;
   int? size;
-  String? mid;
   String? url;
 
-  MixUrl({
+  MixQuality({
     required this.package,
-    this.name,
+    this.title,
     this.quality,
-    this.prefix,
-    this.suffix,
+    this.id,
     this.size,
-    this.mid,
     this.url,
   });
 }

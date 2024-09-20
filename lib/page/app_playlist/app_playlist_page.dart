@@ -4,9 +4,9 @@ import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/widgets/app_image.dart';
 
 class AppPlayListPage extends StatelessWidget {
-  AppPlayListPage({super.key, this.scrollController});
+  AppPlayListPage({super.key, this.scrollController, this.onTap});
 
-
+  final GestureTapCallback? onTap;
   ScrollController? scrollController;
 
   MusicController music = Get.put(MusicController());
@@ -37,7 +37,7 @@ class AppPlayListPage extends StatelessWidget {
               () => ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 0),
                 shrinkWrap: true,
-                controller:  scrollController,
+                controller: scrollController,
                 itemCount: music.musicList.length,
                 itemBuilder: (BuildContext context, int index) {
                   var song = music.musicList[index];
@@ -69,6 +69,7 @@ class AppPlayListPage extends StatelessWidget {
                       ),
                       onTap: () {
                         music.play(music: song);
+                        onTap?.call();
                       },
                     ),
                   );

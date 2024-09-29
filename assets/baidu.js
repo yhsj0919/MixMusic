@@ -35,8 +35,7 @@ const music = {
             }).then(function (data) {
                 const respData = data.data
                 if (respData["errno"] !== 22000) {
-                    const resp = {code: 500, msg: data["errmsg"], data: null};
-                    return JSON.stringify(resp)
+                    return {code: 500, msg: data["errmsg"], data: null}
                 }
                 const result = respData["data"];
                 const newArray = result["typeTrack"].map(function (element) {
@@ -65,6 +64,105 @@ const music = {
                             pic: `${element["pic"]}@w_400,h_400`,
                         },
                         lyric: element["lyric"],
+                    }
+                });
+                return {
+                    code: 200,
+                    msg: '操作成功',
+                    data: newArray,
+                    page: {
+                        first: page === 0,
+                        last: result["haveMore"] !== 1,
+                        page: parseInt(page) + 1,
+                        size: parseInt(size),
+                        number: newArray.length,
+                        totalPages: Math.floor(result["total"] / parseInt(size)),
+                        totalSize: result["total"]
+                    }
+                }
+            })
+        },
+        album: async function (key, page = 0, size = 20) {
+            const params = {
+                pageNo: parseInt(page) + 1,
+                pageSize: size,
+                timestamp: Date.now(),
+                type: 3,
+                word: key,
+                appid: 16073360
+            };
+            params['sign'] = paramsSign(params);
+            return axios.get('https://api-qianqian.taihe.com/v1/search', {
+                headers: headers,
+                params: params
+            }).then(function (data) {
+                const respData = data.data
+                if (respData["errno"] !== 22000) {
+                    return {code: 500, msg: data["errmsg"], data: null}
+                }
+                const result = respData["data"];
+                const newArray = result["typeAlbum"].map(function (element) {
+                    return {
+                        package: 'xyz.yhsj.baidu',
+                        id: element['albumAssetCode'],
+                        pic: `${element["pic"]}@w_400,h_400`,
+                        title: element['title'],
+                        subTitle: element["artist"]?.map(function (ar) {
+                            return ar["name"]
+                        }).join(","),
+                        artist: element["artist"]?.map(function (ar) {
+                            return {
+                                package: "xyz.yhsj.baidu",
+                                id: ar["artistCode"],
+                                title: ar["name"],
+                                pic: `${ar["pic"]}`
+                            }
+                        }),
+                        songCount: element['trackCount'],
+                        desc: element['introduce']
+                    }
+                });
+                return {
+                    code: 200,
+                    msg: '操作成功',
+                    data: newArray,
+                    page: {
+                        first: page === 0,
+                        last: result["haveMore"] !== 1,
+                        page: parseInt(page) + 1,
+                        size: parseInt(size),
+                        number: newArray.length,
+                        totalPages: Math.floor(result["total"] / parseInt(size)),
+                        totalSize: result["total"]
+                    }
+                }
+            })
+        },
+        artist: async function (key, page = 0, size = 20) {
+            const params = {
+                pageNo: parseInt(page) + 1,
+                pageSize: size,
+                timestamp: Date.now(),
+                type: 2,
+                word: key,
+                appid: 16073360
+            };
+            params['sign'] = paramsSign(params);
+            return axios.get('https://api-qianqian.taihe.com/v1/search', {
+                headers: headers,
+                params: params
+            }).then(function (data) {
+                const respData = data.data
+                if (respData["errno"] !== 22000) {
+                    return {code: 500, msg: data["errmsg"], data: null}
+                }
+                const result = respData["data"];
+                const newArray = result["typeArtist"].map(function (element) {
+                    return {
+                        package: 'xyz.yhsj.baidu',
+                        id: element['artistCode'],
+                        pic: element["pic"],
+                        title: element['name'],
                     }
                 });
                 return {
@@ -890,7 +988,7 @@ const music = {
     parse: {
         playlist: function parsePlayList(url) {
             if (!url.toString().includes("music.91q.com") && !url.toString().includes("music.taihe.com")) {
-                return JSON.stringify({code: 500, msg: "暂不支持此链接"})
+                return {code: 500, msg: "暂不支持此链接"}
             }
             var id
             let pattern = /[/][\d]+[?]*/g

@@ -45,8 +45,12 @@ class ApiFactory {
   }
 
   /// 获取搜索api
-  static List<PluginsInfo> getSearchPlugins() {
-    return getPlugins(key: "search");
+  static List<PluginsInfo> getSearchPlugins({String type = "music"}) {
+    return getPlugins(key: type, obj: "music.search");
+  }
+
+  static List<String> getSearchKey() {
+    return _getKey();
   }
 
   /// 获取歌单api
@@ -86,16 +90,25 @@ class ApiFactory {
     return api(package: package ?? "")?.keys(obj: "music.artist.detail") ?? [];
   }
 
-  static List<PluginsInfo> getPlugins({String? key}) {
+  static List<PluginsInfo> getPlugins({String? key, String obj = "music"}) {
     if (key == null) return _plugins;
 
     var list = <PluginsInfo>[];
     _apis.forEach((mapKey, value) {
-      if (value.contains(key: key)) {
+      if (value.contains(key: key, obj: obj)) {
         list.add(_plugins.firstWhere((v) => v.package == mapKey));
       }
     });
     return list;
+  }
+
+  static List<String> _getKey() {
+    var list = <String>{};
+    _apis.forEach((mapKey, value) {
+      var ss = value.keys(obj: "music.search");
+      list.addAll(ss);
+    });
+    return list.toList();
   }
 
   /// 工厂方法
@@ -120,7 +133,7 @@ class ApiFactory {
   static Future<List<MixSong>> _searchMusic({required String package, required String? name, required String? artist}) async {
     var keyWord = "$name $artist";
     try {
-      var value = await ApiFactory.api(package: package)?.searchSong(keyword: keyWord, page: 0, size: 20);
+      var value = await ApiFactory.api(package: package)?.searchMusic(keyword: keyWord, page: 0, size: 20);
       return value?.data ?? [];
     } catch (e) {
       return [];

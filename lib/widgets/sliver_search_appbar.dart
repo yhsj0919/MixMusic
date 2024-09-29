@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 
-class SliverSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
-  SliverSearchAppBar({
-    super.key,
-    required this.textEditingController,
-    this.actions,
-    this.bottom,
-    this.flexibleSpace,
-    this.toolbarHeight,
-    this.onSubmitted,
-    this.onChanged,
-    this.hintText,
-    this.forceElevated = false,
-    this.pinned = true,
-  }) : preferredSize = _PreferredAppBarSize(toolbarHeight, bottom?.preferredSize.height);
+class SliverSearchAppBar extends StatelessWidget implements PreferredSizeWidget {
+  SliverSearchAppBar(
+      {super.key,
+      required this.textEditingController,
+      this.actions,
+      this.bottom,
+      this.flexibleSpace,
+      this.toolbarHeight,
+      this.onSubmitted,
+      this.onChanged,
+      this.hintText,
+      this.forceElevated = false,
+      this.pinned = true,
+      this.backgroundColor,
+      this.focusNode})
+      : preferredSize = _PreferredAppBarSize(toolbarHeight, bottom?.preferredSize.height);
   final List<Widget>? actions;
   final PreferredSizeWidget? bottom;
   final Widget? flexibleSpace;
@@ -24,43 +26,43 @@ class SliverSearchAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String? hintText;
   final bool forceElevated;
   final bool pinned;
+  final Color? backgroundColor;
+  final FocusNode? focusNode;
 
-  @override
-  State<SliverSearchAppBar> createState() => _SliverSearchAppBarState();
-
-  @override
-  final Size preferredSize;
-}
-
-class _SliverSearchAppBarState extends State<SliverSearchAppBar> {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
+      backgroundColor: backgroundColor,
+      surfaceTintColor: Colors.transparent,
       title: TextField(
-        controller: widget.textEditingController,
+        controller: textEditingController,
+        focusNode: focusNode,
         decoration: InputDecoration(
-          hintText: widget.hintText,
+          hintText: hintText,
           border: InputBorder.none,
         ),
-        autofocus: true,
-        onChanged: widget.onChanged,
-        onSubmitted: widget.onSubmitted,
+        autofocus: false,
+        onChanged: onChanged,
+        onSubmitted: onSubmitted,
       ),
       actions: [
         IconButton(
           onPressed: () {
-            widget.onSubmitted?.call(widget.textEditingController.text);
+            onSubmitted?.call(textEditingController.text);
           },
           icon: const Icon(Icons.search),
         ),
-        ...widget.actions ?? [],
+        ...actions ?? [],
       ],
-      bottom: widget.bottom,
-      forceElevated: widget.forceElevated,
-      pinned: widget.pinned,
-      flexibleSpace: widget.flexibleSpace,
+      bottom: bottom,
+      forceElevated: forceElevated,
+      pinned: pinned,
+      flexibleSpace: flexibleSpace,
     );
   }
+
+  @override
+  final Size preferredSize;
 }
 
 class _PreferredAppBarSize extends Size {

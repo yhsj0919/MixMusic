@@ -101,9 +101,45 @@ class MixApi extends MusicApi {
   }
 
   @override
-  Future<AppRespEntity<List<MixSong>>> searchSong({required String keyword, required int page, required int size}) {
+  Future<AppRespEntity<List<MixSong>>> searchMusic({required String keyword, required int page, required int size}) {
     return invokeMethod(method: "music.search.music", params: [keyword, page, size]).then((value) {
       AppRespEntity<List<MixSong>> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixAlbum>>> searchAlbum({required String keyword, required int page, required int size}) {
+    return invokeMethod(method: "music.search.album", params: [keyword, page, size]).then((value) {
+      AppRespEntity<List<MixAlbum>> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixArtist>>> searchArtist({required String keyword, required int page, required int size}) {
+    return invokeMethod(method: "music.search.artist", params: [keyword, page, size]).then((value) {
+      AppRespEntity<List<MixArtist>> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixPlaylist>>> searchPlayList({required String keyword, required int page, required int size}) {
+    return invokeMethod(method: "music.search.playlist", params: [keyword, page, size]).then((value) {
+      AppRespEntity<List<MixPlaylist>> data = AppRespEntity.fromJson(value);
       if (data.code == 200) {
         return Future(() => data);
       } else {

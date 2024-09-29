@@ -16,6 +16,18 @@ abstract class MusicApi {
   PluginsInfo? plugins;
   JavascriptRuntime? current;
 
+  ///搜索歌曲
+  Future<AppRespEntity<List<MixSong>>> searchMusic({required String keyword, required int page, required int size});
+
+  ///搜索专辑
+  Future<AppRespEntity<List<MixAlbum>>> searchAlbum({required String keyword, required int page, required int size});
+
+  ///搜索歌手
+  Future<AppRespEntity<List<MixArtist>>> searchArtist({required String keyword, required int page, required int size});
+
+  ///搜索歌单
+  Future<AppRespEntity<List<MixPlaylist>>> searchPlayList({required String keyword, required int page, required int size});
+
   ///歌单推荐
   Future<AppRespEntity<List<MixPlaylist>>> playListRec();
 
@@ -33,9 +45,6 @@ abstract class MusicApi {
 
   ///解析歌单
   Future<AppRespEntity<MixPlaylist>> parsePlayList({required String? url});
-
-  ///搜索歌曲
-  Future<AppRespEntity<List<MixSong>>> searchSong({required String keyword, required int page, required int size});
 
   ///获取播放地址
   Future<MixSong> playUrl(MixSong song);

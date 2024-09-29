@@ -1,13 +1,9 @@
 import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/page/playlist/play_list_detail_page.dart';
-import 'package:mix_music/page/playlist/playlist_page.dart';
 import 'package:mix_music/route/routes.dart';
-import 'package:mix_music/widgets/OpacityRoute.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/ext.dart';
 
@@ -40,6 +36,7 @@ class _HomePageState extends State<HomePage> {
           slivers: [
             SliverAppBar.large(
               surfaceTintColor: Colors.transparent,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               title: const Text("MixMusic"),
               actions: [
                 IconButton(
@@ -168,32 +165,35 @@ class _HomePageState extends State<HomePage> {
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (BuildContext context, int index) {
                       var item = controller.playlist[index];
-                      return InkWell(
-                        child: SizedBox(
-                          width: 100,
-                          height: 140,
-                          child: Column(
-                            children: [
-                              Hero(
+                      return Card.outlined(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          child: SizedBox(
+                            width: 92,
+                            height: 140,
+                            child: Column(
+                              children: [
+                                Hero(
                                   tag: "${item.package}${item.id}${item.pic}",
-                                  child: Card.outlined(
-                                    child: AppImage(url: item.pic ?? "", width: 100, radius: 12),
-                                  )).expanded(),
-                              SizedBox(
-                                height: 40,
-                                child: Text(
-                                  item.title ?? "",
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              )
-                            ],
+                                  child: AppImage(url: item.pic ?? "", width: 100, radius: 12),
+                                ).expanded(),
+                                Container(
+                                  height: 40,
+                                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                  child: Text(
+                                    item.title ?? "",
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
+                          onTap: () {
+                            Get.toNamed(Routes.playListDetail, arguments: item);
+                          },
                         ),
-                        onTap: () {
-                          Get.toNamed(Routes.playListDetail, arguments: item);
-                        },
                       );
                     },
                     separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 8),
@@ -227,33 +227,37 @@ class _HomePageState extends State<HomePage> {
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (BuildContext context, int index) {
                     var item = controller.albumList[index];
-                    return InkWell(
-                      child: SizedBox(
-                        width: 100,
-                        height: 140,
-                        child: Column(
-                          children: [
-                            Hero(
+                    return Card.outlined(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        child: SizedBox(
+                          width: 92,
+                          height: 140,
+                          child: Column(
+                            children: [
+                              Hero(
                                 tag: "${item.package}${item.id}${item.pic}",
-                                child: Card.outlined(
-                                  child: AppImage(url: item.pic ?? "", width: 100, radius: 12),
-                                )).expanded(),
-                            SizedBox(
-                              height: 40,
-                              child: Text(
-                                item.title ?? "",
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            )
-                          ],
+                                child: AppImage(url: item.pic ?? "", width: 100, radius: 12),
+                              ).expanded(),
+                              Container(
+                                height: 40,
+                                padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                child: Text(
+                                  item.title ?? "",
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              )
+                            ],
+                          ),
                         ),
+                        onTap: () {
+                          Get.toNamed(Routes.albumDetail, arguments: item);
+                        },
                       ),
-                      onTap: () {
-                        Get.toNamed(Routes.albumDetail, arguments: item);
-                      },
                     );
+                    ;
                   },
                   separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 8),
                 ),

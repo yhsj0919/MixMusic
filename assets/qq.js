@@ -32,6 +32,7 @@ function getUid() {
 }
 
 const music = {
+    // type 0:单曲, 1:相关歌手,2:专辑,3:歌单,4:MV,7:歌词,8:用户
     search: {
         music: async function (key, page = 0, size = 20) {
             // 定义查询参数
@@ -104,6 +105,214 @@ const music = {
                             title: element["album"]["title"],
                             pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                         },
+                    };
+                });
+                return {
+                    code: 200,
+                    msg: '操作成功',
+                    data: newArray,
+                    page: {
+                        first: parseInt(page) === 0,
+                        last: respData["req"]["data"]["meta"]["nextpage"] === -1,
+                        page: respData["req"]["data"]["meta"]["curpage"],
+                        size: respData["req"]["data"]["meta"]["perpage"],
+                        number: newArray.length,
+                        totalPages: Math.floor(respData["req"]["data"]["meta"]["sum"] / respData["req"]["data"]["meta"]["perpage"]),
+                        totalSize: respData["req"]["data"]["meta"]["sum"]
+                    }
+                };
+            });
+        },
+        album: async function (key, page = 0, size = 20) {
+            // 定义查询参数
+            const params = {
+                data: JSON.stringify({
+                    comm: {
+                        format: "json",
+                        inCharset: "utf-8",
+                        outCharset: "utf-8",
+                        needNewCode: 1,
+                        ct: 23,
+                        cv: 0
+                    },
+                    req: {
+                        method: "DoSearchForQQMusicDesktop",
+                        module: "music.search.SearchCgiService",
+                        param: {
+                            searchid: `${Math.floor(Math.random() * 10000000000000000)}`,
+                            search_type: 2,
+                            query: key,
+                            page_num: parseInt(page) + 1,
+                            num_per_page: size
+                        }
+                    }
+                })
+            }
+
+            return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
+                headers: headers,
+                params: params,
+            }).then(function (data) {
+
+                const respData = data.data
+
+                if (respData["code"] !== 0) {
+                    return {
+                        code: 500,
+                        msg: '请求失败',
+                        data: null
+                    };
+                }
+
+                const newArray = respData["req"]["data"]["body"]["album"]["list"].map(function (element) {
+                    return {
+                        package: 'xyz.yhsj.qq',
+                        id: element['albumMID'],
+                        pic: element['albumPic'],
+                        title: element['albumName'],
+                        subTitle: element["singer_list"].map(function (ar) {
+                            return ar["name"]
+                        }).join(","),
+                        artist: element["singer_list"].map(function (ar) {
+                            return {
+                                package: "xyz.yhsj.qq",
+                                id: ar["mid"],
+                                title: ar["name"],
+                            }
+                        }),
+                    };
+                });
+                return {
+                    code: 200,
+                    msg: '操作成功',
+                    data: newArray,
+                    page: {
+                        first: parseInt(page) === 0,
+                        last: respData["req"]["data"]["meta"]["nextpage"] === -1,
+                        page: respData["req"]["data"]["meta"]["curpage"],
+                        size: respData["req"]["data"]["meta"]["perpage"],
+                        number: newArray.length,
+                        totalPages: Math.floor(respData["req"]["data"]["meta"]["sum"] / respData["req"]["data"]["meta"]["perpage"]),
+                        totalSize: respData["req"]["data"]["meta"]["sum"]
+                    }
+                };
+            });
+        },
+        artist: async function (key, page = 0, size = 20) {
+            // 定义查询参数
+            const params = {
+                data: JSON.stringify({
+                    comm: {
+                        format: "json",
+                        inCharset: "utf-8",
+                        outCharset: "utf-8",
+                        needNewCode: 1,
+                        ct: 23,
+                        cv: 0
+                    },
+                    req: {
+                        method: "DoSearchForQQMusicDesktop",
+                        module: "music.search.SearchCgiService",
+                        param: {
+                            searchid: `${Math.floor(Math.random() * 10000000000000000)}`,
+                            search_type: 1,
+                            query: key,
+                            page_num: parseInt(page) + 1,
+                            num_per_page: size
+                        }
+                    }
+                })
+            }
+
+            return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
+                headers: headers,
+                params: params,
+            }).then(function (data) {
+
+                const respData = data.data
+
+                if (respData["code"] !== 0) {
+                    return {
+                        code: 500,
+                        msg: '请求失败',
+                        data: null
+                    };
+                }
+
+                const newArray = respData["req"]["data"]["body"]["singer"]["list"].map(function (element) {
+                    return {
+                        package: 'xyz.yhsj.qq',
+                        id: element['singerMID'],
+                        pic: element["singerPic"],
+                        title: element['singerName'],
+                    };
+                });
+                return {
+                    code: 200,
+                    msg: '操作成功',
+                    data: newArray,
+                    page: {
+                        first: parseInt(page) === 0,
+                        last: respData["req"]["data"]["meta"]["nextpage"] === -1,
+                        page: respData["req"]["data"]["meta"]["curpage"],
+                        size: respData["req"]["data"]["meta"]["perpage"],
+                        number: newArray.length,
+                        totalPages: Math.floor(respData["req"]["data"]["meta"]["sum"] / respData["req"]["data"]["meta"]["perpage"]),
+                        totalSize: respData["req"]["data"]["meta"]["sum"]
+                    }
+                };
+            });
+        },
+        playlist: async function (key, page = 0, size = 20) {
+            // 定义查询参数
+            const params = {
+                data: JSON.stringify({
+                    comm: {
+                        format: "json",
+                        inCharset: "utf-8",
+                        outCharset: "utf-8",
+                        needNewCode: 1,
+                        ct: 23,
+                        cv: 0
+                    },
+                    req: {
+                        method: "DoSearchForQQMusicDesktop",
+                        module: "music.search.SearchCgiService",
+                        param: {
+                            searchid: `${Math.floor(Math.random() * 10000000000000000)}`,
+                            search_type: 3,
+                            query: key,
+                            page_num: parseInt(page) + 1,
+                            num_per_page: size
+                        }
+                    }
+                })
+            }
+
+            return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
+                headers: headers,
+                params: params,
+            }).then(function (data) {
+
+                const respData = data.data
+
+                if (respData["code"] !== 0) {
+                    return {
+                        code: 500,
+                        msg: '请求失败',
+                        data: null
+                    };
+                }
+
+                const newArray = respData["req"]["data"]["body"]["songlist"]["list"].map(function (element) {
+                    return {
+                        package: 'xyz.yhsj.qq',
+                        id: parseInt(element['dissid']),
+                        pic: element["imgurl"],
+                        title: element["dissname"],
+                        subTitle: element["introduction"],
+                        desc: element["introduction"],
+                        songCount: element["song_count"],
                     };
                 });
                 return {
@@ -396,6 +605,7 @@ const music = {
                     };
                 }
 
+                console.log(JSON.stringify(respData))
 
                 const result = respData["playlist"]["data"]
 

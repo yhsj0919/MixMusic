@@ -17,18 +17,18 @@ import 'package:mix_music/widgets/shimmer_page.dart';
 import '../../widgets/page_list_view.dart';
 import 'search_tab_State.dart';
 
-class SearchAlbumPage extends StatefulWidget {
-  const SearchAlbumPage({super.key, required this.plugin, required this.controller});
+class SearchPlayListPage extends StatefulWidget {
+  const SearchPlayListPage({super.key, required this.plugin, required this.controller});
 
   final PluginsInfo plugin;
 
   final SearchPageController controller;
 
   @override
-  SearchTabPageState<SearchAlbumPage> createState() => _SearchAlbumPageState();
+  SearchTabPageState<SearchPlayListPage> createState() => _SearchPlayListPageState();
 }
 
-class _SearchAlbumPageState extends SearchTabPageState<SearchAlbumPage> with AutomaticKeepAliveClientMixin {
+class _SearchPlayListPageState extends SearchTabPageState<SearchPlayListPage> with AutomaticKeepAliveClientMixin {
   late EasyRefreshController refreshController;
   MusicController music = Get.put(MusicController());
 

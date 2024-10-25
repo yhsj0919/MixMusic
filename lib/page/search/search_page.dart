@@ -9,6 +9,7 @@ import 'package:mix_music/page/search/search_artist_page.dart';
 import 'package:mix_music/page/search/search_music_page.dart';
 
 import '../../widgets/sliver_search_appbar.dart';
+import 'search_playlist_page.dart';
 import 'search_tab_State.dart';
 
 class SearchPage extends StatefulWidget {
@@ -146,9 +147,11 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                     ? SearchAlbumPage(plugin: element, controller: searchController)
                     : type == "artist"
                         ? SearchArtistPage(plugin: element, controller: searchController)
-                        : Center(
-                            child: Text("name"),
-                          );
+                        : type == "playlist"
+                            ? SearchPlayListPage(plugin: element, controller: searchController)
+                            : Center(
+                                child: Text("暂未实现"),
+                              );
           }).toList(),
         ));
   }

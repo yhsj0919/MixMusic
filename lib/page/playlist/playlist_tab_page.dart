@@ -30,7 +30,7 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixPlaylist> playlist = RxList();
   RxList<MixPlaylistType> playlistType = RxList();
-  String? currentType;
+  MixPlaylistType? currentType;
   RxBool firstLoad = RxBool(true);
 
   @override
@@ -78,7 +78,7 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
   }
 
   ///获取歌单
-  void getPlayList({String? type, int page = 0}) {
+  void getPlayList({MixPlaylistType? type, int page = 0}) {
     ApiFactory.api(package: widget.plugin.package!)?.playList(type: type, page: page, size: 20).then((value) {
       firstLoad.value = false;
       pageEntity.value = value.page;
@@ -162,9 +162,9 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
                     ?.map((e) => ActionChip(
                           label: Text(e.title ?? ""),
                           onPressed: () {
-                            currentType = e.id.toString();
+                            currentType = e;
 
-                            getPlayList(type: e.id.toString());
+                            getPlayList(type: e);
 
                             Navigator.of(context).pop();
                           },

@@ -81,12 +81,11 @@ const music = {
 
     url: {
         playUrl: async function playUrl(song) {
-            const mySong = JSON.parse(song);
             try {
-                const path = mySong["lyric"];
+                const path = song["lyric"];
                 if (path != null && path !== "") {
                     const response = await axios.get(path);
-                    mySong["lyric"] = response.data["lyric"];
+                    song["lyric"] = response.data["lyric"];
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -96,7 +95,7 @@ const music = {
             return {
                 code: 200,
                 msg: '操作成功',
-                data: mySong
+                data: song
             };
         }
     }

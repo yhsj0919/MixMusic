@@ -16,6 +16,7 @@ abstract class MusicApi {
   PluginsInfo? plugins;
   JavascriptRuntime? current;
 
+  ///=====================================搜索=====================================================
   ///搜索歌曲
   Future<AppRespEntity<List<MixSong>>> searchMusic({required String keyword, required int page, required int size});
 
@@ -28,14 +29,26 @@ abstract class MusicApi {
   ///搜索歌单
   Future<AppRespEntity<List<MixPlaylist>>> searchPlayList({required String keyword, required int page, required int size});
 
+  ///=====================================搜索=====================================================
+  ///
+  ///
+  ///=====================================首页，推荐=====================================================
+  ///最新专辑
+  Future<AppRespEntity<List<MixAlbum>>> albumRec();
+
   ///歌单推荐
   Future<AppRespEntity<List<MixPlaylist>>> playListRec();
 
   ///新歌
   Future<AppRespEntity<List<MixSong>>> songRec();
 
+  ///=====================================首页，推荐=====================================================
+  ///
+  ///
+  ///=====================================歌单=====================================================
+
   ///歌单
-  Future<AppRespEntity<List<MixPlaylist>>> playList({String? type, required int page, required int size});
+  Future<AppRespEntity<List<MixPlaylist>>> playList({MixPlaylistType? type, required int page, required int size});
 
   ///歌单分类
   Future<AppRespEntity<List<MixPlaylistType>>> playListType();
@@ -46,20 +59,32 @@ abstract class MusicApi {
   ///解析歌单
   Future<AppRespEntity<MixPlaylist>> parsePlayList({required String? url});
 
+  ///=====================================歌单=====================================================
+  ///
+  ///
+  ///=====================================地址=====================================================
+
   ///获取播放地址
   Future<MixSong> playUrl(MixSong song);
+
+  ///=====================================地址=====================================================
+  ///
+  ///
+  ///=====================================专辑=====================================================
 
   ///专辑分类
   Future<AppRespEntity<List<MixAlbumType>>> albumType();
 
-  ///最新专辑
-  Future<AppRespEntity<List<MixAlbum>>> albumRec();
-
   ///专辑
-  Future<AppRespEntity<List<MixAlbum>>> albumList({String? type, required int page, required int size});
+  Future<AppRespEntity<List<MixAlbum>>> albumList({MixAlbumType? type, required int page, required int size});
 
   ///获取专辑详情
   Future<AppRespEntity<MixAlbum>> albumInfo({required MixAlbum album, required int page, required int size});
+
+  ///=====================================专辑=====================================================
+  ///
+  ///
+  ///=====================================榜单=====================================================
 
   ///榜单
   Future<AppRespEntity<List<MixRankType>>> rankList();
@@ -67,6 +92,10 @@ abstract class MusicApi {
   ///获取榜单详情
   Future<AppRespEntity<MixRank>> rankInfo({required MixRank rank, required int page, required int size});
 
+  ///=====================================榜单=====================================================
+  ///
+  ///
+  ///=====================================歌手=====================================================
   ///歌手
   Future<AppRespEntity<List<MixArtist>>> artistList({Map<String, dynamic>? type, required int page, required int size});
 
@@ -82,6 +111,10 @@ abstract class MusicApi {
   ///歌手专辑
   Future<AppRespEntity<List<MixAlbum>>> artistAlbum({required MixArtist artist, required int page, required int size});
 
+  ///=====================================歌手=====================================================
+  ///
+  ///
+  ///=====================================公共=====================================================
   ///执行方法
   Future<dynamic> invokeMethod({required String method, List<String> params = const []});
 
@@ -90,6 +123,8 @@ abstract class MusicApi {
 
   ///是否包含某个key
   bool contains({required String key, String obj = "music"});
+
+  ///=====================================公共=====================================================
 
   void dispose();
 }

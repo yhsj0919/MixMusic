@@ -31,7 +31,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixAlbum> albumList = RxList();
   RxList<MixAlbumType> albumType = RxList();
-  String? currentType;
+  MixAlbumType? currentType;
 
   bool typeEmpty = false;
   RxBool firstLoad = RxBool(true);
@@ -81,7 +81,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
   }
 
   ///获取专辑
-  void getAlbumList({String? type, int page = 0}) {
+  void getAlbumList({MixAlbumType? type, int page = 0}) {
     ApiFactory.api(package: widget.plugin.package ?? "")?.albumList(type: type, page: page, size: 20).then((value) {
       firstLoad.value = false;
       pageEntity.value = value.page;
@@ -173,9 +173,9 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
                     ?.map((e) => ActionChip(
                           label: Text(e.title ?? ""),
                           onPressed: () {
-                            currentType = e.id.toString();
+                            currentType = e;
 
-                            getAlbumList(type: e.id.toString());
+                            getAlbumList(type: e);
 
                             Navigator.of(context).pop();
                           },

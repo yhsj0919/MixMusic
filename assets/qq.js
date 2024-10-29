@@ -334,30 +334,28 @@ const music = {
     },
     url: {
         playUrl: async function playUrl(song) {
-            const mySong = JSON.parse(song);
-
             try {
                 const lrcParams = {
                     nobase64: 1,
                     format: 'json',
-                    songmid: mySong["id"]["mid"],
+                    songmid: song["id"]["mid"],
                 }
                 console.log(JSON.stringify(lrcParams))
                 const response = await axios.get("https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg", {
                     headers: {Referer: 'https://y.qq.com/'},
                     params: lrcParams
                 });
-                mySong["lyric"] = response.data["lyric"];
+                song["lyric"] = response.data["lyric"];
 
             } catch (error) {
                 console.error('Error:', error);
             }
 
             // const typeObj = typeMap[128];
-            // const file = `${typeObj.s}${mySong["id"]["id"]}${mySong["id"]["mid"]}${typeObj.e}`;
+            // const file = `${typeObj.s}${song["id"]["id"]}${song["id"]["mid"]}${typeObj.e}`;
 
             // console.log(file)
-            console.log(mySong)
+            console.log(song)
 
             // 定义查询参数
             const params = {
@@ -374,9 +372,9 @@ const music = {
                         param: {
                             guid: getUid(),
                             // filename: typeMap.map(function (element) {
-                            //     return `${element.s}${mySong["id"]["mediaId"]}${element.e}`;
+                            //     return `${element.s}${song["id"]["mediaId"]}${element.e}`;
                             // }),
-                            songmid: [`${mySong["id"]["mid"]}`],
+                            songmid: [`${song["id"]["mid"]}`],
                             songtype: [0],
                             uin: "0",
                             loginflag: 1,
@@ -421,7 +419,7 @@ const music = {
 
                         console.log(url)
 
-                        mySong["url"] = url;
+                        song["url"] = url;
                     }
 
                 } catch (error) {
@@ -430,7 +428,7 @@ const music = {
                 return {
                     code: 200,
                     msg: '操作成功',
-                    data: mySong
+                    data: song
                 };
             });
         }
@@ -495,6 +493,7 @@ const music = {
             });
         },
         list: function playList(type, page = 0, size = 20) {
+
             // 定义查询参数
             const params = {
                 data: JSON.stringify({
@@ -507,7 +506,7 @@ const music = {
                             size: parseInt(size),
                             page: parseInt(page),
                             caller: "0",
-                            category_id: type === "null" ? 3317 : parseInt(type),
+                            category_id: type === "null" ? 3317 : parseInt(type["id"]),
                         },
                     }
                 })
@@ -560,9 +559,8 @@ const music = {
             });
         },
         info: function playListInfo(playlist, page = 0, size = 20) {
-            const myPlaylist = JSON.parse(playlist);
 
-            console.log(myPlaylist["id"])
+            console.log(playlist["id"])
             // 定义查询参数
             const params = {
                 data: JSON.stringify({
@@ -578,7 +576,7 @@ const music = {
                         module: "music.srfDissInfo.aiDissInfo",
                         method: "uniform_get_Dissinfo",
                         param: {
-                            disstid: myPlaylist["id"],
+                            disstid: playlist["id"],
                             userinfo: 1,
                             tag: 1,
                             orderlist: 1,
@@ -741,7 +739,7 @@ const music = {
                             last_id: "",
                             start: parseInt(size) * parseInt(page),
                             num: parseInt(size),
-                            area: type === "null" ? 1 : parseInt(type),
+                            area: type === "null" ? 1 : parseInt(type["id"]),
                         },
                     }
                 })
@@ -799,8 +797,6 @@ const music = {
             });
         },
         info: function albumInfo(album, page = 0, size = 20) {
-
-            const myAlbum = JSON.parse(album);
             // 定义查询参数
             const params = {
                 data: JSON.stringify({
@@ -809,20 +805,20 @@ const music = {
                     otherAlbum: {
                         module: "music.musichallAlbum.OtherAlbumList",
                         method: "OtherAlbumList",
-                        param: {"albumMid": myAlbum["id"], "order": 0, "num": 6}
+                        param: {"albumMid": album["id"], "order": 0, "num": 6}
                     },
                     //专辑信息
                     albumInfo: {
                         module: "music.musichallAlbum.AlbumInfoServer",
                         method: "GetAlbumDetail",
-                        param: {albumMid: myAlbum["id"]}
+                        param: {albumMid: album["id"]}
                     },
                     //专辑歌曲
                     albumSong: {
                         module: "music.musichallAlbum.AlbumSongList",
                         method: "GetAlbumSongList",
                         param: {
-                            albumMid: myAlbum["id"],
+                            albumMid: album["id"],
                             begin: parseInt(page) * parseInt(size),
                             num: parseInt(size),
                             order: 2
@@ -833,7 +829,7 @@ const music = {
                         module: "music.musicasset.AlbumFavRead",
                         method: "IsAlbumFan",
                         param: {
-                            v_albumMid: [myAlbum["albumMid"]]
+                            v_albumMid: [album["albumMid"]]
                         }
                     },
                 })
@@ -1171,7 +1167,6 @@ const music = {
         },
         info: function rankInfo(rank, page = 0, size = 20) {
 
-            const myRank = JSON.parse(rank);
             // 定义查询参数
             const params = {
                 data: JSON.stringify({
@@ -1180,8 +1175,8 @@ const music = {
                         module: "musicToplist.ToplistInfoServer",
                         method: "GetDetail",
                         param: {
-                            topid: myRank["id"]["id"],
-                            period: myRank["id"]["period"],
+                            topid: rank["id"]["id"],
+                            period: rank["id"]["period"],
                             offset: parseInt(page) * parseInt(size),
                             num: parseInt(size),
                         }
@@ -1414,7 +1409,6 @@ const music = {
         },
         info: function artistInfo(artist, page = 0, size = 20) {
 
-            const myArtist = JSON.parse(artist);
             // 定义查询参数
             const params = {
                 data: JSON.stringify({
@@ -1430,7 +1424,7 @@ const music = {
                             method: "GetSingerDetail",
                             module: "music.musichallSinger.SingerInfoInter",
                             param: {
-                                singer_mids: [myArtist["id"]],
+                                singer_mids: [artist["id"]],
                                 ex_singer: 1,
                                 wiki_singer: 1,
                                 group_singer: 0,
@@ -1475,8 +1469,6 @@ const music = {
         },
         detail: {
             song: function artistSong(artist, page = 0, size = 20) {
-
-                const myArtist = JSON.parse(artist);
                 // 定义查询参数
                 const params = {
                     data: JSON.stringify({
@@ -1486,7 +1478,7 @@ const music = {
                                 module: "musichall.song_list_server",
                                 method: "GetSingerSongList",
                                 param: {
-                                    singerMid: myArtist["id"],
+                                    singerMid: artist["id"],
                                     begin: parseInt(page) * parseInt(size),
                                     num: parseInt(size),
                                     order: 1
@@ -1564,7 +1556,6 @@ const music = {
             },
             album: function artistAlbum(artist, page = 0, size = 20) {
 
-                const myArtist = JSON.parse(artist);
                 // 定义查询参数
                 const params = {
                     data: JSON.stringify({
@@ -1574,7 +1565,7 @@ const music = {
                                 method: "GetAlbumList",
                                 module: "music.musichallAlbum.AlbumListServer",
                                 param: {
-                                    singerMid: myArtist["id"],
+                                    singerMid: artist["id"],
                                     begin: parseInt(page) * parseInt(size),
                                     num: parseInt(size),
                                     order: 0,
@@ -1610,7 +1601,7 @@ const music = {
                             pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["albumMid"]}.jpg`,
                             title: element['albumName'],
                             subTitle: element["singerName"],
-                            artist: [myArtist]
+                            artist: [artist]
                         };
                     });
 

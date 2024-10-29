@@ -184,8 +184,7 @@ const music = {
     },
     url: {
         playUrl: function (song) {
-            const mySong = JSON.parse(song);
-            const params = {TSID: mySong["id"], timestamp: Date.now(), appid: 16073360, rate: mySong['rate'] ?? 64};
+            const params = {TSID: song["id"], timestamp: Date.now(), appid: 16073360, rate: song['rate'] ?? 64};
             params['sign'] = paramsSign(params);
             return axios.get('https://api-qianqian.taihe.com/v1/song/tracklink', {
                 headers: headers,
@@ -199,13 +198,13 @@ const music = {
                     const path = respData["data"]["lyric"];
                     if (path != null && path !== "") {
                         const response = await axios.get(path);
-                        mySong["lyric"] = response.data
+                        song["lyric"] = response.data
                     }
                 } catch (error) {
                     console.error('Error:', error)
                 }
-                mySong["url"] = respData["data"]["path"];
-                return {code: 200, msg: '操作成功', data: mySong}
+                song["url"] = respData["data"]["path"];
+                return {code: 200, msg: '操作成功', data: song}
             })
         }
     },
@@ -236,9 +235,10 @@ const music = {
             })
         },
         list: function playList(type, page = 0, size = 20) {
+
             const params = {pageNo: parseInt(page) + 1, pageSize: size, timestamp: Date.now(), appid: 16073360,}
             if (type !== "null") {
-                params["subCateId"] = type
+                params["subCateId"] = type["id"];
             }
             params['sign'] = paramsSign(params)
             return axios.get('https://api-qianqian.taihe.com/v1/tracklist/list', {
@@ -279,9 +279,11 @@ const music = {
         },
         info: function playListInfo(playlist, page = 0, size = 20) {
 
-            const myPlaylist = JSON.parse(playlist)
+            console.log(typeof playlist)
+
+            // const myPlaylist = JSON.parse(playlist)
             const params = {
-                id: myPlaylist["id"],
+                id: playlist["id"],
                 pageNo: parseInt(page) + 1,
                 pageSize: size,
                 timestamp: Date.now(),
@@ -408,8 +410,7 @@ const music = {
             })
         },
         info: function albumInfo(album, page = 0, size = 20) {
-            const myAlbum = JSON.parse(album)
-            const params = {albumAssetCode: myAlbum["id"], timestamp: Date.now(), appid: 16073360}
+            const params = {albumAssetCode: album["id"], timestamp: Date.now(), appid: 16073360}
             params['sign'] = paramsSign(params)
             return axios.get('https://api-qianqian.taihe.com/v1/album/info', {
                 headers: headers,
@@ -610,9 +611,8 @@ const music = {
             })
         },
         info: function rankInfo(rank, page = 0, size = 20) {
-            const myRank = JSON.parse(rank)
             const params = {
-                bdid: myRank["id"],
+                bdid: rank["id"],
                 pageNo: parseInt(page) + 1,
                 pageSize: size,
                 timestamp: Date.now(),
@@ -631,7 +631,7 @@ const music = {
                 const newAlbum = {
                     package: 'xyz.yhsj.baidu',
                     id: result['bdid'],
-                    pic: `${myRank["pic"]}`,
+                    pic: `${rank["pic"]}`,
                     title: result['title'],
                     songCount: result['total']
                 }
@@ -800,9 +800,8 @@ const music = {
             })
         },
         info: function artistInfo(artist, page = 0, size = 20) {
-            const myPlaylist = JSON.parse(artist)
             const params = {
-                id: myPlaylist["id"],
+                id: artist["id"],
                 pageNo: parseInt(page) + 1,
                 pageSize: size,
                 timestamp: Date.now(),
@@ -873,9 +872,8 @@ const music = {
         },
         detail: {
             song: function artistSong(artist, page = 0, size = 20) {
-                const myArtist = JSON.parse(artist)
                 const params = {
-                    artistCode: myArtist["id"],
+                    artistCode: artist["id"],
                     pageNo: parseInt(page) + 1,
                     pageSize: size,
                     timestamp: Date.now(),
@@ -929,9 +927,8 @@ const music = {
                 })
             },
             album: function artistAlbum(artist, page = 0, size = 20) {
-                const myArtist = JSON.parse(artist)
                 const params = {
-                    artistCode: myArtist["id"],
+                    artistCode: artist["id"],
                     pageNo: parseInt(page) + 1,
                     pageSize: size,
                     timestamp: Date.now(),

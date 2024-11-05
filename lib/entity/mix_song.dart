@@ -19,6 +19,8 @@ class MixSong {
   String? lyric;
   int? vip;
   dynamic listenCount;
+  bool? match;
+  MixSong? matchSong;
 
   MixSong({
     required this.package,
@@ -35,9 +37,17 @@ class MixSong {
     this.vip,
   });
 
+  String? getUrl() {
+    return match != true ? url : matchSong?.url;
+  }
+
+  String? getLyric() {
+    return match != true ? lyric : matchSong?.lyric;
+  }
+
   MediaItem mediaItem() {
     return MediaItem(
-      id: url ?? "",
+      id: (match != true ? url : matchSong?.url) ?? "",
       album: album?.title,
       title: title ?? "",
       artist: artist?.isNotEmpty == true ? artist?.first.title : "未知",

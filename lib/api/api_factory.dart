@@ -123,7 +123,12 @@ class ApiFactory {
   static Future<MixSong> playUrl({required String package, required MixSong song}) {
     if (song.vip == 1 && _matchVip && !_matchSite.contains(package) && _matchSite.isNotEmpty) {
       return matchMusic(packages: _matchSite.toList(), name: song.title, artist: song.artist?.first.title).then((value) {
-        return value.firstOrNull ?? song;
+        var matchSong = value.firstOrNull;
+
+        song.match = matchSong != null;
+        song.matchSong = matchSong;
+
+        return song;
       });
     } else {
       return api(package: package)!.playUrl(song);

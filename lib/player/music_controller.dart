@@ -113,19 +113,26 @@ class MusicController extends GetxController {
     Player.stop();
     ApiFactory.playUrl(package: music.package, song: music).then((value) {
       musicIndex.value = musicList.indexWhere((element) => element.id == music.id && element.package == music.package);
+
       music.url = value.url;
       music.lyric = value.lyric;
-      currentMusic.value = music;
-      if (media.value?.id != value.mediaItem().id && value.url != null && value.url != "") {
-        if ((value.lyric?.length ?? 0) > 50) {
-          lyricModel.value = LyricsModelBuilder.create().bindLyricToMain(value.lyric?.replaceAll(":00]", ".00]") ?? "").getModel();
+      music.match = value.match;
+      music.matchSong = value.matchSong;
+
+      currentMusic.update((old) {
+        old = music;
+      });
+
+      if (media.value?.id != value.mediaItem().id && value.getUrl() != null && value.getUrl() != "") {
+        if ((value.getLyric()?.length ?? 0) > 50) {
+          lyricModel.value = LyricsModelBuilder.create().bindLyricToMain(value.getLyric()?.replaceAll(":00]", ".00]") ?? "").getModel();
         } else {
           lyric.value = "暂无歌词";
           lyricModel.value = LyricsModelBuilder.create().bindLyricToMain("暂无歌词").getModel();
         }
-        if (music.package != value.package) {
-          showComplete('音频来自:${ApiFactory.getPlugin(value.package)?.name ?? "未知"}');
-        }
+        // if (music.match == true) {
+        //   showComplete('音频来自:${ApiFactory.getPlugin(value.matchSong?.package)?.name ?? "未知"}');
+        // }
         isBuffering.value = true;
         Player.playMediaItem(music.mediaItem()).then((value) {
           isBuffering.value = false;

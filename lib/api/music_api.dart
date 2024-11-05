@@ -124,6 +124,10 @@ abstract class MusicApi {
   ///是否包含某个key
   bool contains({required String key, String obj = "music"});
 
+  void setCookie({required String cookie});
+
+  String getCookie();
+
   ///=====================================公共=====================================================
 
   void dispose();

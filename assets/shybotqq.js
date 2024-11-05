@@ -18,7 +18,8 @@ const headers = {
 
 const music = {
     search: {
-        music: function searchMusic(key, page = 0, size = 20) {
+        music: async function searchMusic(key, page = 0, size = 20) {
+
             // 定义查询参数
             //https://shybot.top/api/?name=%E5%91%A8%E6%9D%B0%E4%BC%A6&type=QQ&ShyToken=9171f7b983fdcf7e3a1de35cf1f3ef514ffaf7a37cbd6673347c257d&page=3
             const params = {

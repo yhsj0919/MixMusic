@@ -15,6 +15,7 @@ import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/ext.dart';
 import 'package:mix_music/widgets/message.dart';
+import 'package:mix_music/widgets/mix_site_item.dart';
 
 import '../../../player/ui_mix.dart';
 
@@ -51,6 +52,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
     // 获取状态栏的高度
     double statusBarHeight = max(MediaQuery.of(context1).padding.top, 16);
     double bottom = max(MediaQuery.of(context1).padding.bottom, 16);
+    final double width = MediaQuery.of(context).size.width;
 
     return Obx(
       () => AnimatedTheme(
@@ -73,8 +75,10 @@ class _PhonePlayingState extends State<PhonePlaying> {
                             tag: "BarCover",
                             child: AnimatedContainer(
                                 margin: const EdgeInsets.symmetric(horizontal: 16),
-                                width: double.infinity,
-                                height: showCover.value ? 250 : 0,
+                                height: showCover.value ? 240 : 0,
+                                // margin: EdgeInsets.only(left: 16, right: 16, top: statusBarHeight + 4, bottom: 0),
+
+                                width: width,
                                 duration: const Duration(milliseconds: 200),
                                 child: AppImage(
                                   radius: 24,
@@ -230,19 +234,48 @@ class _PhonePlayingState extends State<PhonePlaying> {
                       Gap(bottom),
                     ],
                   ),
+                  // Obx(() => AnimatedOpacity(
+                  //       duration: const Duration(milliseconds: 500),
+                  //       opacity: _isVisible.value ? 1.0 : 0.0,
+                  //       child: Container(
+                  //         margin: EdgeInsets.only(top: statusBarHeight),
+                  //         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  //         child: IconButton.filledTonal(
+                  //             onPressed: () {
+                  //               Navigator.of(context).pop();
+                  //             },
+                  //             icon: const Icon(Icons.arrow_downward_rounded)),
+                  //       ),
+                  //     )),
+
                   Obx(() => AnimatedOpacity(
-                        duration: const Duration(milliseconds: 500),
-                        opacity: _isVisible.value ? 1.0 : 0.0,
-                        child: Container(
-                          margin: EdgeInsets.only(top: statusBarHeight),
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                          child: IconButton.filledTonal(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              icon: const Icon(Icons.arrow_downward_rounded)),
-                        ),
-                      )),
+                      duration: const Duration(milliseconds: 500),
+                      opacity: _isVisible.value ? 1.0 : 0.0,
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 64,
+                            alignment: Alignment.centerLeft,
+                            margin: EdgeInsets.only(top: statusBarHeight),
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                            child: IconButton.filledTonal(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                icon: const Icon(Icons.arrow_downward_rounded)),
+                          ),
+                          Expanded(child: Container(height: 1)),
+                          Obx(() => Container(
+                              height: 64,
+                              alignment: Alignment.centerLeft,
+                              margin: EdgeInsets.only(top: statusBarHeight),
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                              child: MixSiteItem(
+                                mixSong: music.currentMusic.value,
+                                size: 20,
+                              )))
+                        ],
+                      ))),
                 ],
               ),
             );

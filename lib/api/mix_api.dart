@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:flutter_js/flutter_js.dart';
+import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/app_resp_entity.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_album_type.dart';
@@ -15,6 +16,7 @@ import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/api/music_api.dart';
 import 'package:mix_music/utils/plugins_ext.dart';
+import 'package:mix_music/utils/sp.dart';
 
 import '../entity/mix_rank_type.dart';
 
@@ -32,6 +34,13 @@ class MixApi extends MusicApi {
     current = getJavascriptRuntime();
     await current?.enableAxios();
     await current?.enableCrypto();
+    await current?.injectMethod("setCookie", (args) async {
+      String cookie = args.join(';');
+      return await Sp.setString("${Constant.KEY_COOKIE}_${plugins?.package}", cookie);
+    });
+    await current?.injectMethod("getCookie", (args) {
+      return Sp.getString("${Constant.KEY_COOKIE}_${plugins?.package}") ?? "";
+    });
     current?.enableStringPlugin(code: plugins?.code ?? "");
   }
 
@@ -365,5 +374,15 @@ class MixApi extends MusicApi {
   bool contains({required String key, String obj = "music"}) {
     var check = current?.evaluate("'$key' in $obj").rawResult as bool?;
     return check ?? false;
+  }
+
+  @override
+  void setCookie({required String cookie}) {
+    Sp.setString("${Constant.KEY_COOKIE}_${plugins?.package}", cookie);
+  }
+
+  @override
+  String getCookie() {
+    return Sp.getString("${Constant.KEY_COOKIE}_${plugins?.package}") ?? "";
   }
 }

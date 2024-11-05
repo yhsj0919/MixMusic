@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/utils/sp.dart';
@@ -41,7 +42,8 @@ class _CookiePageState extends State<CookiePage> {
             itemCount: plugins.length,
             itemBuilder: (BuildContext context, int index) {
               var plugin = plugins[index];
-              var cookie = Sp.getString("${Constant.KEY_COOKIE}_${plugin.package}");
+              var api = ApiFactory.api(package: plugin.package ?? "");
+              var cookie = api?.getCookie();
               return CommonItem(
                 child: ListTile(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -75,7 +77,7 @@ class _CookiePageState extends State<CookiePage> {
                               child: const Text('确定'),
                               onPressed: () {
                                 print(controller.text);
-                                Sp.setString("${Constant.KEY_COOKIE}_${plugin.package}", controller.text);
+                                api?.setCookie(cookie: controller.text);
                                 Navigator.of(context).pop(); // 关闭对话框
                               },
                             ),

@@ -7,6 +7,7 @@ import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/widgets/OpacityRoute.dart';
 import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/mix_site_item.dart';
 
 import 'phone_playing.dart';
 
@@ -60,24 +61,36 @@ class _PlayBarState extends State<PlayBar> {
                           ));
                           // }
                         },
-                        child: Hero(
-                          tag: "BarCover",
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: music.currentMusic.value == null
-                                ? Container(
-                                    color: Theme.of(context).shadowColor.withOpacity(0.1),
-                                    width: 56,
-                                    height: 56,
-                                  )
-                                : AppImage(
-                                    url: music.currentMusic.value?.pic ?? "",
-                                    width: 56,
-                                    height: 56,
-                                    fit: BoxFit.cover,
+                        child: Container(
+                            width: 56,
+                            height: 56,
+                            child: Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                Hero(
+                                  tag: "BarCover",
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: music.currentMusic.value == null
+                                        ? Container(
+                                            color: Theme.of(context).shadowColor.withOpacity(0.1),
+                                            width: 56,
+                                            height: 56,
+                                          )
+                                        : AppImage(
+                                            url: music.currentMusic.value?.pic ?? "",
+                                            width: 56,
+                                            height: 56,
+                                            fit: BoxFit.cover,
+                                          ),
                                   ),
-                          ),
-                        )),
+                                ),
+                                Obx(() => MixSiteItem(
+                                      mixSong: music.currentMusic.value,
+                                      size: 15,
+                                    ))
+                              ],
+                            ))),
                     const Gap(8),
                     Obx(
                       () => AnimatedSwitcher(

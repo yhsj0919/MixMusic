@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/widgets/message.dart';
 
@@ -41,7 +42,11 @@ class AppDownloadTypePage extends StatelessWidget {
                     title: Text("${item?.title}"),
                     subtitle: Text("${((item?.size ?? 0) / 1024 / 1024).toStringAsFixed(2)}M"),
                     onTap: () {
-                      showInfo("尚未实现该功能");
+                      ApiFactory.api(package: item?.package ?? "")?.download(item!).then((song) {
+                            print("获取到的下载链接");
+                            print(song.url);
+                          }) ??
+                          showInfo("尚未实现该功能");
                       onTap?.call();
                     },
                   );

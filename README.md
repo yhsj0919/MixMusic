@@ -54,6 +54,28 @@ HandlePromises
 fetch
 xhr
 ```
+### 音质
+
+```js
+//由quality字段判断, flac以后再调整
+//参考🐧的分级
+
+//[
+//     {quality: 24, q: "size_24aac", s: "C100", e: ".m4a"},
+//     {quality: 48, q: "size_48aac", s: "C200", e: ".m4a"},
+//     {quality: 96, q: "size_96aac", s: "C400", e: ".m4a"},
+//     {quality: 128, q: "size_128mp3", s: "M500", e: ".mp3"},
+//     {quality: 192, q: "size_192ogg", s: "O600", e: ".ogg"},
+//     {quality: 192, q: "size_192aac", s: "C600", e: ".m4a"},
+//     {quality: 320, q: "size_320mp3", s: "M800", e: ".mp3"},
+//     {quality: 1000, q: "size_flac", s: "F000", e: ".flac"},
+//     {quality: 1000, q: "size_ape", s: "A000", e: ".ape"},
+//     {quality: 1000, q: "size_dts", s: "D00A", e: ".flac"},
+//     {quality: 1000, q: "size_hires", s: "RS01", e: ".flac"},
+// ];
+
+
+```
 
 ### 设置Cookie
 

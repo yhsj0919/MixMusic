@@ -431,6 +431,101 @@ const music = {
                     data: song
                 };
             });
+        },
+        download: async function download(quality) {
+            // {
+            //     package: "xyz.yhsj.qq",
+            //         id: {
+            //         mid: mid,
+            //         mediaId: qualities["media_mid"],
+            //         prefix: "RS01",
+            //         suffix: "flac"
+            // },
+            //     title: "hires",
+            //         quality: 1000,
+            //     size: qualities["size_hires"],
+            // }
+
+            // 定义查询参数
+            const params = {
+                data: JSON.stringify({
+                    comm: {
+                        format: "json",
+                        ct: 24,
+                        cv: 0,
+                        uin: "0",
+                    },
+                    req: {
+                        method: "CgiGetVkey",
+                        module: "vkey.GetVkeyServer",
+                        param: {
+                            guid: getUid(),
+                            // filename: typeMap.map(function (element) {
+                            //     return `${element.s}${song["id"]["mediaId"]}${element.e}`;
+                            // }),
+                            filename: [
+                                `${quality["id"]["prefix"]}${quality["id"]["mediaId"]}.${quality["id"]["suffix"]}`
+                            ],
+                            songmid: [`${quality["id"]["mid"]}`],
+                            songtype: [0],
+                            uin: "0",
+                            loginflag: 1,
+                            platform: "20",
+                        }
+                    }
+                })
+            }
+            console.log(params)
+
+            let cookie = await getCookie();
+            console.log(cookie)
+            headers.Cookie = cookie;
+
+            return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
+                headers: headers,
+                params: params
+            }).then(async function (data) {
+
+                const respData = data.data;
+
+                if (respData["code"] !== 0) {
+                    return {
+                        code: 500,
+                        msg: '请求失败',
+                        data: null
+                    };
+                }
+
+                console.log(JSON.stringify(respData))
+
+                const song = {};
+                song.package = quality.package;
+                song.id = quality.id;
+                song.title = "";
+
+                try {
+                    const urls = respData["req"]["data"]["midurlinfo"].filter(item => item["purl"] !== "");
+                    const sip = respData["req"]["data"]["sip"]
+                    urls.forEach(function (ss) {
+                        const url = `${sip[0]}${ss["purl"]}`
+                        console.log(url)
+                    })
+
+                    if (urls.length !== 0 && sip.length !== 0) {
+                        const url = `${sip[0]}${urls[0]["purl"]}`
+                        console.log(url)
+                        song["url"] = url;
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+                return {
+                    code: 200,
+                    msg: '操作成功',
+                    data: song
+                };
+            });
         }
     },
     playList: {

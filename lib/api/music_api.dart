@@ -1,6 +1,7 @@
 import 'package:flutter_js/flutter_js.dart';
 import 'package:mix_music/entity/app_resp_entity.dart';
 import 'package:mix_music/entity/mix_artist_type.dart';
+import 'package:mix_music/entity/mix_download.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
 import 'package:mix_music/entity/mix_quality.dart';
 import 'package:mix_music/entity/plugins_info.dart';
@@ -69,7 +70,7 @@ abstract class MusicApi {
   Future<MixSong> playUrl(MixSong song);
 
   ///下载地址
-  Future<MixSong> download(MixQuality quality);
+  Future<MixDownload> download(MixDownload download);
 
   ///=====================================地址=====================================================
   ///

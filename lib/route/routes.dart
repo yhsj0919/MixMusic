@@ -34,6 +34,7 @@ class Routes {
   static const String appPlaying = "/appPlaying";
   static const String appPlayList = "/appPlayList";
   static const String search = "/search";
+  static const String download = "/download";
   static const String setting = "/setting";
   static const String home = "/";
   static const String playList = "/playList";

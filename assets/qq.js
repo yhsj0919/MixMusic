@@ -432,7 +432,7 @@ const music = {
                 };
             });
         },
-        download: async function download(quality) {
+        download: async function download(download) {
             // {
             //     package: "xyz.yhsj.qq",
             //         id: {
@@ -464,9 +464,9 @@ const music = {
                             //     return `${element.s}${song["id"]["mediaId"]}${element.e}`;
                             // }),
                             filename: [
-                                `${quality["id"]["prefix"]}${quality["id"]["mediaId"]}.${quality["id"]["suffix"]}`
+                                `${download.quality["id"]["prefix"]}${download.quality["id"]["mediaId"]}.${download.quality["id"]["suffix"]}`
                             ],
-                            songmid: [`${quality["id"]["mid"]}`],
+                            songmid: [`${download.quality["id"]["mid"]}`],
                             songtype: [0],
                             uin: "0",
                             loginflag: 1,
@@ -498,10 +498,6 @@ const music = {
 
                 console.log(JSON.stringify(respData))
 
-                const song = {};
-                song.package = quality.package;
-                song.id = quality.id;
-                song.title = "";
 
                 try {
                     const urls = respData["req"]["data"]["midurlinfo"].filter(item => item["purl"] !== "");
@@ -514,7 +510,7 @@ const music = {
                     if (urls.length !== 0 && sip.length !== 0) {
                         const url = `${sip[0]}${urls[0]["purl"]}`
                         console.log(url)
-                        song["url"] = url;
+                        download["url"] = url;
                     }
 
                 } catch (error) {
@@ -523,7 +519,7 @@ const music = {
                 return {
                     code: 200,
                     msg: '操作成功',
-                    data: song
+                    data: download
                 };
             });
         }

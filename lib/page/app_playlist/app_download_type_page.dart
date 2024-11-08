@@ -1,6 +1,9 @@
+import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
+import 'package:mix_music/entity/mix_download.dart';
+import 'package:mix_music/page/download/download_controller.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/widgets/message.dart';
 
@@ -12,6 +15,7 @@ class AppDownloadTypePage extends StatelessWidget {
   ScrollController? scrollController;
 
   MusicController music = Get.put(MusicController());
+  DownloadController controller = Get.put(DownloadController());
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +46,19 @@ class AppDownloadTypePage extends StatelessWidget {
                     title: Text("${item?.title}"),
                     subtitle: Text("${((item?.size ?? 0) / 1024 / 1024).toStringAsFixed(2)}M"),
                     onTap: () {
-                      ApiFactory.api(package: item?.package ?? "")?.download(item!).then((song) {
+                      var download = MixDownload.fromSong(music.currentMusic.value!, item);
+
+                      print(JsonMapper.toJson(download));
+
+                      ApiFactory.api(package: item?.package ?? "")?.download(download).then((download) {
                             print("获取到的下载链接");
-                            print(song.url);
+                            print(download.url);
+                            if (download.url?.isNotEmpty == true) {
+                              controller.addTask(download);
+                              showInfo("已加入下载列表");
+                            } else {
+                              showInfo("无法获取链接");
+                            }
                           }) ??
                           showInfo("尚未实现该功能");
                       onTap?.call();

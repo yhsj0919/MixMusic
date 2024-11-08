@@ -9,6 +9,7 @@ import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_album_type.dart';
 import 'package:mix_music/entity/mix_artist.dart';
 import 'package:mix_music/entity/mix_artist_type.dart';
+import 'package:mix_music/entity/mix_download.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
 import 'package:mix_music/entity/mix_quality.dart';
@@ -346,10 +347,10 @@ class MixApi extends MusicApi {
   }
 
   @override
-  Future<MixSong> download(MixQuality quality) {
-    var mySong = JsonMapper.toMap(quality);
-    return invokeMethod(method: "music.url.download", params: [mySong]).then((value) {
-      AppRespEntity<MixSong> data = AppRespEntity.fromJson(value);
+  Future<MixDownload> download(MixDownload download) {
+    var myDownload = JsonMapper.toMap(download);
+    return invokeMethod(method: "music.url.download", params: [myDownload]).then((value) {
+      AppRespEntity<MixDownload> data = AppRespEntity.fromJson(value);
       if (data.code == 200) {
         // data.data?.lyric ??= lyric;
 

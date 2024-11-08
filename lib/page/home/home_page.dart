@@ -3,7 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/page/download/download_page.dart';
 import 'package:mix_music/route/routes.dart';
+import 'package:mix_music/widgets/OpacityRoute.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/ext.dart';
 
@@ -44,6 +46,13 @@ class _HomePageState extends State<HomePage> {
                       Get.toNamed(Routes.search);
                     },
                     icon: const Icon(Icons.search)),
+                IconButton(
+                    onPressed: () async {
+                      Navigator.of(context).push(OpacityRoute(
+                        builder: (BuildContext context) => DownloadPage(),
+                      ));
+                    },
+                    icon: const Icon(Icons.download)),
                 IconButton(
                     onPressed: () async {
                       Get.toNamed(Routes.setting);

@@ -1,0 +1,346 @@
+import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:io';
+import 'dart:math';
+
+import 'package:background_downloader/background_downloader.dart';
+import 'package:get/get.dart';
+import 'package:mix_music/page/download/download_controller.dart';
+
+class DownloadPage extends StatefulWidget {
+  const DownloadPage({super.key});
+
+  @override
+  State<DownloadPage> createState() => _DownloadPageState();
+}
+
+class _DownloadPageState extends State<DownloadPage> {
+  DownloadController controller = Get.put(DownloadController());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          const SliverAppBar.large(
+            title: Text("下载"),
+          ),
+          SliverList.builder(
+            itemCount: controller.tasks.length,
+            itemBuilder: (BuildContext context, int index) {
+              var item = controller.tasks[index];
+              return ListTile(
+                title: Text("${item.title}"),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MyDownload extends StatefulWidget {
+  const MyDownload({super.key});
+
+  @override
+  State<MyDownload> createState() => _MyDownloadState();
+}
+
+class _MyDownloadState extends State<MyDownload> {
+  final buttonTexts = ['Download', 'Cancel', 'Pause', 'Resume', 'Reset'];
+
+  ButtonState buttonState = ButtonState.download;
+  bool downloadWithError = false;
+  TaskStatus? downloadTaskStatus;
+  DownloadTask? backgroundDownloadTask;
+  StreamController<TaskProgressUpdate> progressUpdateStream = StreamController();
+
+  bool loadAndOpenInProgress = false;
+  bool loadABunchInProgress = false;
+  bool loadBackgroundInProgress = false;
+  String? loadBackgroundResult;
+
+  @override
+  void initState() {
+    super.initState();
+
+    FileDownloader().configure(globalConfig: [
+      (Config.requestTimeout, const Duration(seconds: 100)),
+    ], androidConfig: [
+      (Config.useCacheDir, Config.whenAble),
+    ], iOSConfig: [
+      (Config.localize, {'Cancel': 'StopIt'}),
+    ]).then((result) => debugPrint('Configuration result = $result'));
+
+    // Registering a callback and configure notifications
+    FileDownloader()
+        .registerCallbacks(taskNotificationTapCallback: myNotificationTapCallback)
+        .configureNotificationForGroup(FileDownloader.defaultGroup,
+            // For the main download button
+            // which uses 'enqueue' and a default group
+            running: const TaskNotification('Download {filename}', 'File: {filename} - {progress} - speed {networkSpeed} and {timeRemaining} remaining'),
+            complete: const TaskNotification('{displayName} download {filename}', 'Download complete'),
+            error: const TaskNotification('Download {filename}', 'Download failed'),
+            paused: const TaskNotification('Download {filename}', 'Paused with metadata {metadata}'),
+            progressBar: true)
+        .configureNotificationForGroup('bunch',
+            running: const TaskNotification('{numFinished} out of {numTotal}', 'Progress = {progress}'),
+            complete: const TaskNotification("Done!", "Loaded {numTotal} files"),
+            error: const TaskNotification('Error', '{numFailed}/{numTotal} failed'),
+            progressBar: false,
+            groupNotificationId: 'notGroup')
+        .configureNotification(
+            // for the 'Download & Open' dog picture
+            // which uses 'download' which is not the .defaultGroup
+            // but the .await group so won't use the above config
+            complete: const TaskNotification('Download {filename}', 'Download complete'),
+            tapOpensFile: true); // dog can also open directly from tap
+
+    // Listen to updates and process
+    FileDownloader().updates.listen((update) {
+      switch (update) {
+        case TaskStatusUpdate():
+          if (update.task == backgroundDownloadTask) {
+            buttonState =
+                switch (update.status) { TaskStatus.running || TaskStatus.enqueued => ButtonState.pause, TaskStatus.paused => ButtonState.resume, _ => ButtonState.reset };
+            setState(() {
+              downloadTaskStatus = update.status;
+            });
+          }
+
+        case TaskProgressUpdate():
+          progressUpdateStream.add(update); // pass on to widget for indicator
+      }
+    });
+  }
+
+  /// Process the user tapping on a notification by printing a message
+  void myNotificationTapCallback(Task task, NotificationType notificationType) {
+    debugPrint('Tapped notification $notificationType for taskId ${task.taskId}');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        useMaterial3: true,
+
+        // Define the default brightness and colors.
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.purple,
+          brightness: Brightness.light,
+        ),
+      ),
+      home: Scaffold(
+          appBar: AppBar(
+            title: const Text('background_downloader example app'),
+          ),
+          body: Center(
+              child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Text('RequireWiFi setting', style: Theme.of(context).textTheme.titleLarge),
+                      const RequireWiFiChoice(),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text('Force error', style: Theme.of(context).textTheme.titleLarge)),
+                      Switch(
+                          value: downloadWithError,
+                          onChanged: (value) {
+                            setState(() {
+                              downloadWithError = value;
+                            });
+                          })
+                    ],
+                  ),
+                ),
+                Center(
+                    child: ElevatedButton(
+                  onPressed: processButtonPress,
+                  child: Text(
+                    buttonTexts[buttonState.index],
+                  ),
+                )),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [const Expanded(child: Text('File download status:')), Text('${downloadTaskStatus ?? "undefined"}')],
+                  ),
+                ),
+                const Divider(
+                  height: 30,
+                  thickness: 5,
+                  color: Colors.blueGrey,
+                ),
+                Center(child: ElevatedButton(onPressed: loadABunchInProgress ? null : processLoadABunch, child: const Text('Load a bunch'))),
+                Center(child: Text(loadABunchInProgress ? 'Enqueueing' : '')),
+                const Divider(
+                  height: 30,
+                  thickness: 5,
+                  color: Colors.blueGrey,
+                ),
+                Center(
+                  child: Text(
+                    loadBackgroundInProgress ? 'Working...' : loadBackgroundResult ?? '',
+                  ),
+                ),
+              ],
+            ),
+          )),
+          bottomSheet: DownloadProgressIndicator(progressUpdateStream.stream, showPauseButton: true, showCancelButton: true, backgroundColor: Colors.grey, maxExpandable: 3)),
+    );
+  }
+
+  /// Process center button press (initially 'Download' but the text changes
+  /// based on state)
+  Future<void> processButtonPress() async {
+    switch (buttonState) {
+      case ButtonState.download:
+        // start download
+        await getPermission(PermissionType.notifications);
+        backgroundDownloadTask = DownloadTask(
+            url: downloadWithError
+                ? 'https://avmaps-dot-bbflightserver-hrd.appspot.com/public/get_current_app_data' // returns 403 status code
+                : 'https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP',
+            filename: 'zipfile.zip',
+            directory: 'my/directory',
+            baseDirectory: BaseDirectory.applicationDocuments,
+            updates: Updates.statusAndProgress,
+            retries: 3,
+            allowPause: true,
+            metaData: '<example metaData>',
+            displayName: 'My display name');
+        await FileDownloader().enqueue(backgroundDownloadTask!);
+        break;
+      case ButtonState.cancel:
+        // cancel download
+        if (backgroundDownloadTask != null) {
+          await FileDownloader().cancelTasksWithIds([backgroundDownloadTask!.taskId]);
+        }
+        break;
+      case ButtonState.reset:
+        downloadTaskStatus = null;
+        buttonState = ButtonState.download;
+        break;
+      case ButtonState.pause:
+        if (backgroundDownloadTask != null) {
+          await FileDownloader().pause(backgroundDownloadTask!);
+        }
+        break;
+      case ButtonState.resume:
+        if (backgroundDownloadTask != null) {
+          await FileDownloader().resume(backgroundDownloadTask!);
+        }
+        break;
+    }
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> processLoadABunch() async {
+    if (!loadABunchInProgress) {
+      setState(() {
+        loadABunchInProgress = true;
+      });
+      await getPermission(PermissionType.notifications);
+      for (var i = 0; i < 5; i++) {
+        await FileDownloader().enqueue(DownloadTask(
+            url: 'https://storage.googleapis.com/approachcharts/test/5MB-test.ZIP',
+            filename: 'File_${Random().nextInt(1000)}',
+            group: 'bunch',
+            updates: Updates.progress)); // must provide progress updates!
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+      setState(() {
+        loadABunchInProgress = false;
+      });
+    }
+  }
+
+  // Future<void> processLoadBackground() async {
+  //   if (!loadBackgroundInProgress) {
+  //     setState(() {
+  //       loadBackgroundInProgress = true;
+  //     });
+  //     await getPermission(PermissionType.notifications);
+  //     final result = await testBackgroundUsage();
+  //     setState(() {
+  //       loadBackgroundResult = result;
+  //       loadBackgroundInProgress = false;
+  //     });
+  //   }
+  // }
+
+  /// Attempt to get permissions if not already granted
+  Future<void> getPermission(PermissionType permissionType) async {
+    var status = await FileDownloader().permissions.status(permissionType);
+    if (status != PermissionStatus.granted) {
+      if (await FileDownloader().permissions.shouldShowRationale(permissionType)) {
+        debugPrint('Showing some rationale');
+      }
+      status = await FileDownloader().permissions.request(permissionType);
+      debugPrint('Permission for $permissionType was $status');
+    }
+  }
+}
+
+/// Segmented button with WiFi requirement states
+class RequireWiFiChoice extends StatefulWidget {
+  const RequireWiFiChoice({super.key});
+
+  @override
+  State<RequireWiFiChoice> createState() => _RequireWiFiChoiceState();
+}
+
+class _RequireWiFiChoiceState extends State<RequireWiFiChoice> {
+  RequireWiFi requireWiFi = RequireWiFi.asSetByTask;
+
+  @override
+  void initState() {
+    super.initState();
+    FileDownloader().getRequireWiFiSetting().then((value) {
+      setState(() {
+        requireWiFi = value;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<RequireWiFi>(
+      segments: const <ButtonSegment<RequireWiFi>>[
+        ButtonSegment<RequireWiFi>(value: RequireWiFi.asSetByTask, label: Text('Task')),
+        ButtonSegment<RequireWiFi>(value: RequireWiFi.forAllTasks, label: Text('All')),
+        ButtonSegment<RequireWiFi>(
+          value: RequireWiFi.forNoTasks,
+          label: Text('None'),
+        ),
+      ],
+      selected: <RequireWiFi>{requireWiFi},
+      onSelectionChanged: (Set<RequireWiFi> newSelection) {
+        setState(() {
+          // By default there is only a single segment that can be
+          // selected at one time, so its value is always the first
+          // item in the selected set.
+          requireWiFi = newSelection.first;
+          unawaited(FileDownloader().requireWiFi(requireWiFi, rescheduleRunningTasks: true));
+        });
+      },
+    );
+  }
+}
+
+enum ButtonState { download, cancel, pause, resume, reset }

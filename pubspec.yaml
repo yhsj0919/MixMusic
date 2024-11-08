@@ -86,7 +86,11 @@ dependencies:
 
   shimmer: ^3.0.0
 
-  background_downloader: ^8.7.1
+  #网络请求
+  #https://github.com/flutterchina/dio
+  dio: ^5.7.0
+  dio_cookie_manager: ^3.1.1
+  queue: ^3.1.0+2
 
 
 dev_dependencies:

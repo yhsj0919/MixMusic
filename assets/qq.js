@@ -1805,7 +1805,65 @@ const music = {
                 };
             });
         }
+    },
+    user: {
+        refresh: async function () {
+            let cookie = await getCookie();
+            console.log(cookie)
+            const cookieMap = getCookieMap(cookie);
+            // 定义查询参数
+            const params = {
+                data: JSON.stringify({
+                    req1: {
+                        module: "QQConnectLogin.LoginServer",
+                        method: "QQLogin",
+                        param: {
+                            expired_in: 7776000, //不用管
+                            // onlyNeedAccessToken: 0, //不用管
+                            // forceRefreshToken: 0, //不用管
+                            // access_token: "6B0C62126368CA1ACE16C932C679747E", //access_token
+                            refresh_token: cookieMap["psrf_qqrefresh_token"], //refresh_token
+                            musicid: parseInt(cookieMap["uin"]), //uin或者web_uin 微信没试过
+                            musickey: cookieMap["qqmusic_key"], //key
+                        }
+                    }
+                })
+            }
+
+            return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
+                headers: headers,
+                params: params
+            }).then(function (data) {
+                console.log(data.headers)
+                console.log(data.data)
+
+                return {
+                    code: 200,
+                    msg: '操作成功',
+                    data: null
+                };
+            });
+        }
     }
+}
+
+
+function getCookieMap(cookie) {
+//    1.根据分号切分,放入数组
+//    2.遍历数组，根据等号切分，前部分当键名，后部分当键值
+//    3.返回map
+    let cookieArray = cookie.split(";");
+    let cookieMap = new Map();
+    console.log(cookieArray)
+    for (let item of cookieArray) {
+        console.log(item)
+        let resultArray = item.trim().split("=");
+        console.log(resultArray)
+        cookieMap[resultArray[0]] = resultArray[1];
+    }
+    console.log(cookieMap)
+
+    return cookieMap;
 }
 
 function getQualities(qualities, mid) {
@@ -1997,6 +2055,5 @@ function getQualities(qualities, mid) {
 
     return myQualities
 }
-
 
 true

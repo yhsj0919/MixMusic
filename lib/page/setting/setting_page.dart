@@ -1,10 +1,13 @@
 import 'dart:io';
 
 import 'package:disable_battery_optimization/disable_battery_optimization.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/constant.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/theme/app_theme.dart';
+import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/message.dart';
 import 'package:mix_music/widgets/setting_item.dart';
 
@@ -16,6 +19,14 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
+  RxnString downloadFolder = RxnString(null);
+
+  @override
+  void initState() {
+    super.initState();
+    downloadFolder.value = Sp.getString(Constant.KEY_DOWNLOAD_FOLDER);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,6 +48,20 @@ class _SettingPageState extends State<SettingPage> {
                 onTap: () {
                   Get.toNamed(Routes.extension);
                 }),
+            Obx(() => SettingItem(
+                icon: Icons.folder_rounded,
+                title: "下载目录",
+                subtitle: downloadFolder.value ?? "暂无设置",
+                onTap: () async {
+                  var result = await FilePicker.platform.getDirectoryPath(
+                    dialogTitle: "选择目录",
+                    lockParentWindow: true,
+                  );
+                  if (result != null) {
+                    downloadFolder.value = result;
+                    Sp.setString(Constant.KEY_DOWNLOAD_FOLDER, result);
+                  }
+                })),
             SettingItem(
                 icon: Icons.light_mode,
                 title: "主题",

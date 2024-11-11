@@ -28,14 +28,12 @@ Future<void> main() async {
   await Player.init();
   initializeJsonMapper();
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-    // 沉浸式状态栏（仅安卓）
-    statusBarColor: Colors.transparent,
-    // 沉浸式导航指示器
-    systemNavigationBarIconBrightness: Brightness.dark,
-    systemNavigationBarColor: Colors.transparent,
-    systemNavigationBarContrastEnforced: false
-
-  ));
+      // 沉浸式状态栏（仅安卓）
+      statusBarColor: Colors.transparent,
+      // 沉浸式导航指示器
+      systemNavigationBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarContrastEnforced: false));
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   runApp(const MyApp());
 }
@@ -65,32 +63,36 @@ class MyApp extends StatelessWidget {
         );
       }
 
-      return Obx(() => GetMaterialApp(
-            title: 'MixMusic',
-            //桌面拖动支持
-            scrollBehavior: const MaterialScrollBehavior().copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
-            debugShowCheckedModeBanner: false,
-            initialBinding: AppBinding(),
-            theme: ThemeData(
-              colorSchemeSeed: theme.customerColor.value ?? lightColorScheme.primary,
-              // extensions: [lightCustomColors],
-            ),
-            darkTheme: ThemeData(
-              brightness: Brightness.dark,
-              colorSchemeSeed: theme.customerColor.value ?? darkColorScheme.primary,
-              // extensions: [darkCustomColors],
-            ),
-            // builder: appRootWidget,
-            //2.注册路由观察者
-            getPages: Routes.routes,
-            initialRoute: Routes.welcome,
-            localizationsDelegates: const [
-              //此处
-              GlobalMaterialLocalizations.delegate, // uses `flutter_localizations`
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-          ));
+      return Obx(
+        () => GetMaterialApp(
+          title: 'MixMusic',
+          //桌面拖动支持
+          scrollBehavior: const MaterialScrollBehavior().copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
+          debugShowCheckedModeBanner: false,
+          initialBinding: AppBinding(),
+          // theme: lightTheme,
+          theme: ThemeData(
+            colorSchemeSeed: theme.customerColor.value ?? lightColorScheme.primary,
+            // extensions: [lightCustomColors],
+          ),
+          // darkTheme: darkTheme,
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            colorSchemeSeed: theme.customerColor.value ?? darkColorScheme.primary,
+            // extensions: [darkCustomColors],
+          ),
+          // builder: appRootWidget,
+          //2.注册路由观察者
+          getPages: Routes.routes,
+          initialRoute: Routes.welcome,
+          localizationsDelegates: const [
+            //此处
+            GlobalMaterialLocalizations.delegate, // uses `flutter_localizations`
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+        ),
+      );
     });
   }
 }

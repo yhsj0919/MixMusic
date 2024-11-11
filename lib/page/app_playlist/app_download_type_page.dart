@@ -57,7 +57,13 @@ class AppDownloadTypePage extends StatelessWidget {
                               controller.addTask(download);
                               showInfo("已加入下载列表");
                             } else {
-                              showInfo("无法获取链接");
+                              if (music.currentMusic.value?.match == true) {
+                                download.url = music.currentMusic.value?.matchSong?.url;
+                                controller.addTask(download);
+                                showInfo("已将匹配链接加入下载列表");
+                              } else {
+                                showInfo("无法获取链接");
+                              }
                             }
                           }) ??
                           showInfo("尚未实现该功能");

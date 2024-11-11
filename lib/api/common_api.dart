@@ -112,11 +112,15 @@ class CommonApi {
 
     return Http.download(path, (Headers headers) {
       var name = headers["Content-Disposition"]?.first.split("filename=").last;
-      if (name == null) {
-        Uri uri = Uri.parse(path);
+      var location = headers["uri"]?.firstOrNull;
+      if (name != null) {
+        name = Uri.decodeFull(name);
+      } else if (location != null) {
+        Uri uri = Uri.parse(location);
         name = uri.pathSegments.last;
       } else {
-        name = Uri.decodeFull(name);
+        Uri uri = Uri.parse(path);
+        name = uri.pathSegments.last;
       }
       String fileExtension = name.split('.').last;
 

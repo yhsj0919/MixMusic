@@ -7,4 +7,5 @@ class Constant {
   static String KEY_HOME_SITE = "KEY_HOME_SITE";
   static String KEY_FIRST_IN = "KEY_FIRST_IN";
   static String KEY_COOKIE = "KEY_COOKIE";
+  static String KEY_DOWNLOAD_FOLDER = "KEY_DOWNLOAD_FOLDER";
 }

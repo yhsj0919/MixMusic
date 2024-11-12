@@ -1822,9 +1822,9 @@ const music = {
                             // onlyNeedAccessToken: 0, //不用管
                             // forceRefreshToken: 0, //不用管
                             // access_token: "6B0C62126368CA1ACE16C932C679747E", //access_token
-                            refresh_token: cookieMap["psrf_qqrefresh_token"], //refresh_token
-                            musicid: parseInt(cookieMap["uin"]), //uin或者web_uin 微信没试过
-                            musickey: cookieMap["qqmusic_key"], //key
+                            refresh_token: cookieMap.get("psrf_qqrefresh_token"), //refresh_token
+                            musicid: parseInt(cookieMap.get("uin")), //uin或者web_uin 微信没试过
+                            musickey: cookieMap.get("qqmusic_key"), //key
                         }
                     }
                 })
@@ -1833,26 +1833,19 @@ const music = {
             return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
                 headers: headers,
                 params: params
-            }).then(function (data) {
+            }).then(async function (data) {
                 console.log(JSON.stringify(data.data))
 
                 if (data.data.req1 && data.data.req1.data && data.data.req1.data.musickey) {
                     const musicKey = data.data.req1.data.musickey;
                     console.log(musicKey)
-                    cookieMap["qm_keyst"] = musicKey;
-                    cookieMap["qqmusic_key"] = musicKey;
 
-                    cookieMap.forEach((value, key) => {
-                        console.log(`Key: ${key}, Value: ${value}`);
-                    });
-                    const keysArray = [];
-                    console.log(cookieMap)
 
-                    const array = Array.from(cookieMap, ([key, value]) => ({key, value}));
+                    cookieMap.set("qm_keyst", musicKey);
+                    cookieMap.set("qqmusic_key", musicKey);
 
-                    console.log(array)
-                    const result = keysArray.join("; ");
-                    console.log(result)
+                    const cookie = mapToCookieString(cookieMap);
+                    setCookie(cookie);
                 }
 
 
@@ -1868,17 +1861,21 @@ const music = {
 
 
 function getCookieMap(cookie) {
-//    1.根据分号切分,放入数组
-//    2.遍历数组，根据等号切分，前部分当键名，后部分当键值
-//    3.返回map
     let cookieArray = cookie.split(";");
     let cookieMap = new Map();
     for (let item of cookieArray) {
         let resultArray = item.trim().split("=");
-        cookieMap[resultArray[0]] = resultArray[1];
+        //这里相当傻缺，使用[]赋值，会改变cookieMap的类型，后面也必须用[]取值，使用set后又会改变，[]还不能被遍历
+        cookieMap.set(resultArray[0], resultArray[1]);
     }
     return cookieMap;
 }
+
+function mapToCookieString(map) {
+    const cookieArray = Array.from(map, ([key, value]) => `${key}=${value}`);
+    return cookieArray.join("; ")
+}
+
 
 function getQualities(qualities, mid) {
 

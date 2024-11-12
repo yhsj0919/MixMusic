@@ -1834,8 +1834,27 @@ const music = {
                 headers: headers,
                 params: params
             }).then(function (data) {
-                console.log(data.headers)
-                console.log(data.data)
+                console.log(JSON.stringify(data.data))
+
+                if (data.data.req1 && data.data.req1.data && data.data.req1.data.musickey) {
+                    const musicKey = data.data.req1.data.musickey;
+                    console.log(musicKey)
+                    cookieMap["qm_keyst"] = musicKey;
+                    cookieMap["qqmusic_key"] = musicKey;
+
+                    cookieMap.forEach((value, key) => {
+                        console.log(`Key: ${key}, Value: ${value}`);
+                    });
+                    const keysArray = [];
+                    console.log(cookieMap)
+
+                    const array = Array.from(cookieMap, ([key, value]) => ({key, value}));
+
+                    console.log(array)
+                    const result = keysArray.join("; ");
+                    console.log(result)
+                }
+
 
                 return {
                     code: 200,
@@ -1854,15 +1873,10 @@ function getCookieMap(cookie) {
 //    3.返回map
     let cookieArray = cookie.split(";");
     let cookieMap = new Map();
-    console.log(cookieArray)
     for (let item of cookieArray) {
-        console.log(item)
         let resultArray = item.trim().split("=");
-        console.log(resultArray)
         cookieMap[resultArray[0]] = resultArray[1];
     }
-    console.log(cookieMap)
-
     return cookieMap;
 }
 

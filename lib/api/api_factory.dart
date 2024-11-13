@@ -82,6 +82,10 @@ class ApiFactory {
     return getPlugins(key: "parse");
   }
 
+  static List<PluginsInfo> getUserPlugins() {
+    return getPlugins(key: "user");
+  }
+
   static List<String> getSearchMethod(String? package) {
     return api(package: package ?? "")?.keys(obj: "music.search") ?? [];
   }

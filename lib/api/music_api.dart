@@ -4,6 +4,7 @@ import 'package:mix_music/entity/mix_artist_type.dart';
 import 'package:mix_music/entity/mix_download.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
 import 'package:mix_music/entity/mix_quality.dart';
+import 'package:mix_music/entity/mix_user.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 
 import '../entity/mix_album.dart';
@@ -117,6 +118,17 @@ abstract class MusicApi {
   Future<AppRespEntity<List<MixAlbum>>> artistAlbum({required MixArtist artist, required int page, required int size});
 
   ///=====================================歌手=====================================================
+  ///
+  ///
+  ///
+  ///=====================================用户=====================================================
+  ///用户信息
+  Future<AppRespEntity<MixUser>> userInfo();
+
+  ///刷新Cookie
+  Future<AppRespEntity<dynamic>> userRefresh();
+
+  ///=====================================用户=====================================================
   ///
   ///
   ///=====================================公共=====================================================

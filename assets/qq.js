@@ -1807,21 +1807,108 @@ const music = {
         }
     },
     user: {
-        refresh: async function () {
+        info: async function () {
             let cookie = await getCookie();
-            console.log(cookie)
             const cookieMap = getCookieMap(cookie);
+            if (cookieMap.get("uin") == null) {
+                return {
+                    code: 500,
+                    msg: '请先登录',
+                    data: null
+                };
+            }
+            headers.Cookie = cookie;
             // 定义查询参数
             const params = {
+                loginUin: cookieMap.get("uin"),
                 data: JSON.stringify({
-                    req1: {
+                    info: {
+                        module: "userInfo.BaseUserInfoServer",
+                        method: "get_user_baseinfo_v2",
+                        param: {vec_uin: [`${cookieMap.get("uin")}`],}
+                    },
+                    vip: {
+                        module: "userInfo.VipQueryServer",
+                        method: "SRFVipQuery_V2",
+                        param: {uin_list: [`${cookieMap.get("uin")}`],}
+                    },
+                    refresh: {
                         module: "QQConnectLogin.LoginServer",
                         method: "QQLogin",
                         param: {
                             expired_in: 7776000, //不用管
                             // onlyNeedAccessToken: 0, //不用管
                             // forceRefreshToken: 0, //不用管
-                            // access_token: "6B0C62126368CA1ACE16C932C679747E", //access_token
+                            access_token: cookieMap.get("psrf_qqaccess_token"), //access_token
+                            refresh_token: cookieMap.get("psrf_qqrefresh_token"), //refresh_token
+                            musicid: parseInt(cookieMap.get("uin")), //uin或者web_uin 微信没试过
+                            musickey: cookieMap.get("qqmusic_key"), //key
+                        }
+                    }
+                })
+            }
+
+            return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
+                headers: headers,
+                params: params
+            }).then(async function (data) {
+                console.log(JSON.stringify(data.data))
+                const respData = data.data
+                if (respData["code"] !== 0 || respData.info.code !== 0) {
+                    return {
+                        code: 500,
+                        msg: '请求失败',
+                        data: null
+                    };
+                }
+
+                const user = {
+                    package: 'xyz.yhsj.qq',
+                };
+                if (data.data.info.code === 0) {
+                    user.id = data.data.info.data.map_userinfo[cookieMap.get("uin")].uin;
+                    user.name = data.data.info.data.map_userinfo[cookieMap.get("uin")].nick;
+                    user.pic = data.data.info.data.map_userinfo[cookieMap.get("uin")].headurl;
+                }
+
+                if (data.data.vip.code === 0) {
+                    user.vip = data.data.vip.data.infoMap[cookieMap.get("uin")].iSuperVip;
+                    user.vipEndTime = data.data.vip.data.infoMap[cookieMap.get("uin")].superEndTime;
+                }
+
+                if (data.data.refresh.code === 0) {
+                    const musicKey = data.data.refresh.data.musickey;
+                    cookieMap.set("qm_keyst", musicKey);
+                    cookieMap.set("qqmusic_key", musicKey);
+                    const cookie = mapToCookieString(cookieMap);
+                    setCookie(cookie);
+                    user.login = 1;
+                } else {
+                    user.login = 0;
+                }
+
+                return {
+                    code: 200,
+                    msg: '操作成功',
+                    data: user
+                };
+            });
+        },
+        refresh: async function () {
+            let cookie = await getCookie();
+            const cookieMap = getCookieMap(cookie);
+            headers.Cookie = cookie;
+            // 定义查询参数
+            const params = {
+                data: JSON.stringify({
+                    refresh: {
+                        module: "QQConnectLogin.LoginServer",
+                        method: "QQLogin",
+                        param: {
+                            expired_in: 7776000, //不用管
+                            // onlyNeedAccessToken: 0, //不用管
+                            // forceRefreshToken: 0, //不用管
+                            access_token: cookieMap.get("psrf_qqaccess_token"), //access_token
                             refresh_token: cookieMap.get("psrf_qqrefresh_token"), //refresh_token
                             musicid: parseInt(cookieMap.get("uin")), //uin或者web_uin 微信没试过
                             musickey: cookieMap.get("qqmusic_key"), //key
@@ -1836,16 +1923,20 @@ const music = {
             }).then(async function (data) {
                 console.log(JSON.stringify(data.data))
 
-                if (data.data.req1 && data.data.req1.data && data.data.req1.data.musickey) {
-                    const musicKey = data.data.req1.data.musickey;
+                if (data.data.refresh.code === 0) {
+                    const musicKey = data.data.refresh.data.musickey;
                     console.log(musicKey)
-
-
                     cookieMap.set("qm_keyst", musicKey);
                     cookieMap.set("qqmusic_key", musicKey);
 
                     const cookie = mapToCookieString(cookieMap);
                     setCookie(cookie);
+                } else {
+                    return {
+                        code: 500,
+                        msg: '刷新失败',
+                        data: null
+                    };
                 }
 
 

@@ -5,6 +5,7 @@ import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_song.dart';
+import 'package:mix_music/page/setting/user_controller.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/message.dart';
@@ -17,10 +18,12 @@ class HomeController extends GetxController {
 
   RxnString homeSitePackage = RxnString();
 
+  UserController userController = Get.put(UserController());
 
   @override
   Future<void> onInit() async {
     super.onInit();
+    userController.getAllUser();
     getData();
   }
 
@@ -28,7 +31,6 @@ class HomeController extends GetxController {
     playlist.clear();
     albumList.clear();
     songList.clear();
-
 
     homeSitePackage.value = Sp.getString(Constant.KEY_HOME_SITE) ?? ApiFactory.getRecPlugins().firstOrNull?.package;
 

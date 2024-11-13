@@ -15,6 +15,7 @@ import 'package:mix_music/entity/mix_play_list_type.dart';
 import 'package:mix_music/entity/mix_quality.dart';
 import 'package:mix_music/entity/mix_rank.dart';
 import 'package:mix_music/entity/mix_song.dart';
+import 'package:mix_music/entity/mix_user.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/api/music_api.dart';
 import 'package:mix_music/utils/plugins_ext.dart';
@@ -328,11 +329,6 @@ class MixApi extends MusicApi {
 
   @override
   Future<MixSong> playUrl(MixSong song) {
-    // var lyric = song.lyric;
-
-    // if (song.lyric?.contains("[") == true || song.lyric?.contains("]") == true) {
-    //   song.lyric = null;
-    // }
     var mySong = JsonMapper.toMap(song);
     return invokeMethod(method: "music.url.playUrl", params: [mySong]).then((value) {
       AppRespEntity<MixSong> data = AppRespEntity.fromJson(value);
@@ -355,6 +351,31 @@ class MixApi extends MusicApi {
         // data.data?.lyric ??= lyric;
 
         return Future(() => data.data!);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  ///=====================================用户=====================================================
+  @override
+  Future<AppRespEntity<MixUser>> userInfo() {
+    return invokeMethod(method: "music.user.info", params: []).then((value) {
+      AppRespEntity<MixUser> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<dynamic>> userRefresh() {
+    return invokeMethod(method: "music.user.refresh", params: []).then((value) {
+      AppRespEntity<dynamic> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
       } else {
         return Future.error(data.msg ?? "操作失败");
       }

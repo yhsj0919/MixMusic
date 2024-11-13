@@ -8,7 +8,6 @@ import 'package:mix_music/utils/sp.dart';
 
 import '../../widgets/message.dart';
 
-enum ButtonState { download, cancel, pause, resume, reset }
 
 class DownloadController extends GetxController {
   RxList<MixDownload> tasks = RxList();

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/plugins_info.dart';
+import 'package:mix_music/page/setting/user_controller.dart';
 import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/common_item.dart';
@@ -16,6 +17,7 @@ class CookiePage extends StatefulWidget {
 
 class _CookiePageState extends State<CookiePage> {
   RxList<PluginsInfo> plugins = RxList();
+  UserController userController = Get.put(UserController());
 
   @override
   void initState() {
@@ -44,12 +46,17 @@ class _CookiePageState extends State<CookiePage> {
               var plugin = plugins[index];
               var api = ApiFactory.api(package: plugin.package ?? "");
               var cookie = api?.getCookie();
+              var user = userController.userInfos[plugin.package ?? ""];
+
               return CommonItem(
                 child: ListTile(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   leading: AppImage(url: "${plugin.icon}", width: 40, height: 40),
                   title: Text("${plugin.name}"),
-                  subtitle: Text(cookie?.isNotEmpty == true ? "$cookie" : "未设置"),
+                  subtitle: Text(
+                    cookie?.isNotEmpty == true ? "${user?.name ?? "未知"} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "普通用户"}" : "未设置",
+                    maxLines: 1,
+                  ),
                   onTap: () {
                     var controller = TextEditingController(text: cookie);
 
@@ -79,6 +86,9 @@ class _CookiePageState extends State<CookiePage> {
                                 print(controller.text);
                                 api?.setCookie(cookie: controller.text);
                                 Navigator.of(context).pop(); // 关闭对话框
+                                userController.getAllUser().then((v) {
+                                  setState(() {});
+                                });
                               },
                             ),
                           ],

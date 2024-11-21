@@ -1,55 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:mix_music/widgets/hyper/hyper_group.dart';
 
 class MethodItem extends StatelessWidget {
-  const MethodItem({super.key, this.margin, this.img, this.modules, this.methods, this.onTap, this.trailing, this.onChipTap});
+  const MethodItem({super.key, this.modules, this.methods, this.onChipTap});
 
-  final EdgeInsetsGeometry? margin;
-  final String? img;
   final String? modules;
   final List<String>? methods;
-  final GestureTapCallback? onTap;
-  final Widget? trailing;
   final Function(String key)? onChipTap;
 
   @override
   Widget build(BuildContext context) {
-    return Card.outlined(
-      margin: margin ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: ListTile(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12), // 圆角半径
+    return HyperGroup(
+      inSliver: false,
+      title: modules ?? "",
+      children: [
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(16),
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: methods?.map((label) {
+                  return ActionChip(
+                    side: BorderSide(
+                      color: Color(0xff999999), // 边框颜色
+                      width: 1.0, // 边框宽度
+                    ),
+                    label: Text(label),
+                    onPressed: onChipTap == null
+                        ? null
+                        : () {
+                            onChipTap?.call(label);
+                          },
+                  );
+                }).toList() ??
+                [],
+          ),
         ),
-        leading: img != null
-            ? Image.network(
-                img!,
-                width: 50,
-                height: 50,
-              )
-            : null,
-        trailing: trailing,
-        title: modules != null ? Text("$modules") : null,
-        subtitle: methods?.isNotEmpty == true
-            ? Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Wrap(
-                  runSpacing: 8,
-                  spacing: 8,
-                  children: methods?.map((label) {
-                        return ActionChip(
-                          label: Text(label),
-                          onPressed: onChipTap == null
-                              ? null
-                              : () {
-                                  onChipTap?.call(label);
-                                },
-                        );
-                      }).toList() ??
-                      [],
-                ),
-              )
-            : null,
-        onTap: onTap,
-      ),
+      ],
     );
   }
 }

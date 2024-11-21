@@ -5,6 +5,9 @@ import 'package:mix_music/constant.dart';
 import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/common_item.dart';
+import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
+import 'package:mix_music/widgets/hyper/hyper_group.dart';
+import 'package:mix_music/widgets/hyper/hyper_leading.dart';
 
 import '../../entity/plugins_info.dart';
 
@@ -34,10 +37,10 @@ class _MatchSitePageState extends State<MatchSitePage> {
       body: Obx(
         () => CustomScrollView(
           slivers: [
-            const SliverAppBar.large(title: Text("音源匹配")),
-            SliverToBoxAdapter(
-              child: CommonItem(
-                child: Obx(
+            HyperAppbar(title: "音源匹配"),
+            HyperGroup(
+              children: [
+                Obx(
                   () => SwitchListTile(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     title: const Text("音源匹配"),
@@ -50,41 +53,44 @@ class _MatchSitePageState extends State<MatchSitePage> {
                       ApiFactory.initMatch();
                     },
                   ),
-                ),
-              ),
+                )
+              ],
             ),
-            SliverToBoxAdapter(
-              child: ListTile(
-                title: Text("站点", style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.primary)),
-                subtitle: Text("将下列站点作为匹配站点", style: Theme.of(context).textTheme.bodyMedium),
-              ),
-            ),
-            SliverList.builder(
-              itemCount: plugins.length,
-              itemBuilder: (BuildContext context, int index) {
-                var plugin = plugins[index];
+            HyperGroup(
+              title: "将下列站点作为匹配站点",
+              children: [
+                ListView.builder(
+                  padding: EdgeInsets.all(0),
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: plugins.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    var plugin = plugins[index];
 
-                return Obx(
-                  () => CommonItem(
-                    child: CheckboxListTile(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      title: Text(plugin.name ?? ""),
-                      subtitle: Text(plugin.version ?? ""),
-                      secondary: AppImage(url: '${plugin.icon}', width: 40, height: 40),
-                      value: matchSite.contains(plugin.package),
-                      onChanged: (bool? value) {
-                        if (value == true) {
-                          matchSite.add(plugin.package ?? "");
-                        } else {
-                          matchSite.remove(plugin.package ?? "");
-                        }
-                        Sp.setStringList(Constant.KEY_MATCH_SITE, matchSite.toList());
-                        ApiFactory.initMatch();
-                      },
-                    ),
-                  ),
-                );
-              },
+                    return Obx(
+                      () => CheckboxListTile(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        title: Text(plugin.name ?? ""),
+                        subtitle: Text(plugin.version ?? ""),
+                        secondary: HyperLeading(
+                          size: 40,
+                          child: AppImage(url: '${plugin.icon}', width: 40, height: 40),
+                        ),
+                        value: matchSite.contains(plugin.package),
+                        onChanged: (bool? value) {
+                          if (value == true) {
+                            matchSite.add(plugin.package ?? "");
+                          } else {
+                            matchSite.remove(plugin.package ?? "");
+                          }
+                          Sp.setStringList(Constant.KEY_MATCH_SITE, matchSite.toList());
+                          ApiFactory.initMatch();
+                        },
+                      ),
+                    );
+                  },
+                )
+              ],
             ),
           ],
         ),

@@ -43,56 +43,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ThemeController theme = Get.put(ThemeController());
+    return GetMaterialApp(
+      title: 'MixMusic',
+      //桌面拖动支持
+      scrollBehavior: const MaterialScrollBehavior().copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
+      debugShowCheckedModeBanner: false,
+      initialBinding: AppBinding(),
+      theme: lightTheme,
 
-    return DynamicColorBuilder(builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-      ColorScheme lightColorScheme;
-      ColorScheme darkColorScheme;
-      if (lightDynamic != null && darkDynamic != null) {
-        lightColorScheme = lightDynamic.harmonized();
-        lightColorScheme = lightColorScheme.copyWith(secondary: _brandBlue);
-        darkColorScheme = darkDynamic.harmonized();
-        darkColorScheme = darkColorScheme.copyWith(secondary: _brandBlue);
-      } else {
-        lightColorScheme = ColorScheme.fromSeed(
-          seedColor: _brandBlue,
-        );
-        darkColorScheme = ColorScheme.fromSeed(
-          seedColor: _brandBlue,
-          brightness: Brightness.dark,
-        );
-      }
-
-      return Obx(
-        () => GetMaterialApp(
-          title: 'MixMusic',
-          //桌面拖动支持
-          scrollBehavior: const MaterialScrollBehavior().copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
-          debugShowCheckedModeBanner: false,
-          initialBinding: AppBinding(),
-          // theme: lightTheme,
-          theme: ThemeData(
-            colorSchemeSeed: theme.customerColor.value ?? lightColorScheme.primary,
-            // extensions: [lightCustomColors],
-          ),
-          // darkTheme: darkTheme,
-          darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            colorSchemeSeed: theme.customerColor.value ?? darkColorScheme.primary,
-            // extensions: [darkCustomColors],
-          ),
-          // builder: appRootWidget,
-          //2.注册路由观察者
-          getPages: Routes.routes,
-          initialRoute: Routes.welcome,
-          localizationsDelegates: const [
-            //此处
-            GlobalMaterialLocalizations.delegate, // uses `flutter_localizations`
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-        ),
-      );
-    });
+      darkTheme: darkTheme,
+      // builder: appRootWidget,
+      //2.注册路由观察者
+      getPages: Routes.routes,
+      initialRoute: Routes.welcome,
+      localizationsDelegates: const [
+        //此处
+        GlobalMaterialLocalizations.delegate, // uses `flutter_localizations`
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+    );
   }
 }

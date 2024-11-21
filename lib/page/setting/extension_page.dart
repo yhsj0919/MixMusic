@@ -12,6 +12,11 @@ import 'package:mix_music/utils/plugins_ext.dart';
 import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/OpacityRoute.dart';
 import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
+import 'package:mix_music/widgets/hyper/hyper_group.dart';
+import 'package:mix_music/widgets/hyper/hyper_leading.dart';
+import 'package:mix_music/widgets/hyper/hyper_list_tile.dart';
+import 'package:mix_music/widgets/hyper/hyper_trailing.dart';
 import 'package:mix_music/widgets/plugin_item.dart';
 
 import 'extension_detail_page.dart';
@@ -108,36 +113,52 @@ class _ExtensionPageState extends State<ExtensionPage> {
       ),
       body: CustomScrollView(
         slivers: [
-          const SliverAppBar.large(
-            title: Text("插件"),
-          ),
-          SliverList.builder(
-            itemCount: plugins.length,
-            itemBuilder: (BuildContext context, int index) {
-              var item = plugins[index];
-              return PluginItem(
-                leading: AppImage(url: "${item.icon}", width: 40, height: 40),
-                title: "${item.name} ${item.version}",
-                subtitle: "${item.desc}",
-                trailing: IconButton(
-                    onPressed: () async {
-                      ///删除设置的首页
-                      if (homeSite == item.package) {
-                        Sp.remove(Constant.KEY_HOME_SITE);
-                      }
-                      await Sp.removeList<PluginsInfo>(Constant.KEY_EXTENSION, check: (old) {
-                        return old.package == item.package;
-                      });
-                      getPlugins();
-                      initPlugins();
+          const HyperAppbar(title: "插件"),
+          HyperGroup(
+            title: "已安装",
+            children: [
+              ListView.builder(
+                padding: EdgeInsets.all(0),
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: plugins.length,
+                shrinkWrap: true,
+                itemBuilder: (BuildContext context, int index) {
+                  var item = plugins[index];
+                  return HyperListTile(
+                    leading: HyperLeading(
+                      size: 40,
+                      child: AppImage(url: "${item.icon}"),
+                    ),
+                    title: "${item.name} ${item.version}",
+                    subtitle: "${item.desc}",
+                    trailing: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: HyperTrailing(
+                          icon: Icons.clear,
+                        ),
+                      ),
+                      onTap: () async {
+                        ///删除设置的首页
+                        if (homeSite == item.package) {
+                          Sp.remove(Constant.KEY_HOME_SITE);
+                        }
+                        await Sp.removeList<PluginsInfo>(Constant.KEY_EXTENSION, check: (old) {
+                          return old.package == item.package;
+                        });
+                        getPlugins();
+                        initPlugins();
+                      },
+                    ),
+                    onTap: () {
+                      Navigator.of(context).push(OpacityRoute(builder: (context) => ExtensionDetailPage(pluginInfo: item)));
                     },
-                    icon: const Icon(Icons.clear)),
-                onTap: () {
-                  Navigator.of(context).push(OpacityRoute(builder: (context) => ExtensionDetailPage(pluginInfo: item)));
+                  );
                 },
-              );
-            },
-          ),
+              ),
+            ],
+          )
         ],
       ),
     );

@@ -22,11 +22,12 @@ final lightTheme = ThemeData(
     centerTitle: true,
   ),
   listTileTheme: ListTileThemeData(
-      subtitleTextStyle: TextStyle(
-        fontSize: 14,
-        color: const Color(0xff999999),
-      ),
-      contentPadding: const EdgeInsets.only(left: 16, right: 14)),
+    subtitleTextStyle: TextStyle(
+      fontSize: 14,
+      color: const Color(0xff999999),
+    ),
+    contentPadding: const EdgeInsets.only(left: 16, right: 14),
+  ),
   textTheme: const TextTheme(
     bodyLarge: TextStyle(
       fontSize: 18,
@@ -67,6 +68,7 @@ final darkTheme = ThemeData(
       fontSize: 14,
       color: const Color(0xff999999),
     ),
+    contentPadding: const EdgeInsets.only(left: 16, right: 14),
   ),
   textTheme: const TextTheme(
     bodyLarge: TextStyle(

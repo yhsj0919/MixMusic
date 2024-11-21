@@ -6,6 +6,8 @@ import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/api/music_api.dart';
 import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
+import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/method_item.dart';
 
 class ExtensionDetailPage extends StatefulWidget {
@@ -55,13 +57,12 @@ class _ExtensionDetailPageState extends State<ExtensionDetailPage> {
       // }),
       body: CustomScrollView(
         slivers: [
-          SliverAppBar.large(
-            title: Text("${widget.pluginInfo.name}"),
+          HyperAppbar(
+            title: "${widget.pluginInfo.name}",
           ),
-          SliverToBoxAdapter(
-            child: Card.outlined(
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Container(
+          HyperGroup(
+            children: [
+              Container(
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
@@ -110,8 +111,8 @@ class _ExtensionDetailPageState extends State<ExtensionDetailPage> {
                     ),
                   ],
                 ),
-              ),
-            ),
+              )
+            ],
           ),
           SliverList(
             delegate: SliverChildBuilderDelegate(

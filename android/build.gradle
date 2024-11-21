@@ -4,7 +4,10 @@ buildscript {
         maven { url 'https://maven.aliyun.com/repository/central' }
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/public' }
-
+        maven {
+            allowInsecureProtocol = true
+            url 'https://maven.aliyun.com/nexus/content/groups/public'
+        }
         google()
         mavenCentral()
         maven { url "https://download.flutter.io" }
@@ -20,7 +23,10 @@ allprojects {
         maven { url 'https://maven.aliyun.com/repository/central' }
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/public' }
-
+        maven {
+            allowInsecureProtocol = true
+            url 'https://maven.aliyun.com/nexus/content/groups/public'
+        }
 
         google()
         mavenCentral()

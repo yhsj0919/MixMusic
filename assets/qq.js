@@ -1833,8 +1833,8 @@ const music = {
                         param: {uin_list: [`${cookieMap.get("uin")}`],}
                     },
                     refresh: {
-                        module: "QQConnectLogin.LoginServer",
-                        method: "QQLogin",
+                        module: "music.login.LoginServer",
+                        method: "Login",
                         param: {
                             expired_in: 7776000, //不用管
                             // onlyNeedAccessToken: 0, //不用管
@@ -1842,7 +1842,8 @@ const music = {
                             access_token: cookieMap.get("psrf_qqaccess_token"), //access_token
                             refresh_token: cookieMap.get("psrf_qqrefresh_token"), //refresh_token
                             musicid: parseInt(cookieMap.get("uin")), //uin或者web_uin 微信没试过
-                            musickey: cookieMap.get("qqmusic_key"), //key
+                            openid : cookieMap.get("psrf_qqopenid"), //key
+                            unionid : cookieMap.get("psrf_qqunionid"), //key
                         }
                     }
                 })
@@ -1902,8 +1903,8 @@ const music = {
             const params = {
                 data: JSON.stringify({
                     refresh: {
-                        module: "QQConnectLogin.LoginServer",
-                        method: "QQLogin",
+                        module: "music.login.LoginServer",
+                        method: "Login",
                         param: {
                             expired_in: 7776000, //不用管
                             // onlyNeedAccessToken: 0, //不用管
@@ -1911,7 +1912,8 @@ const music = {
                             access_token: cookieMap.get("psrf_qqaccess_token"), //access_token
                             refresh_token: cookieMap.get("psrf_qqrefresh_token"), //refresh_token
                             musicid: parseInt(cookieMap.get("uin")), //uin或者web_uin 微信没试过
-                            musickey: cookieMap.get("qqmusic_key"), //key
+                            openid : cookieMap.get("psrf_qqopenid"), //key
+                            unionid : cookieMap.get("psrf_qqunionid"), //key
                         }
                     }
                 })

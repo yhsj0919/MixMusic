@@ -23,11 +23,15 @@ class HomeController extends GetxController {
   @override
   Future<void> onInit() async {
     super.onInit();
-    userController.getAllUser();
+
     getData();
   }
 
   void getData() {
+    userController.refreshAllCookie().then((v) {
+      userController.getAllUser();
+    });
+
     playlist.clear();
     albumList.clear();
     songList.clear();

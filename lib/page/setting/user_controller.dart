@@ -34,8 +34,18 @@ class UserController extends GetxController {
     });
   }
 
-  void refreshCookie(String package) {
-    ApiFactory.api(package: package)?.userRefresh().then((v) {});
+  Future<List> refreshAllCookie() async {
+    userInfos.clear();
+    return await Future.wait(plugins.map((e) => refreshCookie(package: e.package ?? "")));
+  }
+
+  Future<dynamic> refreshCookie({required String package}) async {
+    try {
+      var value = await ApiFactory.api(package: package)?.userRefresh();
+      return value?.data;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<MixUser?> userInfo({required String package}) async {

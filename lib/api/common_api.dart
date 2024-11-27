@@ -126,7 +126,7 @@ class CommonApi {
 
       var downloadName = fileName == null ? name : "$fileName.$fileExtension";
       print(downloadName);
-      filePath = "$dir\\$downloadName";
+      filePath = "$dir/$downloadName";
       return filePath;
     },
             params: {"params": json.encode(params)},

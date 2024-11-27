@@ -2,6 +2,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_rank_type.dart';
@@ -91,7 +92,7 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
                                 borderRadius: BorderRadius.circular(16),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  color: Theme.of(context).colorScheme.secondaryContainer,
+                                  color: Theme.of(context).colorScheme.surfaceContainer,
                                   child: Text(
                                     "${e.title}",
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 10),
@@ -170,8 +171,8 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       alignment: Alignment.centerLeft,
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 6),
       color: Theme.of(context).scaffoldBackgroundColor,
-      height: 40,
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleMedium,
@@ -183,7 +184,7 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => minExtent;
 
   @override
-  double get minExtent => 40;
+  double get minExtent => 50;
 
   @override
   bool shouldRebuild(covariant _HeaderDelegate oldDelegate) => title != oldDelegate.title;

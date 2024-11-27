@@ -124,8 +124,11 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
               () => AnimatedSwitcher(
                 duration: const Duration(milliseconds: 600),
                 child: firstLoad.value
-                    ? const Center(
-                        child: CircularProgressIndicator(),
+                    ? SizedBox(
+                        height: 400,
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
                       )
                     : ListView.builder(
                         physics: const NeverScrollableScrollPhysics(),

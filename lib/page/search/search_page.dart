@@ -7,6 +7,7 @@ import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/page/search/search_album_page.dart';
 import 'package:mix_music/page/search/search_artist_page.dart';
 import 'package:mix_music/page/search/search_music_page.dart';
+import 'package:mix_music/widgets/hyper/hyper_card.dart';
 
 import '../../widgets/sliver_search_appbar.dart';
 import 'search_playlist_page.dart';
@@ -93,36 +94,39 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
               },
               bottom: PreferredSize(
                   preferredSize: Size.fromHeight(bottomBarHeight),
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: Obx(() => TabBar(
-                                dividerHeight: 0,
-                                controller: tabController,
+                  child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Obx(
+                              () => TabBar(
+                                indicatorPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
                                 isScrollable: true,
-                                tabAlignment: TabAlignment.start,
-                                padding: EdgeInsets.symmetric(horizontal: 8),
-                                labelPadding: EdgeInsets.symmetric(horizontal: 8),
+                                controller: tabController,
                                 tabs: plugins
                                     .map((item) => Tab(
                                           text: item.name,
                                           // icon: AppImage(url: '${item.icon}', width: 25, height: 25),
                                         ))
                                     .toList(),
-                              ))),
-                      Obx(() => IconButton(
-                          onPressed: () {
-                            _focusNode.unfocus();
-                            showTypeSelectDialog(context);
-                          },
-                          icon: Icon(currentType.value["icon"] ?? Icons.filter_list)))
-                    ],
-                  )),
+                              ),
+                            ),
+                          ),
+                          Obx(() => IconButton(
+                              onPressed: () {
+                                _focusNode.unfocus();
+                                showTypeSelectDialog(context);
+                              },
+                              icon: Icon(currentType.value["icon"] ?? Icons.filter_list)))
+                        ],
+                      ))),
               textEditingController: controller,
             ),
-            PinnedHeaderSliver(
-              child: Container(height: 1, color: Theme.of(context).dividerColor.withOpacity(0.2)),
-            ),
+            // PinnedHeaderSliver(
+            //   child: Container(height: 1, color: Theme.of(context).dividerColor.withOpacity(0.2)),
+            // ),
           ];
         },
         pinnedHeaderSliverHeightBuilder: () {
@@ -195,30 +199,28 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
   }
 
   Widget typeItem({double? widget = 100, double? height = 100, Map data = const {}, Function(Map type)? onTap}) {
-    return SizedBox(
+    return HyperCard(
       width: widget,
       height: height,
-      child: Card.outlined(
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap == null
-              ? null
-              : () {
-                  onTap.call(data);
-                },
-          child: GridTile(
-            header: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              alignment: Alignment.topLeft,
-              child: Icon(data["icon"]),
-            ),
-            footer: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              alignment: Alignment.bottomRight,
-              child: Text(data["name"]),
-            ),
-            child: Container(),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap == null
+            ? null
+            : () {
+                onTap.call(data);
+              },
+        child: GridTile(
+          header: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            alignment: Alignment.topLeft,
+            child: Icon(data["icon"]),
           ),
+          footer: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            alignment: Alignment.bottomRight,
+            child: Text(data["name"]),
+          ),
+          child: Container(),
         ),
       ),
     );

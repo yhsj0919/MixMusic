@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 final platformBrightness = PlatformDispatcher.instance.platformBrightness;
 
 final lightTheme = ThemeData(
-  colorScheme: const ColorScheme.light(
+  colorScheme: ColorScheme.light(
     // 主色调
     primary: Colors.blue,
     // 文字颜色
     onSurface: Colors.black,
     onSecondary: Color(0xff9093a8),
     onTertiary: Color(0xff999999),
+    secondaryContainer: Colors.blue.withOpacity(0.5),
     // 表面颜色
     surface: Color(0xFFF7F7F7),
     surfaceContainer: Colors.white,
@@ -42,6 +43,22 @@ final lightTheme = ThemeData(
     titleLarge: TextStyle(
       fontSize: 20,
     ),
+  ),
+  tabBarTheme: TabBarTheme(
+    dividerHeight: 0,
+    tabAlignment: TabAlignment.start,
+    indicator: BoxDecoration(
+      color: Colors.white, // 指示器的背景颜色
+      borderRadius: BorderRadius.circular(8),
+    ),
+    indicatorSize: TabBarIndicatorSize.tab,
+    overlayColor: WidgetStateProperty.resolveWith<Color>((states) {
+      // 当标签被点击时，显示半透明的蓝色背景
+      if (states.contains(WidgetState.selected)) {
+        return Colors.transparent; // 设置选中时的覆盖颜色
+      }
+      return Colors.transparent; // 未选中时，覆盖层是透明的
+    }),
   ),
   useMaterial3: true,
 );
@@ -84,6 +101,22 @@ final darkTheme = ThemeData(
     titleLarge: TextStyle(
       fontSize: 20,
     ),
+  ),
+  tabBarTheme: TabBarTheme(
+    dividerHeight: 0,
+    tabAlignment: TabAlignment.start,
+    indicator: BoxDecoration(
+      color: Colors.black, // 指示器的背景颜色
+      borderRadius: BorderRadius.circular(8),
+    ),
+    indicatorSize: TabBarIndicatorSize.tab,
+    overlayColor: WidgetStateProperty.resolveWith<Color>((states) {
+      // 当标签被点击时，显示半透明的蓝色背景
+      if (states.contains(WidgetState.selected)) {
+        return Colors.transparent; // 设置选中时的覆盖颜色
+      }
+      return Colors.transparent; // 未选中时，覆盖层是透明的
+    }),
   ),
   useMaterial3: true,
 );

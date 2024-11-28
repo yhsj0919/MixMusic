@@ -11,8 +11,9 @@ import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/hyper/hyper_loading.dart';
 import 'package:mix_music/widgets/message.dart';
-import 'package:mix_music/widgets/shimmer_page.dart';
+
 
 import '../../widgets/page_list_view.dart';
 import 'search_tab_State.dart';
@@ -53,7 +54,7 @@ class _SearchAlbumPageState extends SearchTabPageState<SearchAlbumPage> with Aut
       () => AnimatedSwitcher(
         duration: const Duration(milliseconds: 600),
         child: dataLoad.value
-            ? const ShimmerPage()
+            ? const HyperLoading()
             : PageListView(
                 controller: refreshController,
                 onRefresh: () {

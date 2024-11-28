@@ -9,9 +9,10 @@ import 'package:mix_music/entity/page_entity.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/message.dart';
-import 'package:mix_music/widgets/shimmer_page.dart';
+
 
 import '../../player/music_controller.dart';
+import '../../widgets/hyper/hyper_loading.dart';
 import '../../widgets/page_list_view.dart';
 
 class ArtistDetailSong extends StatefulWidget {
@@ -47,7 +48,7 @@ class _ArtistDetailSongState extends State<ArtistDetailSong> with AutomaticKeepA
       () => AnimatedSwitcher(
         duration: const Duration(milliseconds: 600),
         child: firstLoad.value
-            ? const ShimmerPage()
+            ? const HyperLoading()
             : PageListView(
                 controller: refreshController,
                 onRefresh: () {

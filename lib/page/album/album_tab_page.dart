@@ -3,7 +3,6 @@ import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/api/music_api.dart';
 import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_album_type.dart';
 import 'package:mix_music/entity/page_entity.dart';
@@ -11,8 +10,8 @@ import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/hyper/hyper_loading.dart';
 import 'package:mix_music/widgets/message.dart';
-import 'package:mix_music/widgets/shimmer_page.dart';
 
 import '../../widgets/page_list_view.dart';
 
@@ -54,7 +53,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
       () => AnimatedSwitcher(
           duration: const Duration(milliseconds: 600),
           child: firstLoad.value
-              ? const ShimmerPage()
+              ? const HyperLoading()
               : PageListView(
                   controller: refreshController,
                   onRefresh: () {

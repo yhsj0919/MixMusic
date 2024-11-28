@@ -12,6 +12,7 @@ import 'package:mix_music/page/artist/artist_detail_album.dart';
 import 'package:mix_music/page/artist/artist_detail_song.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
 
 import '../../entity/page_entity.dart';
 import '../../player/music_controller.dart';
@@ -60,133 +61,74 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight;
     return Scaffold(
       floatingActionButton: PlayBar(),
-      body: Stack(
-        children: [
-          ExtendedNestedScrollView(
-            headerSliverBuilder: (BuildContext c, bool f) {
-              return [
-                SliverAppBar.large(
-                  expandedHeight: 240,
-                  surfaceTintColor: Colors.transparent,
-                  leading: Container(),
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Stack(
-                      children: [
-                        Hero(
-                            tag: "${artist.value?.package}${artist.value?.id}${artist.value?.pic}",
-                            child: Container(
-                                margin: EdgeInsets.only(left: 16, right: 16, top: statusBarHeight + 4, bottom: 0),
-                                height: 240,
-                                width: width,
-                                child: AppImage(
-                                  url: artist.value?.pic ?? "",
-                                  radius: 24,
-                                  width: width,
-                                ))),
-                        Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                            width: double.infinity,
-                            height: double.infinity,
-                            alignment: Alignment.bottomRight,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(24),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                                color: Theme.of(context).colorScheme.secondaryContainer,
-                                child: Obx(() => Text(
-                                      artist.value?.title ?? "",
-                                      style: Theme.of(context).textTheme.titleLarge,
-                                    )),
+      body: ExtendedNestedScrollView(
+        headerSliverBuilder: (BuildContext c, bool f) {
+          return [
+            HyperAppbar(
+              title: artist.value?.title ?? "",
+              actions: [
+                IconButton(
+                    onPressed: () {
+                      showDialog(
+                        useRootNavigator: false,
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('关于'),
+                            content: Text(artist.value?.desc ?? ""),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0), // 设置圆角的大小
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // 关闭对话框
+                                },
+                                child: const Text('关闭'),
                               ),
-                            )),
-                      ],
-                    ),
-                  ),
-                  title: Text(
-                    artist.value?.title ?? "",
-                  ),
-                ),
-                PinnedHeaderSliver(
-                  child: Container(
-                    color: Theme.of(context).scaffoldBackgroundColor,
-                    child: TabBar(
-                      // 指示器颜色
-                      controller: tabController,
-                      isScrollable: true,
-                      tabs: detailMethod.map((element) {
-                        if (element == "song") {
-                          return const Tab(text: "歌曲");
-                        }
-                        if (element == "album") {
-                          return const Tab(text: "专辑");
-                        }
-                        if (element == "mv") {
-                          return const Tab(text: "MV");
-                        }
-
-                        return const Tab(text: "未知");
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ];
-            },
-            pinnedHeaderSliverHeightBuilder: () {
-              return pinnedHeaderHeight;
-            },
-            onlyOneScrollInBody: true,
-            // physics: NeverScrollableScrollPhysics(),
-            body: Column(
-              children: <Widget>[Expanded(child: _buildTabBarView())],
-            ),
-          ),
-          Obx(() => AnimatedOpacity(
-              duration: const Duration(milliseconds: 500),
-              opacity: _isVisible.value ? 1.0 : 0.0,
-              child: Row(
-                children: [
-                  Container(
-                    height: 64,
-                    alignment: Alignment.centerLeft,
-                    margin: EdgeInsets.only(top: statusBarHeight),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    child: IconButton.filledTonal(
-                        onPressed: () {
-                          Navigator.of(context).pop();
+                            ],
+                          );
                         },
-                        icon: const Icon(Icons.arrow_back_rounded)),
-                  ),
-                  Expanded(child: Container(height: 1)),
-                  Container(
-                      height: 64,
-                      alignment: Alignment.centerLeft,
-                      margin: EdgeInsets.only(top: statusBarHeight),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      child: IconButton.filledTonal(
-                          onPressed: () {
-                            showDialog(
-                              useRootNavigator: false,
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('关于'),
-                                  content: Text(artist.value?.desc ?? ""),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop(); // 关闭对话框
-                                      },
-                                      child: const Text('关闭'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                          icon: const Icon(Icons.info_outline_rounded)))
-                ],
-              ))),
-        ],
+                      );
+                    },
+                    icon: const Icon(Icons.info_outline_rounded))
+              ],
+            ),
+            PinnedHeaderSliver(
+              child: Container(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: TabBar(
+                  // 指示器颜色
+                  controller: tabController,
+                  indicatorPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                  isScrollable: true,
+                  tabs: detailMethod.map((element) {
+                    if (element == "song") {
+                      return const Tab(text: "歌曲");
+                    }
+                    if (element == "album") {
+                      return const Tab(text: "专辑");
+                    }
+                    if (element == "mv") {
+                      return const Tab(text: "MV");
+                    }
+
+                    return const Tab(text: "未知");
+                  }).toList(),
+                ),
+              ),
+            ),
+          ];
+        },
+        pinnedHeaderSliverHeightBuilder: () {
+          return pinnedHeaderHeight;
+        },
+        onlyOneScrollInBody: true,
+        // physics: NeverScrollableScrollPhysics(),
+        body: Column(
+          children: <Widget>[Expanded(child: _buildTabBarView())],
+        ),
       ),
     );
   }

@@ -45,10 +45,16 @@ dependencies:
     git:
       url: https://github.com/yhsj0919/flutter_js
       ref: master
+  sliver_tools:
+    git:
+      url: https://github.com/Kavantix/sliver_tools
+      ref: master
   #文件路径处理
   path: ^1.9.1
   #json序列化
   dart_json_mapper: ^2.2.14
+
+  flutter_spinkit: ^5.2.1
 
   #播放器相关
   audio_service: ^0.18.15
@@ -66,7 +72,7 @@ dependencies:
 
   device_info_plus: ^11.1.1
 
-  carousel_slider: ^5.0.0
+#  carousel_slider: ^5.0.0
 
   #电池优化，防止通知被杀死
   disable_battery_optimization: ^1.1.1
@@ -83,9 +89,6 @@ dependencies:
   gap: ^3.0.1
   cached_network_image: ^3.4.1
   flutter_speed_dial: ^7.0.0
-
-  shimmer: ^3.0.0
-
   #网络请求
   #https://github.com/flutterchina/dio
   dio: ^5.7.0

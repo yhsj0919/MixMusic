@@ -10,9 +10,11 @@ import 'package:mix_music/entity/page_entity.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/BlurRectWidget.dart';
+import 'package:mix_music/widgets/hyper/hyper_loading.dart';
 import 'package:mix_music/widgets/message.dart';
 import 'package:mix_music/widgets/page_custom_scroll_view.dart';
 import 'package:mix_music/widgets/page_nested_scroll_view.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 import '../../entity/mix_rank.dart';
 import '../../route/routes.dart';
@@ -36,6 +38,8 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
 
   bool typeEmpty = false;
 
+  RxBool firstLoad = RxBool(true);
+
   @override
   void initState() {
     super.initState();
@@ -51,18 +55,24 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
     super.build(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Obx(
-        () => PageCustomScrollView(
-          controller: refreshController,
-          onRefresh: () {
-            return getRankList();
-          },
-          onLoad: () {
-            return getRankList();
-          },
-          scrollController: SubordinateScrollController(context.findAncestorStateOfType<ExtendedNestedScrollViewState>()!.innerController),
-          slivers: rankTypeList.map(_buildGroup).toList(),
-        ),
+      child: PageCustomScrollView(
+        controller: refreshController,
+        onRefresh: () {
+          return getRankList();
+        },
+        onLoad: () {
+          return getRankList();
+        },
+        scrollController: SubordinateScrollController(context.findAncestorStateOfType<ExtendedNestedScrollViewState>()!.innerController),
+        slivers: [
+          Obx(() => SliverAnimatedSwitcher(
+              duration: const Duration(milliseconds: 600),
+              child: firstLoad.value
+                  ? const SliverToBoxAdapter(
+                      child: HyperLoading(height: 400),
+                    )
+                  : SliverMainAxisGroup(slivers: rankTypeList.map(_buildGroup).toList())))
+        ],
       ),
     );
   }
@@ -117,6 +127,7 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
   ///获取专辑
   void getRankList() {
     ApiFactory.api(package: widget.plugin.package!)?.rankList().then((value) {
+      firstLoad.value = false;
       pageEntity.value = value.page;
 
       rankTypeList.clear();
@@ -126,6 +137,7 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
 
       // showComplete("操作成功");
     }).catchError((e) {
+      firstLoad.value = false;
       refreshController.finishRefresh(IndicatorResult.fail, true);
 
       showError(e);

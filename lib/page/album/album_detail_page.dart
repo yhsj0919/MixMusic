@@ -8,9 +8,9 @@ import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
+import 'package:mix_music/widgets/hyper/hyper_loading.dart';
 import 'package:mix_music/widgets/page_custom_scroll_view.dart';
-import 'package:mix_music/widgets/page_nested_scroll_view.dart';
-import 'package:mix_music/widgets/shimmer_page.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 import '../../entity/page_entity.dart';
 import '../../player/music_controller.dart';
@@ -51,8 +51,14 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final double width = MediaQuery.of(context).size.width;
+    final double statusBarHeight = MediaQuery
+        .of(context)
+        .padding
+        .top;
+    final double width = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     return Scaffold(
       floatingActionButton: PlayBar(),
@@ -105,10 +111,15 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
           PinnedHeaderSliver(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              color: Theme.of(context).scaffoldBackgroundColor,
+              color: Theme
+                  .of(context)
+                  .scaffoldBackgroundColor,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainer, borderRadius: const BorderRadius.all(Radius.circular(12))),
+                decoration: BoxDecoration(color: Theme
+                    .of(context)
+                    .colorScheme
+                    .surfaceContainer, borderRadius: const BorderRadius.all(Radius.circular(12))),
                 child: ListTile(
                   title: Text("播放全部"),
                   trailing: Icon(Icons.play_arrow_rounded, size: 30),
@@ -119,58 +130,55 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
               ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Obx(
-              () => AnimatedSwitcher(
-                duration: const Duration(milliseconds: 600),
-                child: firstLoad.value
-                    ? SizedBox(
-                        height: 400,
-                        child: const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                      )
-                    : ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.only(top: 0),
-                        itemCount: songList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          var song = songList[index];
-                          return Obx(() => ListTile(
-                                selected: music.currentMusic.value?.id == song.id,
-                                leading: AppImage(url: song.pic ?? ""),
-                                title: Row(
-                                  children: [
-                                    Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
-                                    song.vip == 1
-                                        ? Container(
-                                            alignment: Alignment.center,
-                                            margin: const EdgeInsets.symmetric(horizontal: 8),
-                                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                                            decoration: BoxDecoration(
-                                              borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-                                              border: Border.all(width: 1, color: Colors.green),
-                                            ),
-                                            child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
-                                          )
-                                        : Container(),
-                                  ],
-                                ),
-                                subtitle: Text(
-                                  song.subTitle ?? "",
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                                onTap: () {
-                                  music.playList(list: songList, index: index);
-                                },
-                              ));
-                        },
-                      ),
-              ),
-            ),
-          )
+          Obx(
+                () =>
+                SliverAnimatedSwitcher(
+                  duration: const Duration(milliseconds: 600),
+                  child: firstLoad.value
+                      ? const SliverToBoxAdapter(
+                    child: HyperLoading(height: 400),
+                  )
+                      : SliverList.builder(
+                    // physics: const NeverScrollableScrollPhysics(),
+                    // shrinkWrap: true,
+                    // padding: const EdgeInsets.only(top: 0),
+                    itemCount: songList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      var song = songList[index];
+                      return Obx(() =>
+                          ListTile(
+                            selected: music.currentMusic.value?.id == song.id,
+                            leading: AppImage(url: song.pic ?? ""),
+                            title: Row(
+                              children: [
+                                Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
+                                song.vip == 1
+                                    ? Container(
+                                  alignment: Alignment.center,
+                                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+                                    border: Border.all(width: 1, color: Colors.green),
+                                  ),
+                                  child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
+                                )
+                                    : Container(),
+                              ],
+                            ),
+                            subtitle: Text(
+                              song.subTitle ?? "",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                            onTap: () {
+                              music.playList(list: songList, index: index);
+                            },
+                          ));
+                    },
+                  ),
+                ),
+          ),
         ],
       ),
     );

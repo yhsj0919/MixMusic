@@ -55,7 +55,7 @@ class AppDownloadTypePage extends StatelessWidget {
                             print(download.url);
                             if (download.url?.isNotEmpty == true) {
                               controller.addTask(download);
-                              showInfo("已加入下载列表");
+
                             } else {
                               if (music.currentMusic.value?.match == true) {
                                 download.url = music.currentMusic.value?.matchSong?.url;

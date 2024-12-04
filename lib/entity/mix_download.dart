@@ -8,6 +8,7 @@ class MixDownload {
   String package;
   dynamic id;
   String? title;
+  String? pic;
   dynamic subTitle;
   String? url;
   MixQuality? quality;
@@ -16,6 +17,7 @@ class MixDownload {
     required this.package,
     required this.id,
     this.title,
+    this.pic,
     this.quality,
     this.subTitle,
     this.url,
@@ -26,6 +28,7 @@ class MixDownload {
       package: song.package,
       id: song.id,
       title: song.title,
+      pic: song.pic,
       subTitle: song.subTitle,
       quality: quality,
     );

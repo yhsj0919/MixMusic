@@ -56,6 +56,8 @@ Crypto
 HandlePromises
 fetch
 xhr
+BigInteger
+base64-js
 ```
 
 ### 音质

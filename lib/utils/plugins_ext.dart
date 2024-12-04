@@ -36,6 +36,7 @@ Future<List<PluginsInfo>> getSystemPlugins({required String rootDir}) async {
   }
   return plugins;
 }
+
 ///解析插件
 PluginsInfo? parseExtension(String extension) {
   RegExp regex = RegExp(r'==MixMusicPlugin==([\s\S]*?)==\/MixMusicPlugin==');
@@ -71,6 +72,26 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
     final evalFetchResult = evaluate(axios);
     if (kDebugMode) {
       print('Axios 结果: $evalFetchResult');
+    }
+    return this;
+  }
+
+  ///启用BigInt
+  Future<JavascriptRuntime> enableBigInt() async {
+    String axios = await rootBundle.loadString("assets/BigInteger.min.js");
+    final evalFetchResult = evaluate(axios);
+    if (kDebugMode) {
+      print('BigInt 结果: $evalFetchResult');
+    }
+    return this;
+  }
+
+  ///启用Base64
+  Future<JavascriptRuntime> enableBase64() async {
+    String axios = await rootBundle.loadString("assets/base64-js.js");
+    final evalFetchResult = evaluate(axios);
+    if (kDebugMode) {
+      print('Base64 结果: $evalFetchResult');
     }
     return this;
   }

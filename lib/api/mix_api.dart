@@ -36,7 +36,10 @@ class MixApi extends MusicApi {
   Future<void> _init() async {
     current = getJavascriptRuntime();
     await current?.enableAxios();
+    await current?.enableBigInt();
     await current?.enableCrypto();
+    await current?.enableBase64();
+
     await current?.injectMethod("setCookie", (args) async {
       String cookie = args.join(';');
       return await Sp.setString("${Constant.KEY_COOKIE}_${plugins?.package}", cookie);

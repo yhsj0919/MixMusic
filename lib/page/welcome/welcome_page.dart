@@ -43,6 +43,7 @@ class _WelcomePageState extends State<WelcomePage> {
         _timer?.cancel();
         if (firstIn) {
           Get.offAndToNamed(Routes.permission);
+          Get.off(() => const HomePage());
         } else {
           Get.off(() => const HomePage());
         }

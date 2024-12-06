@@ -166,9 +166,7 @@ class DownloadManager {
     }
   }
 
-  Future<DownloadTask> _addDownloadRequest(
-    DownloadRequest downloadRequest,
-  ) async {
+  Future<DownloadTask> _addDownloadRequest(DownloadRequest downloadRequest) async {
     if (_cache[downloadRequest.url] != null) {
       if (!_cache[downloadRequest.url]!.status.value.isCompleted && _cache[downloadRequest.url]!.request == downloadRequest) {
         // Do nothing

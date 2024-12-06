@@ -12,6 +12,8 @@ class MixDownload {
   dynamic subTitle;
   String? url;
   MixQuality? quality;
+  String? filePath;
+  int? status;
 
   MixDownload({
     required this.package,

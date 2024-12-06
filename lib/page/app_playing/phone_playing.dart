@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:mix_music/page/app_playlist/app_download_type_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
 import 'package:mix_music/player/music_controller.dart';
+import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/theme/new_surface_theme.dart';
 import 'package:mix_music/theme/surface_color_enum.dart';
 import 'package:mix_music/theme/theme_controller.dart';
@@ -228,7 +229,11 @@ class _PhonePlayingState extends State<PhonePlaying> {
                                   },
                                   icon: const Icon(Icons.playlist_play)),
                               Expanded(child: Container()),
-                              IconButton(onPressed: () {}, icon: Icon(Icons.more_vert_rounded)),
+                              IconButton(
+                                  onPressed: () {
+                                    Get.toNamed(Routes.download);
+                                  },
+                                  icon: Icon(Icons.download)),
                             ],
                           )),
                       Gap(bottom),

@@ -52,9 +52,7 @@ class _HomePageState extends State<HomePage> {
                     icon: const Icon(Icons.search)),
                 IconButton(
                     onPressed: () async {
-                      Navigator.of(context).push(OpacityRoute(
-                        builder: (BuildContext context) => DownloadPage(),
-                      ));
+                      Get.toNamed(Routes.download);
                     },
                     icon: const Icon(Icons.download)),
                 IconButton(

@@ -4,6 +4,7 @@ import 'package:mix_music/page/album/album_detail_page.dart';
 import 'package:mix_music/page/album/album_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
 import 'package:mix_music/page/artist/artist_page.dart';
+import 'package:mix_music/page/download/download_page.dart';
 import 'package:mix_music/page/home/home_page.dart';
 import 'package:mix_music/page/setting/extension_page.dart';
 import 'package:mix_music/page/setting/setting_page.dart';
@@ -71,6 +72,7 @@ class Routes {
     GetPage(name: artist, page: () => const ArtistPage(), customTransition: MyCustomTransition()),
     GetPage(name: artistDetail, page: () => const ArtistDetailPage(), customTransition: MyCustomTransition()),
     GetPage(name: parsePlayList, page: () => const ParsePlayList(), customTransition: MyCustomTransition()),
+    GetPage(name: download, page: () => const DownloadPage(), customTransition: MyCustomTransition()),
   ];
 
 // static Route<dynamic> getRoute(RouteSettings settings) {

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:disable_battery_optimization/disable_battery_optimization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:mix_music/widgets/hyper/hyper_list_tile.dart';
 import 'package:mix_music/widgets/hyper/hyper_trailing.dart';
 import 'package:mix_music/widgets/message.dart';
 import 'package:mix_music/widgets/setting_item.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -25,6 +27,8 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPageState extends State<SettingPage> {
   RxnString downloadFolder = RxnString(null);
+  Rx<bool> storageStatus = Rx(false);
+  Rx<bool> manageStatus = Rx(false);
 
   @override
   void initState() {
@@ -104,14 +108,37 @@ class _SettingPageState extends State<SettingPage> {
                 subtitle: downloadFolder.value ?? "暂无设置",
                 trailing: HyperTrailing(),
                 onTap: () async {
-                  var result = await FilePicker.platform.getDirectoryPath(
-                    dialogTitle: "选择目录",
-                    lockParentWindow: true,
-                  );
-                  if (result != null) {
-                    downloadFolder.value = result;
-                    Sp.setString(Constant.KEY_DOWNLOAD_FOLDER, result);
-                  }
+                  getSystemVersion().then((value) async {
+                    if (value >= 30) {
+                      var ss = await getManageExternalStoragePermission();
+                      if (ss) {
+                        var result = await FilePicker.platform.getDirectoryPath(
+                          dialogTitle: "选择目录",
+                          lockParentWindow: true,
+                        );
+                        if (result != null) {
+                          downloadFolder.value = result;
+                          Sp.setString(Constant.KEY_DOWNLOAD_FOLDER, result);
+                        }
+                      } else {
+                        showError("未获取文件权限");
+                      }
+                    } else {
+                      var ss = await getStoragePermission();
+                      if (ss) {
+                        var result = await FilePicker.platform.getDirectoryPath(
+                          dialogTitle: "选择目录",
+                          lockParentWindow: true,
+                        );
+                        if (result != null) {
+                          downloadFolder.value = result;
+                          Sp.setString(Constant.KEY_DOWNLOAD_FOLDER, result);
+                        }
+                      } else {
+                        showError("未获取文件权限");
+                      }
+                    }
+                  });
                 })),
           ]),
           SliverToBoxAdapter(child: Container(height: 12)),
@@ -128,6 +155,71 @@ class _SettingPageState extends State<SettingPage> {
         ],
       ),
     );
+  }
+
+  Future<bool> getStoragePermission() async {
+    var ss = await Permission.storage
+        .onDeniedCallback(() {
+          showError("已拒绝");
+        })
+        .onGrantedCallback(() {})
+        .onPermanentlyDeniedCallback(() {
+          showError("已永久拒绝");
+        })
+        .onRestrictedCallback(() {
+          showError("权限不可用");
+        })
+        .onLimitedCallback(() {
+          showError("使用本应用时允许");
+        })
+        .onProvisionalCallback(() {
+          showError("本次允许");
+        })
+        .request();
+
+    if (ss == PermissionStatus.granted) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> getManageExternalStoragePermission() async {
+    var ss = await Permission.manageExternalStorage
+        .onDeniedCallback(() {
+          showError("已拒绝");
+        })
+        .onGrantedCallback(() {})
+        .onPermanentlyDeniedCallback(() {
+          showError("已永久拒绝");
+        })
+        .onRestrictedCallback(() {
+          showError("权限不可用");
+        })
+        .onLimitedCallback(() {
+          showError("使用本应用时允许");
+        })
+        .onProvisionalCallback(() {
+          showError("本次允许");
+        })
+        .request();
+
+    if (ss == PermissionStatus.granted) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<int> getSystemVersion() async {
+    if (Platform.isAndroid) {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+      return androidInfo.version.sdkInt;
+    } else {
+      return 29;
+    }
   }
 
   openBattery() async {

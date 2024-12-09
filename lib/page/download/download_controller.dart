@@ -13,8 +13,6 @@ import '../../widgets/message.dart';
 
 class DownloadController extends GetxController {
   RxList<MixDownload> mixDownload = RxList();
-  RxList<DownloadTask> tasks = RxList();
-  RxList<DownloadTask> downloadTasks = RxList();
   String? fileRoot;
   var downloadManager = DownloadManager();
 
@@ -41,9 +39,9 @@ class DownloadController extends GetxController {
     showInfo("已加入下载列表");
     if (mixDownloadContains(download)) {
       //未添加的
-      mixDownload.add(download);
+      mixDownload.insert(0, download);
 
-      addDownload(download.url ?? "");
+      addDownload(download.url ?? "", fileName: download.title);
 
       print('>>>>>>>>>第一次下载>>>>>>>>>>>>>>');
     } else {
@@ -56,7 +54,8 @@ class DownloadController extends GetxController {
         downloadManager.removeDownload(old.url ?? "");
 
         mixDownload.remove(old);
-        mixDownload.add(download);
+        mixDownload.insert(0, download);
+        addDownload(download.url ?? "", fileName: download.title);
 
         print('>>>>>>>>>下载失败的替换掉>>>>>>>>>>>>>>');
       } else {
@@ -65,12 +64,9 @@ class DownloadController extends GetxController {
     }
   }
 
-  Future<void> addDownload(String url) async {
+  Future<void> addDownload(String url, {String? fileName}) async {
     if (downloadManager.getDownload(url) == null) {
-      var task = await downloadManager.addDownload(url, fileRoot!);
-      if (task != null) {
-        tasks.insert(0, task);
-      }
+      downloadManager.addDownload(url, fileRoot!, fileName: fileName);
     }
   }
 
@@ -79,7 +75,6 @@ class DownloadController extends GetxController {
 
     if (task?.status.value == DownloadStatus.failed) {
       downloadManager.removeDownload(url);
-      downloadTasks.remove(task);
     }
   }
 

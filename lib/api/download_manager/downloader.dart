@@ -49,7 +49,7 @@ class DownloadManager {
         if (total == -1) {}
       };
 
-  Future<void> download(String url, String savePath, cancelToken, {forceDownload = false}) async {
+  Future<void> download(String url, String savePath, String? fileName, cancelToken, {forceDownload = false}) async {
     late String partialFilePath;
     late File partialFile;
     try {
@@ -63,8 +63,40 @@ class DownloadManager {
       if (kDebugMode) {
         print(url);
       }
-      var file = File(savePath.toString());
-      partialFilePath = savePath + partialExtension;
+      var filePath = "";
+      if (!task.request.formatName) {
+        ///根据请求头获取文件扩展名
+        var headers = await dio.head(url);
+
+        var name = headers.headers["Content-Disposition"]?.first.split("filename=").last;
+        var location = headers.realUri.path;
+        if (name != null) {
+          name = Uri.decodeFull(name);
+        } else {
+          Uri uri = Uri.parse(location);
+          name = uri.pathSegments.last;
+        }
+
+        if (!name.contains(".")) {
+          Uri uri = Uri.parse(url);
+          name = uri.pathSegments.last;
+        }
+
+        String fileExtension = name.split('.').last;
+
+        var downloadName = fileName == null ? name : "$fileName.$fileExtension";
+        filePath = "$savePath${Platform.pathSeparator}$downloadName";
+
+        task.request.fileName = downloadName;
+        task.request.formatName = true;
+
+        ///根据请求头获取文件扩展名
+      } else {
+        filePath = "$savePath${Platform.pathSeparator}${task.request.fileName}";
+      }
+
+      var file = File(filePath.toString());
+      partialFilePath = filePath + partialExtension;
       partialFile = File(partialFilePath);
 
       var fileExist = await file.exists();
@@ -96,7 +128,7 @@ class DownloadManager {
           await ioSink.addStream(_f.openRead());
           await _f.delete();
           await ioSink.close();
-          await partialFile.rename(savePath);
+          await partialFile.rename(filePath);
 
           setStatus(task, DownloadStatus.completed);
         }
@@ -104,7 +136,7 @@ class DownloadManager {
         var response = await dio.download(url, partialFilePath, onReceiveProgress: createCallback(url, 0), cancelToken: cancelToken, deleteOnError: false);
 
         if (response.statusCode == HttpStatus.ok) {
-          await partialFile.rename(savePath);
+          await partialFile.rename(filePath);
           setStatus(task, DownloadStatus.completed);
         }
       }
@@ -151,18 +183,13 @@ class DownloadManager {
     }
   }
 
-  Future<DownloadTask?> addDownload(String url, String savedDir) async {
+  Future<DownloadTask?> addDownload(String url, String savedDir, {String? fileName}) async {
     if (url.isNotEmpty) {
       if (savedDir.isEmpty) {
         savedDir = ".";
       }
 
-      var isDirectory = await Directory(savedDir).exists();
-      var downloadFilename = isDirectory ? savedDir + Platform.pathSeparator + getFileNameFromUrl(url) : savedDir;
-
-      print(downloadFilename);
-
-      return _addDownloadRequest(DownloadRequest(url, downloadFilename));
+      return _addDownloadRequest(DownloadRequest(url: url, path: savedDir, fileName: fileName));
     }
   }
 
@@ -176,7 +203,7 @@ class DownloadManager {
       }
     }
 
-    _queue.add(DownloadRequest(downloadRequest.url, downloadRequest.path));
+    _queue.add(DownloadRequest(url: downloadRequest.url, path: downloadRequest.path, fileName: downloadRequest.fileName));
     var task = DownloadTask(_queue.last);
 
     _cache[downloadRequest.url] = task;
@@ -379,15 +406,15 @@ class DownloadManager {
       }
       var currentRequest = _queue.removeFirst();
 
-      download(currentRequest.url, currentRequest.path, currentRequest.cancelToken);
+      download(currentRequest.url, currentRequest.path, currentRequest.fileName, currentRequest.cancelToken);
 
       await Future.delayed(Duration(milliseconds: 500), null);
     }
   }
 
   /// This function is used for get file name with extension from url
-  String getFileNameFromUrl(String url) {
-    Uri uri = Uri.parse(url);
-    return uri.pathSegments.last;
-  }
+// String getFileNameFromUrl(String url) {
+//   Uri uri = Uri.parse(url);
+//   return uri.pathSegments.last;
+// }
 }

@@ -26,80 +26,66 @@ class _DownloadPageState extends State<DownloadPage> {
       body: CustomScrollView(
         slivers: [
           const SliverAppBar.large(
-            title: Text("下载"),
+            title: Text("下载管理"),
           ),
           HyperGroup(
             title: "下载中",
             children: [
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: controller.tasks.length,
-                itemBuilder: (BuildContext context, int index) {
-                  var url = controller.tasks[index].request.url;
-                  var mixDownload = controller.getMixDownloadByUrl(url);
-                  return ListItem(
-                    onDownloadPlayPausedPressed: (url) async {
-                      setState(() {
-                        var task = controller.downloadManager.getDownload(url);
+              Obx(() => ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: controller.mixDownload.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      var mixDownload = controller.mixDownload[index];
+                      var task = controller.downloadManager.getDownload(mixDownload.url ?? "");
 
-                        if (task != null && !task.status.value.isCompleted) {
-                          switch (task.status.value) {
-                            case DownloadStatus.downloading:
-                              controller.downloadManager.pauseDownload(url);
-                              break;
-                            case DownloadStatus.paused:
-                              controller.downloadManager.resumeDownload(url);
-                              break;
-                            case DownloadStatus.queued:
-                            // TODO: Handle this case.
-                            case DownloadStatus.completed:
-                            // TODO: Handle this case.
-                            case DownloadStatus.failed:
-                            // TODO: Handle this case.
-                            case DownloadStatus.canceled:
-                            // TODO: Handle this case.
+                      return ListItem(
+                        onDownloadPlayPausedPressed: (url) async {
+                          setState(() {
+                            if (task != null && !task.status.value.isCompleted) {
+                              switch (task.status.value) {
+                                case DownloadStatus.downloading:
+                                  controller.downloadManager.pauseDownload(url);
+                                  break;
+                                case DownloadStatus.paused:
+                                  controller.downloadManager.resumeDownload(url);
+                                  break;
+                                case DownloadStatus.queued:
+                                // TODO: Handle this case.
+                                case DownloadStatus.completed:
+                                // TODO: Handle this case.
+                                case DownloadStatus.failed:
+                                // TODO: Handle this case.
+                                case DownloadStatus.canceled:
+                                // TODO: Handle this case.
+                              }
+                            } else {
+                              controller.downloadManager.addDownload(url, "${controller.fileRoot}");
+                            }
+                          });
+                        },
+                        onDelete: (url) {
+                          try {
+                            var fileName = "${task?.request.path}${Platform.pathSeparator}${task?.request.fileName}";
+                            var file = File(fileName);
+                            file.delete();
+                          } catch (e) {
+                            print('文件异常，可能不存在');
                           }
-                        } else {
-                          controller.downloadManager.addDownload(url, "${controller.fileRoot}/${controller.downloadManager.getFileNameFromUrl(url)}");
-                        }
-                      });
-                    },
-                    onDelete: (url) {
-                      var fileName = "${controller.fileRoot}/${controller.downloadManager.getFileNameFromUrl(url)}";
-                      var file = File(fileName);
-                      file.delete();
 
-                      controller.downloadManager.removeDownload(url);
-                      setState(() {});
+                          controller.downloadManager.removeDownload(url);
+                          controller.mixDownload.remove(mixDownload);
+                        },
+                        downloadTask: task,
+                        title: task?.request.fileName,
+                        leading: HyperLeading(
+                          size: 40,
+                          child: AppImage(url: mixDownload.pic ?? ""),
+                        ),
+                      );
                     },
-                    url: url,
-                    downloadTask: controller.downloadManager.getDownload(url),
-                    title: mixDownload.title,
-                    leading: HyperLeading(
-                      size: 40,
-                      child: AppImage(url: mixDownload.pic ?? ""),
-                    ),
-                  );
-                },
-              ),
+                  )),
             ],
           ),
-          SliverGap(12),
-          HyperGroup(
-            title: "已下载",
-            children: [
-              // ListView.builder(
-              //   shrinkWrap: true,
-              //   itemCount: controller.tasks.length,
-              //   itemBuilder: (BuildContext context, int index) {
-              //     var item = controller.tasks[index];
-              //     return ListTile(
-              //       title: Text("${item.title}"),
-              //     );
-              //   },
-              // ),
-            ],
-          )
         ],
       ),
     );
@@ -110,17 +96,17 @@ class ListItem extends StatelessWidget {
   final Function(String) onDownloadPlayPausedPressed;
   final Function(String) onDelete;
   DownloadTask? downloadTask;
-  String url = "";
+
   String? title;
   Widget? leading;
 
-  ListItem({Key? key, required this.url, required this.onDownloadPlayPausedPressed, required this.onDelete, this.downloadTask, this.title, this.leading}) : super(key: key);
+  ListItem({Key? key, required this.onDownloadPlayPausedPressed, required this.onDelete, this.downloadTask, this.title, this.leading}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: leading,
-      title: Text(title ?? url, overflow: TextOverflow.ellipsis),
+      title: Text(title ?? "N/A", overflow: TextOverflow.ellipsis),
       subtitle: downloadTask != null && !downloadTask!.status.value.isCompleted
           ? ValueListenableBuilder(
               valueListenable: downloadTask!.progress,
@@ -132,10 +118,10 @@ class ListItem extends StatelessWidget {
                           value: value,
                           color: downloadTask!.status.value == DownloadStatus.paused ? Colors.grey : Colors.amber,
                         )
-                      : Text("已完成"),
+                      : Text("${downloadTask?.request.path}${Platform.pathSeparator}${downloadTask?.request.fileName}"),
                 );
               })
-          : Text("已完成"),
+          : Text("${downloadTask?.request.path}${Platform.pathSeparator}${downloadTask?.request.fileName}"),
       trailing: downloadTask != null
           ? ValueListenableBuilder(
               valueListenable: downloadTask!.status,
@@ -144,26 +130,26 @@ class ListItem extends StatelessWidget {
                   case DownloadStatus.downloading:
                     return IconButton(
                         onPressed: () {
-                          onDownloadPlayPausedPressed(url);
+                          onDownloadPlayPausedPressed(downloadTask?.request.url ?? "");
                         },
                         icon: const Icon(Icons.pause));
                   case DownloadStatus.paused:
                     return IconButton(
                         onPressed: () {
-                          onDownloadPlayPausedPressed(url);
+                          onDownloadPlayPausedPressed(downloadTask?.request.url ?? "");
                         },
                         icon: const Icon(Icons.play_arrow));
                   case DownloadStatus.completed:
                     return IconButton(
                         onPressed: () {
-                          onDelete(url);
+                          onDelete(downloadTask?.request.url ?? "");
                         },
                         icon: const Icon(Icons.delete));
                   case DownloadStatus.failed:
                   case DownloadStatus.canceled:
                     return IconButton(
                         onPressed: () {
-                          onDownloadPlayPausedPressed(url);
+                          onDownloadPlayPausedPressed(downloadTask?.request.url ?? "");
                         },
                         icon: const Icon(Icons.download));
                   case DownloadStatus.queued:
@@ -177,7 +163,7 @@ class ListItem extends StatelessWidget {
               })
           : IconButton(
               onPressed: () {
-                onDownloadPlayPausedPressed(url);
+                onDownloadPlayPausedPressed(downloadTask?.request.url ?? "");
               },
               icon: const Icon(Icons.download)),
     );

@@ -48,14 +48,11 @@ class AppDownloadTypePage extends StatelessWidget {
                     onTap: () {
                       var download = MixDownload.fromSong(music.currentMusic.value!, item);
 
-                      print(JsonMapper.toJson(download));
-
                       ApiFactory.api(package: item?.package ?? "")?.download(download).then((download) {
                             print("获取到的下载链接");
                             print(download.url);
                             if (download.url?.isNotEmpty == true) {
                               controller.addTask(download);
-
                             } else {
                               if (music.currentMusic.value?.match == true) {
                                 download.url = music.currentMusic.value?.matchSong?.url;

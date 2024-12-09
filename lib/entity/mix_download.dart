@@ -9,7 +9,8 @@ class MixDownload {
   dynamic id;
   String? title;
   String? pic;
-  dynamic subTitle;
+  String? artist;
+  String? album;
   String? url;
   MixQuality? quality;
   String? filePath;
@@ -21,7 +22,8 @@ class MixDownload {
     this.title,
     this.pic,
     this.quality,
-    this.subTitle,
+    this.artist,
+    this.album,
     this.url,
   });
 
@@ -31,7 +33,8 @@ class MixDownload {
       id: song.id,
       title: song.title,
       pic: song.pic,
-      subTitle: song.subTitle,
+      artist: song.artist?.first.title ?? "",
+      album: song.album?.title,
       quality: quality,
     );
   }

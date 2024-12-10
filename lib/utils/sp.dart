@@ -37,7 +37,12 @@ class Sp {
   }
 
   static int? getInt(String key) {
-    return _prefs.getInt(key);
+    try {
+      return _prefs.getInt(key);
+    } catch (e) {
+      _prefs.remove(key);
+      return null;
+    }
   }
 
   static double? getDouble(String key) {
@@ -85,7 +90,7 @@ class Sp {
     return setList(key, list);
   }
 
-  static Future<bool?> removeList<T>(String key,  {required bool Function(T old) check}) {
+  static Future<bool?> removeList<T>(String key, {required bool Function(T old) check}) {
     var list = _prefs.getStringList(key)?.map((a) => JsonMapper.fromJson<T>(a)!).toList() ?? [];
     list.removeWhere((old) {
       return check.call(old);

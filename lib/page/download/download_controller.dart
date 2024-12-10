@@ -37,11 +37,23 @@ class DownloadController extends GetxController {
       return;
     }
     showInfo("已加入下载列表");
+
+    var nameType = Sp.getInt(Constant.KEY_DOWNLOAD_NAME) ?? 0;
+
+    String downloadName;
+    if (nameType == 1) {
+      downloadName = "${download.title}-${download.artist}";
+    } else if (nameType == 2) {
+      downloadName = "${download.artist}-${download.title}";
+    } else {
+      downloadName = "${download.title}";
+    }
+
     if (mixDownloadContains(download)) {
       //未添加的
       mixDownload.insert(0, download);
 
-      addDownload(download.url ?? "", fileName: download.title);
+      addDownload(download.url ?? "", fileName: downloadName);
 
       print('>>>>>>>>>第一次下载>>>>>>>>>>>>>>');
     } else {
@@ -55,7 +67,7 @@ class DownloadController extends GetxController {
 
         mixDownload.remove(old);
         mixDownload.insert(0, download);
-        addDownload(download.url ?? "", fileName: download.title);
+        addDownload(download.url ?? "", fileName: downloadName);
 
         print('>>>>>>>>>下载失败的替换掉>>>>>>>>>>>>>>');
       } else {

@@ -8,4 +8,5 @@ class Constant {
   static String KEY_FIRST_IN = "KEY_FIRST_IN";
   static String KEY_COOKIE = "KEY_COOKIE";
   static String KEY_DOWNLOAD_FOLDER = "KEY_DOWNLOAD_FOLDER";
+  static String KEY_DOWNLOAD_NAME = "KEY_DOWNLOAD_NAME";
 }

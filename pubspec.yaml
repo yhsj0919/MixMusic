@@ -49,8 +49,7 @@ dependencies:
     git:
       url: https://github.com/Kavantix/sliver_tools
       ref: master
-  #文件路径处理
-  path: ^1.9.1
+
   #json序列化
   dart_json_mapper: ^2.2.14
 
@@ -97,8 +96,10 @@ dependencies:
 
 dependency_overrides:
   web: ^1.1.0
-  intl: ^0.20.0
+  intl: ^0.20.1
   meta: ^1.16.0
+  #文件路径处理
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:

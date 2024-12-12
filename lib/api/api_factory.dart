@@ -78,6 +78,10 @@ class ApiFactory {
     return getPlugins(key: "artist");
   }
 
+  static List<PluginsInfo> getMvPlugins() {
+    return getPlugins(key: "mv");
+  }
+
   static List<PluginsInfo> getParsePlugins() {
     return getPlugins(key: "parse");
   }

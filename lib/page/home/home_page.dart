@@ -263,6 +263,64 @@ class _HomePageState extends State<HomePage> {
                   )
                 ]),
             SliverGap(16),
+            HyperGroupBigTitle(
+                title: "MV",
+                subTitle: "更多",
+                onTap: () {
+                  Get.toNamed(Routes.mv);
+                },
+                children: [
+                  Container(
+                    height: 100,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Obx(
+                      () => ListView.separated(
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: controller.mvList.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (BuildContext context, int index) {
+                          var item = controller.mvList[index];
+                          return HyperCard(
+                            borderRadius: BorderRadius.zero,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Stack(
+                                alignment: Alignment.bottomRight,
+                                children: [
+                                  Hero(
+                                    tag: "${item.package}${item.id}${item.pic}",
+                                    child: AppImage(url: item.pic ?? "", width: 178, height: 100, radius: 12),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        color: Theme.of(context).colorScheme.surfaceContainer.withAlpha(200),
+                                        child: Text(
+                                          "${item.title}",
+                                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 10),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              onTap: () {
+                                Get.toNamed(Routes.mvDetail, arguments: item);
+                              },
+                            ),
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 12),
+                      ),
+                    ),
+                  )
+                ]),
+            SliverGap(16),
             Obx(
               () => HyperGroupBigTitle(title: "新歌", children: [
                 ListView.builder(

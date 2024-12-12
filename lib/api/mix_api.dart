@@ -10,6 +10,8 @@ import 'package:mix_music/entity/mix_album_type.dart';
 import 'package:mix_music/entity/mix_artist.dart';
 import 'package:mix_music/entity/mix_artist_type.dart';
 import 'package:mix_music/entity/mix_download.dart';
+import 'package:mix_music/entity/mix_mv.dart';
+import 'package:mix_music/entity/mix_mv_type.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
 import 'package:mix_music/entity/mix_quality.dart';
@@ -135,6 +137,18 @@ class MixApi extends MusicApi {
   Future<AppRespEntity<List<MixSong>>> songRec() {
     return invokeMethod(method: "music.rec.song", params: []).then((value) {
       AppRespEntity<List<MixSong>> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixMv>>> mvRec() {
+    return invokeMethod(method: "music.rec.mv", params: []).then((value) {
+      AppRespEntity<List<MixMv>> data = AppRespEntity.fromJson(value);
       if (data.code == 200) {
         return Future(() => data);
       } else {
@@ -279,8 +293,7 @@ class MixApi extends MusicApi {
 
   @override
   Future<AppRespEntity<List<MixArtist>>> artistList({Map<String, dynamic>? type, required int page, required int size}) {
-    var ss = json.encode(type);
-    return invokeMethod(method: "music.artist.list", params: [ss, page, size]).then((value) {
+    return invokeMethod(method: "music.artist.list", params: [type, page, size]).then((value) {
       AppRespEntity<List<MixArtist>> data = AppRespEntity.fromJson(value);
       if (data.code == 200) {
         return Future(() => data);
@@ -320,6 +333,44 @@ class MixApi extends MusicApi {
     var myArtist = JsonMapper.toMap(artist);
     return invokeMethod(method: "music.artist.detail.song", params: [myArtist, page, size]).then((value) {
       AppRespEntity<List<MixSong>> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  ///=====================================MV=====================================================
+  @override
+  Future<AppRespEntity<List<MixMvType>>> mvType() {
+    return invokeMethod(method: "music.mv.type", params: []).then((value) {
+      AppRespEntity<List<MixMvType>> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<MixMv>> mvInfo({required MixMv mv, required int page, required int size}) {
+    var myAlbum = JsonMapper.toMap(mv);
+    return invokeMethod(method: "music.mv.info", params: [myAlbum, page, size]).then((value) {
+      AppRespEntity<MixMv> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<List<MixMv>>> mvList({Map<String, dynamic>? type, required int page, required int size}) {
+    return invokeMethod(method: "music.mv.list", params: [type, page, size]).then((value) {
+      AppRespEntity<List<MixMv>> data = AppRespEntity.fromJson(value);
       if (data.code == 200) {
         return Future(() => data);
       } else {

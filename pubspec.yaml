@@ -93,13 +93,17 @@ dependencies:
   dio: ^5.7.0
   dio_cookie_manager: ^3.1.1
   queue: ^3.1.0+2
-
+  vclibs:
+    git:
+      url: https://github.com/yhsj0919/vclibs
+      ref: main
 dependency_overrides:
   web: ^1.1.0
   intl: ^0.20.1
   meta: ^1.16.0
   #文件路径处理
   path: ^1.9.1
+
 
 dev_dependencies:
   flutter_test:

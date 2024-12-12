@@ -2,6 +2,8 @@ import 'package:flutter_js/flutter_js.dart';
 import 'package:mix_music/entity/app_resp_entity.dart';
 import 'package:mix_music/entity/mix_artist_type.dart';
 import 'package:mix_music/entity/mix_download.dart';
+import 'package:mix_music/entity/mix_mv.dart';
+import 'package:mix_music/entity/mix_mv_type.dart';
 import 'package:mix_music/entity/mix_play_list_type.dart';
 import 'package:mix_music/entity/mix_quality.dart';
 import 'package:mix_music/entity/mix_user.dart';
@@ -44,6 +46,9 @@ abstract class MusicApi {
 
   ///新歌
   Future<AppRespEntity<List<MixSong>>> songRec();
+
+  ///MV
+  Future<AppRespEntity<List<MixMv>>> mvRec();
 
   ///=====================================首页，推荐=====================================================
   ///
@@ -129,6 +134,20 @@ abstract class MusicApi {
   Future<AppRespEntity<dynamic>> userRefresh();
 
   ///=====================================用户=====================================================
+  ///
+  ///
+  ///=====================================MV=====================================================
+
+  ///MV分类
+  Future<AppRespEntity<List<MixMvType>>> mvType();
+
+  ///MV
+  Future<AppRespEntity<List<MixMv>>> mvList({Map<String, dynamic>? type, required int page, required int size});
+
+  ///获取MV详情
+  Future<AppRespEntity<MixMv>> mvInfo({required MixMv mv, required int page, required int size});
+
+  ///=====================================MV=====================================================
   ///
   ///
   ///=====================================公共=====================================================

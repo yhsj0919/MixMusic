@@ -291,7 +291,8 @@ class _HomePageState extends State<HomePage> {
                                     tag: "${item.package}${item.id}${item.pic}",
                                     child: AppImage(url: item.pic ?? "", width: 178, height: 100, radius: 12),
                                   ),
-                                  Padding(
+                                  Container(
+                                    constraints: BoxConstraints(maxWidth: 178),
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(16),

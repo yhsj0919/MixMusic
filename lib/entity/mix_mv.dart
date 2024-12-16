@@ -13,7 +13,9 @@ class MixMv {
   dynamic subTitle;
   List<MixArtist>? artist = const [];
   String? url;
+  List<MixQuality>? quality;
   String? pic;
+  String? desc;
 
   dynamic listenCount;
 
@@ -21,9 +23,11 @@ class MixMv {
     required this.package,
     required this.id,
     required this.title,
+    this.quality,
     this.subTitle,
     this.artist = const [],
     this.url,
     this.pic,
+    this.desc,
   });
 }

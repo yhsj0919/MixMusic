@@ -56,8 +56,8 @@ dependencies:
   flutter_spinkit: ^5.2.1
 
   #播放器相关
-  audio_service: ^0.18.15
-  audio_session: ^0.1.21
+  audio_service: ^0.18.16
+  audio_session: ^0.1.23
   audioplayers: ^6.1.0
   audio_video_progress_bar: ^2.0.3
   extended_image: ^9.0.7
@@ -69,7 +69,7 @@ dependencies:
 
   easy_refresh: ^3.4.0
 
-  device_info_plus: ^11.1.1
+  device_info_plus: ^11.2.0
 
 #  carousel_slider: ^5.0.0
 
@@ -97,6 +97,13 @@ dependencies:
     git:
       url: https://github.com/yhsj0919/vclibs
       ref: main
+  fvp:
+    git:
+      url: https://github.com/wang-bin/fvp
+      ref: master
+  video_player:  ^2.9.2
+  universal_video_controls: ^1.0.24
+  universal_video_controls_video_player: ^1.0.4
 dependency_overrides:
   web: ^1.1.0
   intl: ^0.20.1

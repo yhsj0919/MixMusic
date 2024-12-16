@@ -13,6 +13,8 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   bool playInterrupted = false;
   bool isPlaying = false;
 
+  Duration? _tempPosition;
+
   AudioPlayerHandler() {
     if (Platform.isWindows) {
       smtc = SMTCWindows(
@@ -29,6 +31,7 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
     }
 
     smtc?.buttonPressStream.listen((event) {
+      _tempPosition = null;
       switch (event) {
         case PressedButton.play:
           // Update playback status
@@ -57,9 +60,11 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
 
     initSession();
     Player.onPositionChanged.listen((event) {
-      // print(event);
-      playbackState.add(playbackState.value.copyWith(updatePosition: event));
-      smtc?.setPosition(event);
+      if ((event.inMilliseconds - (_tempPosition?.inMilliseconds ?? 0)).abs() > 50) {
+        playbackState.add(playbackState.value.copyWith(updatePosition: event));
+        smtc?.setPosition(event);
+        _tempPosition = event;
+      }
     });
     Player.onDurationChanged.listen((duration) {
       // print(duration.inMinutes);

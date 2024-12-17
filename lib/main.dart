@@ -2,8 +2,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:fvp/fvp.dart' as fvp;
 import 'package:get/get.dart';
+import 'package:media_kit/media_kit.dart' as media;
 import 'package:mix_music/init/app_binding.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/theme/app_theme.dart';
@@ -22,7 +22,7 @@ const Set<PointerDeviceKind> _kTouchLikeDeviceTypes = <PointerDeviceKind>{
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  fvp.registerWith();
+  media.MediaKit.ensureInitialized();
   await Sp.init();
   await Player.init();
   initializeJsonMapper();

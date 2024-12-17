@@ -67,6 +67,8 @@ const music = {
 
                 const respData = data.data
 
+                console.log(JSON.stringify(respData))
+
                 if (respData["code"] !== 0) {
                     return {
                         code: 500,
@@ -88,14 +90,14 @@ const music = {
                         pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                         title: element['title'],
                         subTitle: element["singer"].map(function (ar) {
-                            return ar["title"]
+                            return ar["name"]
                         }).join(","),
                         vip: element["pay"]["pay_play"],
                         artist: element["singer"].map(function (ar) {
                             return {
                                 package: "xyz.yhsj.qq",
                                 id: ar["mid"],
-                                title: ar["title"],
+                                title: ar["name"],
                                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
                             }
                         }),
@@ -105,6 +107,23 @@ const music = {
                             title: element["album"]["title"],
                             pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                         },
+                        mv: (element["mv"] != null && element["mv"]["vt"] === 0 && element["mv"]["vid"] !== "") ? {
+                            package: 'xyz.yhsj.qq',
+                            id: element["mv"]["vid"],
+                            pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
+                            title: element['title'],
+                            subTitle: element["singer"].map(function (ar) {
+                                return ar["name"]
+                            }).join(","),
+                            artist: element["singer"].map(function (ar) {
+                                return {
+                                    package: "xyz.yhsj.qq",
+                                    id: ar["mid"],
+                                    title: ar["name"],
+                                    pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
+                                }
+                            }),
+                        } : null,
                     };
                 });
                 return {
@@ -655,7 +674,7 @@ const music = {
         },
         info: function playListInfo(playlist, page = 0, size = 20) {
 
-            console.log(playlist["id"])
+
             // 定义查询参数
             const params = {
                 data: JSON.stringify({
@@ -689,6 +708,7 @@ const music = {
                 params: params
             }).then(function (data) {
                 const respData = data.data;
+                console.log(JSON.stringify(respData))
 
                 if (respData["code"] !== 0) {
                     return {
@@ -743,6 +763,23 @@ const music = {
                             title: element["album"]["title"],
                             pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                         },
+                        mv: (element["mv"] != null && element["mv"]["vt"] === 0 && element["mv"]["vid"] !== "") ? {
+                            package: 'xyz.yhsj.qq',
+                            id: element["mv"]["vid"],
+                            pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
+                            title: element['title'],
+                            subTitle: element["singer"].map(function (ar) {
+                                return ar["name"]
+                            }).join(","),
+                            artist: element["singer"].map(function (ar) {
+                                return {
+                                    package: "xyz.yhsj.qq",
+                                    id: ar["mid"],
+                                    title: ar["name"],
+                                    pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
+                                }
+                            }),
+                        } : null,
                     };
                 });
 
@@ -936,7 +973,7 @@ const music = {
             }).then(function (data) {
 
                 const respData = data.data;
-
+                console.log(JSON.stringify(respData))
                 if (respData["code"] !== 0) {
                     return {
                         code: 500,
@@ -1000,6 +1037,23 @@ const music = {
                             title: element["songInfo"]["album"]["title"],
                             pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
                         },
+                        mv: (element["songInfo"]["mv"] != null && element["songInfo"]["mv"]["vt"] === 0 && element["songInfo"]["mv"]["vid"] !== "") ? {
+                            package: 'xyz.yhsj.qq',
+                            id: element["songInfo"]["mv"]["vid"],
+                            pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
+                            title: element["songInfo"]['title'],
+                            subTitle: element["songInfo"]["singer"].map(function (ar) {
+                                return ar["name"]
+                            }).join(","),
+                            artist: element["songInfo"]["singer"].map(function (ar) {
+                                return {
+                                    package: "xyz.yhsj.qq",
+                                    id: ar["mid"],
+                                    title: ar["name"],
+                                    pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
+                                }
+                            }),
+                        } : null,
                     };
                 });
 
@@ -1023,7 +1077,7 @@ const music = {
         },
     },
     rec: {
-        playlist: function playListRec() {
+        playlist: async function playListRec() {
             // 定义查询参数
             const params = {
                 data: JSON.stringify({
@@ -1035,7 +1089,9 @@ const music = {
                     }
                 })
             }
-
+            let cookie = await getCookie();
+            console.log(cookie)
+            headers.Cookie = cookie;
             return axios.get('https://u.y.qq.com/cgi-bin/musicu.fcg', {
                 headers: headers,
                 params: params
@@ -1153,7 +1209,7 @@ const music = {
             }).then(function (data) {
 
                 const respData = data.data
-
+                console.log(JSON.stringify(respData))
                 if (respData["code"] !== 0) {
                     return {
                         code: 500,
@@ -1181,7 +1237,7 @@ const music = {
                             return {
                                 package: "xyz.yhsj.qq",
                                 id: ar["mid"],
-                                title: ar["title"],
+                                title: ar["name"],
                                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
                             }
                         }),
@@ -1191,6 +1247,24 @@ const music = {
                             title: element["album"]["title"],
                             pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                         },
+                        mv: (element["mv"] != null && element["mv"]["vt"] === 0 && element["mv"]["vid"] !== "") ? {
+                            package: 'xyz.yhsj.qq',
+                            id: element["mv"]["vid"],
+                            pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
+                            title: element['title'],
+                            subTitle: element["singer"].map(function (ar) {
+                                return ar["name"]
+                            }).join(","),
+                            artist: element["singer"].map(function (ar) {
+                                return {
+                                    package: "xyz.yhsj.qq",
+                                    id: ar["mid"],
+                                    title: ar["name"],
+                                    pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
+                                }
+                            }),
+                        } : null,
+
                     };
                 });
                 return {
@@ -1342,7 +1416,7 @@ const music = {
             }).then(function (data) {
 
                 const respData = data.data;
-
+                console.log(JSON.stringify(respData))
                 if (respData["code"] !== 0) {
                     return {
                         code: 500,
@@ -1394,6 +1468,23 @@ const music = {
                             title: element["album"]["title"],
                             pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["pmid"]}.jpg`,
                         },
+                        mv: (element["mv"] != null && element["mv"]["vt"] === 0 && element["mv"]["vid"] !== "") ? {
+                            package: 'xyz.yhsj.qq',
+                            id: element["mv"]["vid"],
+                            pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["album"]["mid"]}.jpg`,
+                            title: element['title'],
+                            subTitle: element["singer"].map(function (ar) {
+                                return ar["name"]
+                            }).join(","),
+                            artist: element["singer"].map(function (ar) {
+                                return {
+                                    package: "xyz.yhsj.qq",
+                                    id: ar["mid"],
+                                    title: ar["name"],
+                                    pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
+                                }
+                            }),
+                        } : null,
                     };
                 });
 
@@ -1643,7 +1734,7 @@ const music = {
                     params: params
                 }).then(function (data) {
                     const respData = data.data
-
+                    console.log(JSON.stringify(respData))
                     if (respData["code"] !== 0) {
                         return {
                             code: 500,
@@ -1684,6 +1775,24 @@ const music = {
                                 title: element["songInfo"]["album"]["title"],
                                 pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
                             },
+                            mv: (element["songInfo"]["mv"] != null && element["songInfo"]["mv"]["vt"] === 0 && element["mv"]["vid"] !== "") ? {
+                                package: 'xyz.yhsj.qq',
+                                id: element["songInfo"]["mv"]["vid"],
+                                pic: `https://y.qq.com/music/photo_new/T002R300x300M000${element["songInfo"]["album"]["mid"]}.jpg`,
+                                title: element["songInfo"]['title'],
+                                subTitle: element["songInfo"]["singer"].map(function (ar) {
+                                    return ar["name"]
+                                }).join(","),
+                                artist: element["songInfo"]["singer"].map(function (ar) {
+                                    return {
+                                        package: "xyz.yhsj.qq",
+                                        id: ar["mid"],
+                                        title: ar["name"],
+                                        pic: `https://y.qq.com/music/photo_new/T002R300x300M000${ar["mid"]}.jpg`
+                                    }
+                                }),
+                            } : null,
+
                         };
                     });
 
@@ -1926,49 +2035,29 @@ const music = {
             const params = {
                 data: JSON.stringify({
                         comm: {
+                            ct: 6,
+                            cv: 0,
+                            g_tk: 1665715721,
                             format: "json",
-                            g_tk: 5381,
-                            ct: 20,
-                            cv: 1807,
-                            uin: "0",
-                            platform: "wk_v17",
+                            platform: "yqq"
                         },
                         info: {
-                            module: "video.VideoDataServer",
+                            module: "music.video.VideoData",
                             method: "get_video_info_batch",
                             param: {
                                 vidlist: [mv["id"]],
-                                required: [
-                                    "vid",
-                                    "type",
-                                    "sid",
-                                    "cover_pic",
-                                    "duration",
-                                    "singers",
-                                    "new_switch_str",
-                                    "video_pay",
-                                    "hint",
-                                    "code",
-                                    "msg",
-                                    "name",
-                                    "desc",
-                                    "playcnt",
-                                    "pubdate",
-                                    "isfav",
-                                    "pay",
-                                    "pay_info",
-                                    "play_forbid_reason",
-                                ],
+                                required: ["vid", "type", "sid", "cover_pic", "duration", "singers", "new_switch_str", "video_pay", "hint", "code", "msg", "name", "desc", "playcnt", "pubdate", "isfav", "fileid", "filesize_v2", "switch_pay_type", "pay", "pay_info", "uploader_headurl", "uploader_nick", "uploader_uin", "uploader_encuin", "play_forbid_reason"]
                             }
                         },
                         mvUrl: {
-                            module: "gosrf.Stream.MvUrlProxy",
+                            module: "music.stream.MvUrlProxy",
                             method: "GetMvUrls",
                             param: {
-                                "vids": [mv['id']],
-                                "request_typet": 10001,
-                                "addrtype": 3,
-                                "format": 264
+                                vids: [mv["id"]],
+                                request_type: 10003,
+                                addrtype: 3,
+                                format: 264,
+                                maxFiletype: 60
                             }
                         },
                     }

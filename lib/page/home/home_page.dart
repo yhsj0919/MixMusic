@@ -355,6 +355,13 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                           subtitle: Text(song.subTitle ?? "", overflow: TextOverflow.ellipsis, maxLines: 1),
+                          trailing: song.mv != null
+                              ? IconButton(
+                                  onPressed: () {
+                                    Get.toNamed(Routes.mvDetail, arguments: song.mv);
+                                  },
+                                  icon: Icon(Icons.music_video))
+                              : null,
                           onTap: () {
                             controller.music.playList(list: controller.songList, index: index);
                           },

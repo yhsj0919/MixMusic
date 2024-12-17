@@ -97,13 +97,9 @@ dependencies:
     git:
       url: https://github.com/yhsj0919/vclibs
       ref: main
-  fvp:
-    git:
-      url: https://github.com/wang-bin/fvp
-      ref: master
-  video_player:  ^2.9.2
-  universal_video_controls: ^1.0.24
-  universal_video_controls_video_player: ^1.0.4
+  media_kit: ^1.1.11 # Primary package.
+  media_kit_video: ^1.2.5 # For video rendering.
+  media_kit_libs_video: ^1.0.5 # Native video dependencies.
 dependency_overrides:
   web: ^1.1.0
   intl: ^0.20.1

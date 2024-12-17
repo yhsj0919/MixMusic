@@ -1,5 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:dart_json_mapper/dart_json_mapper.dart';
+import 'package:mix_music/entity/mix_mv.dart';
 
 import 'mix_album.dart';
 import 'mix_artist.dart';
@@ -21,6 +22,7 @@ class MixSong {
   dynamic listenCount;
   bool? match;
   MixSong? matchSong;
+  MixMv? mv;
 
   MixSong({
     required this.package,
@@ -29,6 +31,7 @@ class MixSong {
     this.subTitle,
     this.artist = const [],
     this.album,
+    this.mv,
     this.url,
     this.quality,
     required this.pic,

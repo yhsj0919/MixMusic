@@ -6,10 +6,10 @@ import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_artist.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/entity/page_entity.dart';
+import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/message.dart';
-
 
 import '../../player/music_controller.dart';
 import '../../widgets/hyper/hyper_loading.dart';
@@ -82,6 +82,13 @@ class _ArtistDetailSongState extends State<ArtistDetailSong> with AutomaticKeepA
                           ],
                         ),
                         subtitle: Text(song.subTitle ?? "", overflow: TextOverflow.ellipsis, maxLines: 1),
+                        trailing: song.mv != null
+                            ? IconButton(
+                                onPressed: () {
+                                  Get.toNamed(Routes.mvDetail, arguments: song.mv);
+                                },
+                                icon: Icon(Icons.music_video))
+                            : null,
                         onTap: () {
                           music.playList(list: songList, index: index);
                         },

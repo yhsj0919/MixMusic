@@ -7,11 +7,11 @@ import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/entity/page_entity.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/player/music_controller.dart';
+import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/hyper/hyper_loading.dart';
 import 'package:mix_music/widgets/message.dart';
-
 
 import '../../widgets/page_list_view.dart';
 import 'search_tab_State.dart';
@@ -86,6 +86,13 @@ class _SearchMusicPageState extends SearchTabPageState<SearchMusicPage> with Aut
                           ],
                         ),
                         subtitle: Text(song.subTitle ?? "", overflow: TextOverflow.ellipsis, maxLines: 1),
+                        trailing: song.mv != null
+                            ? IconButton(
+                                onPressed: () {
+                                  Get.toNamed(Routes.mvDetail, arguments: song.mv);
+                                },
+                                icon: Icon(Icons.music_video))
+                            : null,
                         onTap: () {
                           music.playList(list: songList, index: index);
                         },

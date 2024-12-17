@@ -6,11 +6,11 @@ import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
+import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
 import 'package:mix_music/widgets/hyper/hyper_loading.dart';
 import 'package:mix_music/widgets/page_custom_scroll_view.dart';
-import 'package:mix_music/widgets/page_nested_scroll_view.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
 import '../../entity/page_entity.dart';
@@ -155,6 +155,13 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                                   ],
                                 ),
                                 subtitle: Text(song.subTitle ?? "", overflow: TextOverflow.ellipsis, maxLines: 1),
+                                trailing: song.mv != null
+                                    ? IconButton(
+                                        onPressed: () {
+                                          Get.toNamed(Routes.mvDetail, arguments: song.mv);
+                                        },
+                                        icon: Icon(Icons.music_video))
+                                    : null,
                                 onTap: () {
                                   music.playList(list: songList, index: index);
                                 },

@@ -15,15 +15,12 @@ class NewSurfaceTheme {
   ///
   /// [SurfaceColorEnum.surfaceContainerHighest] returns the surface variant color from
   /// the current theme.
-  static Color getSurfaceColor(
-      SurfaceColorEnum selectedColor, BuildContext context) {
+  static Color getSurfaceColor(SurfaceColorEnum selectedColor, BuildContext context) {
     switch (selectedColor) {
       case SurfaceColorEnum.surface:
         return Theme.of(context).colorScheme.surface;
       case SurfaceColorEnum.surfaceContainerLowest:
-        return Theme.of(context).brightness == Brightness.dark
-            ? Colors.black
-            : Colors.white;
+        return Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white;
       case SurfaceColorEnum.surfaceContainerLow:
         return ElevationOverlay.applySurfaceTint(
           Theme.of(context).colorScheme.surface,
@@ -44,6 +41,35 @@ class NewSurfaceTheme {
         );
       case SurfaceColorEnum.surfaceContainerHighest:
         return Theme.of(context).colorScheme.surfaceContainerHighest;
+    }
+  }
+
+  static Color getSurfaceColorWithSeed(SurfaceColorEnum selectedColor, Color seedColor, BuildContext context) {
+    switch (selectedColor) {
+      case SurfaceColorEnum.surface:
+        return ColorScheme.fromSeed(seedColor: seedColor).surface;
+      case SurfaceColorEnum.surfaceContainerLowest:
+        return Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.white;
+      case SurfaceColorEnum.surfaceContainerLow:
+        return ElevationOverlay.applySurfaceTint(
+          ColorScheme.fromSeed(seedColor: seedColor, brightness: Theme.of(context).brightness).surface,
+          ColorScheme.fromSeed(seedColor: seedColor, brightness: Theme.of(context).brightness).surfaceTint,
+          1,
+        );
+      case SurfaceColorEnum.surfaceContainer:
+        return ElevationOverlay.applySurfaceTint(
+          ColorScheme.fromSeed(seedColor: seedColor, brightness: Theme.of(context).brightness).surface,
+          ColorScheme.fromSeed(seedColor: seedColor, brightness: Theme.of(context).brightness).surfaceTint,
+          2,
+        );
+      case SurfaceColorEnum.surfaceContainerHigh:
+        return ElevationOverlay.applySurfaceTint(
+          ColorScheme.fromSeed(seedColor: seedColor, brightness: Theme.of(context).brightness).surface,
+          ColorScheme.fromSeed(seedColor: seedColor, brightness: Theme.of(context).brightness).surfaceTint,
+          3,
+        );
+      case SurfaceColorEnum.surfaceContainerHighest:
+        return ColorScheme.fromSeed(seedColor: seedColor, brightness: Theme.of(context).brightness).surfaceContainerHighest;
     }
   }
 }

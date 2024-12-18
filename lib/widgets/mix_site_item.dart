@@ -17,17 +17,22 @@ class MixSiteItem extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(30)),
-            child: Container(
-              color: Colors.white,
-              child: AppImage(
-                url: site?.icon ?? "",
-                radius: 30,
+        site?.icon != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(30)),
+                child: Container(
+                  color: Colors.white,
+                  child: AppImage(
+                    url: site?.icon ?? "",
+                    radius: 30,
+                    width: size,
+                    height: size,
+                  ),
+                ))
+            : Container(
                 width: size,
                 height: size,
               ),
-            )),
         match == null
             ? Container(height: size, width: size)
             : Container(

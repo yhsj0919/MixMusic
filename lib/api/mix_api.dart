@@ -107,6 +107,18 @@ class MixApi extends MusicApi {
     });
   }
 
+  @override
+  Future<AppRespEntity<List<MixMv>>> searchMv({required String keyword, required int page, required int size}) {
+    return invokeMethod(method: "music.search.mv", params: [keyword, page, size]).then((value) {
+      AppRespEntity<List<MixMv>> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
   ///=====================================热门，推荐=====================================================
 
   @override

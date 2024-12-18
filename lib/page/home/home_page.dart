@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,7 @@ import 'package:mix_music/widgets/hyper/hyper_card.dart';
 import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/hyper/hyper_group_big_title.dart';
 import 'package:mix_music/widgets/hyper/hyper_leading.dart';
+import 'package:mix_music/widgets/page_custom_scroll_view.dart';
 
 import '../app_playing/play_bar.dart';
 import 'home_controller.dart';
@@ -25,10 +27,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   HomeController controller = Get.put(HomeController());
+  late EasyRefreshController refreshController;
 
   @override
   void initState() {
     super.initState();
+    refreshController = EasyRefreshController(controlFinishLoad: false, controlFinishRefresh: true);
   }
 
   @override
@@ -38,7 +42,14 @@ class _HomePageState extends State<HomePage> {
     double bottom = max(MediaQuery.of(context).padding.bottom, 16);
     return Scaffold(
         floatingActionButton: PlayBar(),
-        body: CustomScrollView(
+        body: PageCustomScrollView(
+          onRefresh: () {
+            controller.getData();
+
+            return Future.delayed(Duration(milliseconds: 500)).then((v) {
+              refreshController.finishRefresh(IndicatorResult.success, true);
+            });
+          },
           slivers: [
             SliverAppBar.large(
               surfaceTintColor: Colors.transparent,
@@ -372,6 +383,7 @@ class _HomePageState extends State<HomePage> {
             ),
             SliverGap(bottom),
           ],
+          controller: refreshController,
         ));
   }
 }

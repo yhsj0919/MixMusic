@@ -48,50 +48,50 @@ class HomeController extends GetxController {
   }
 
   ///获取歌单
-  void getPlayListRec() {
-    ApiFactory.api(package: homeSitePackage.value ?? "")?.playListRec().then((value) {
+  Future<Null>? getPlayListRec() {
+    return ApiFactory.api(package: homeSitePackage.value ?? "")?.playListRec().then((value) {
       playlist.clear();
       playlist.addAll(value.data ?? []);
 
       // showComplete("操作成功");
     }).catchError((e) {
-      showError(e);
+      // showError(e);
     });
   }
 
   ///获取专辑
-  void getAlbumRec() {
-    ApiFactory.api(package: homeSitePackage.value ?? "")?.albumRec().then((value) {
+  Future<Null>? getAlbumRec() {
+    return ApiFactory.api(package: homeSitePackage.value ?? "")?.albumRec().then((value) {
       albumList.clear();
       albumList.addAll(value.data ?? []);
 
       // showComplete("操作成功");
     }).catchError((e) {
-      showError(e);
+      // showError(e);
     });
   }
 
   ///获取新歌
-  void getSongRec() {
-    ApiFactory.api(package: homeSitePackage.value ?? "")?.songRec().then((value) {
+  Future<Null>? getSongRec() {
+    return ApiFactory.api(package: homeSitePackage.value ?? "")?.songRec().then((value) {
       songList.clear();
       songList.addAll(value.data ?? []);
 
       // showComplete("操作成功");
     }).catchError((e) {
-      showError(e);
+      // showError(e);
     });
   }
 
   ///获取新歌
-  void getMvRec() {
-    ApiFactory.api(package: homeSitePackage.value ?? "")?.mvRec().then((value) {
+  Future<Null>? getMvRec() {
+    return ApiFactory.api(package: homeSitePackage.value ?? "")?.mvRec().then((value) {
       mvList.clear();
       mvList.addAll(value.data ?? []);
 
       // showComplete("操作成功");
     }).catchError((e) {
-      showError(e);
+      // showError(e);
     });
   }
 }

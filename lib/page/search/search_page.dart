@@ -10,6 +10,7 @@ import 'package:mix_music/page/search/search_music_page.dart';
 import 'package:mix_music/widgets/hyper/hyper_card.dart';
 
 import '../../widgets/sliver_search_appbar.dart';
+import 'search_mv_page.dart';
 import 'search_playlist_page.dart';
 import 'search_tab_State.dart';
 
@@ -38,7 +39,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     {"type": "artist", "name": "歌手", "icon": Icons.person},
     {"type": "playlist", "name": "歌单", "icon": Icons.playlist_play_outlined},
     {"type": "lyric", "name": "歌词", "icon": Icons.lyrics_outlined},
-    {"type": "mv", "name": "MV", "icon": Icons.video_library_outlined},
+    {"type": "mv", "name": "MV", "icon": Icons.music_video},
   ];
 
   RxList<Map> supportType = RxList();
@@ -153,9 +154,11 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                         ? SearchArtistPage(plugin: element, controller: searchController)
                         : type == "playlist"
                             ? SearchPlayListPage(plugin: element, controller: searchController)
-                            : Center(
-                                child: Text("暂未实现"),
-                              );
+                            : type == "mv"
+                                ? SearchMvPage(plugin: element, controller: searchController)
+                                : Center(
+                                    child: Text("暂未实现"),
+                                  );
           }).toList(),
         ));
   }
@@ -164,7 +167,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     showModalBottomSheet(
         context: context,
         elevation: 0,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
         scrollControlDisabledMaxHeightRatio: 3 / 4,
         builder: (BuildContext context) {
           return Column(
@@ -202,6 +205,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     return HyperCard(
       width: widget,
       height: height,
+      color: Theme.of(context).colorScheme.surface,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap == null

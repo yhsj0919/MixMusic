@@ -22,6 +22,13 @@ final lightTheme = ThemeData(
     surfaceTintColor: Colors.transparent,
     centerTitle: true,
   ),
+  chipTheme: ChipThemeData(
+    side: BorderSide(
+      color: Color(0xff999999), // 边框颜色
+      width: 1.0, // 边框宽度
+    ),
+  ),
+  shadowColor: Colors.black,
   listTileTheme: ListTileThemeData(
     subtitleTextStyle: TextStyle(
       fontSize: 14,
@@ -74,6 +81,13 @@ final darkTheme = ThemeData(
     // 表面颜色
     surface: Colors.black,
     surfaceContainer: Color(0xff242424),
+  ),
+  shadowColor: Colors.white,
+  chipTheme: ChipThemeData(
+    side: BorderSide(
+      color: Color(0xff999999), // 边框颜色
+      width: 1.0, // 边框宽度
+    ),
   ),
   appBarTheme: AppBarTheme(
     backgroundColor: Colors.black,

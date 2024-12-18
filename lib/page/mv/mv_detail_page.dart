@@ -39,6 +39,7 @@ class _MvDetailPageState extends State<MvDetailPage> {
   @override
   void initState() {
     super.initState();
+    music.pause();
     mv.value = Get.arguments;
 
     player.stream.position.listen(

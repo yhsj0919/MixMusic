@@ -17,6 +17,7 @@ class MusicController extends GetxController {
   Rxn<MixSong> currentMusic = Rxn();
   Rxn<PlayerState> state = Rxn();
   Rx<bool> isBuffering = Rx(false);
+  Duration? _tempPosition;
 
   //播放模式
   Rx<PlayMode> playMode = Rx(PlayMode.RepeatAll);
@@ -69,10 +70,13 @@ class MusicController extends GetxController {
       duration.value = event;
     });
     Player.onPositionChanged.listen((event) {
-      if (event.inMilliseconds >= (duration.value?.inMilliseconds ?? 1)) {
-        position.value = duration.value;
-      } else {
-        position.value = event;
+      if ((event.inMilliseconds - (_tempPosition?.inMilliseconds ?? 0)).abs() > 100) {
+        if (event.inMilliseconds >= (duration.value?.inMilliseconds ?? 1)) {
+          position.value = duration.value;
+        } else {
+          position.value = event;
+        }
+        _tempPosition = event;
       }
     });
 
@@ -170,6 +174,12 @@ class MusicController extends GetxController {
       if (media.value != null) {
         Player.playMediaItem(media.value!);
       }
+    }
+  }
+
+  void pause() {
+    if (Player.state == PlayerState.playing) {
+      Player.pause();
     }
   }
 

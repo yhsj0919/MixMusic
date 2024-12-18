@@ -13,7 +13,6 @@ import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/hyper/hyper_loading.dart';
 import 'package:mix_music/widgets/message.dart';
 
-
 import '../../widgets/page_list_view.dart';
 
 class ArtistTabPage extends StatefulWidget {
@@ -132,17 +131,18 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
         builder: (BuildContext context) {
           return Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
+                color: Theme.of(context).colorScheme.surfaceContainer,
                 borderRadius: const BorderRadius.all(Radius.circular(16)),
                 boxShadow: [
                   BoxShadow(
                     blurRadius: 12.0,
-                    color: Theme.of(context).shadowColor.withOpacity(0.1),
+                    color: Theme.of(context).shadowColor.withOpacity(0.3),
                   ),
                 ],
               ),
-              margin: const EdgeInsets.all(16),
+              // margin: const EdgeInsets.all(16),
               child: ListView.builder(
+                // shrinkWrap: true,
                 padding: const EdgeInsets.only(bottom: 16),
                 itemCount: artistType.length,
                 itemBuilder: (BuildContext context, int index) {

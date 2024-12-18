@@ -27,13 +27,6 @@ class _PlayBarState extends State<PlayBar> {
     super.initState();
   }
 
-  Future<void> getColorScheme(String? image) async {
-    if (image != null) {
-      var ss = await ColorScheme.fromImageProvider(provider: CachedNetworkImageProvider(image));
-      theme.playingColor.value = ss.primary;
-    }
-  }
-
   @override
   Widget build(BuildContext context1) {
     return Obx(() => AnimatedTheme(
@@ -77,12 +70,12 @@ class _PlayBarState extends State<PlayBar> {
                                             width: 56,
                                             height: 56,
                                           )
-                                        : AppImage(
-                                            url: music.currentMusic.value?.pic ?? "",
-                                            width: 56,
-                                            height: 56,
-                                            fit: BoxFit.cover,
-                                          ),
+                                        : Obx(() => AppImage(
+                                              url: music.currentMusic.value?.pic ?? "",
+                                              width: 56,
+                                              height: 56,
+                                              fit: BoxFit.cover,
+                                            )),
                                   ),
                                 ),
                                 Obx(() => MixSiteItem(

@@ -22,10 +22,6 @@ class MethodItem extends StatelessWidget {
             runSpacing: 12,
             children: methods?.map((label) {
                   return ActionChip(
-                    side: BorderSide(
-                      color: Color(0xff999999), // 边框颜色
-                      width: 1.0, // 边框宽度
-                    ),
                     label: Text(label),
                     onPressed: onChipTap == null
                         ? null

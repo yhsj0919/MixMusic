@@ -34,6 +34,9 @@ abstract class MusicApi {
   ///搜索歌单
   Future<AppRespEntity<List<MixPlaylist>>> searchPlayList({required String keyword, required int page, required int size});
 
+  ///搜索MV
+  Future<AppRespEntity<List<MixMv>>> searchMv({required String keyword, required int page, required int size});
+
   ///=====================================搜索=====================================================
   ///
   ///

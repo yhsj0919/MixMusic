@@ -22,13 +22,8 @@ class UserController extends GetxController {
   }
 
   Future<void> getAllUser() async {
-    print(plugins);
-
     userInfos.clear();
     var value = await Future.wait(plugins.map((e) => userInfo(package: e.package ?? "")));
-
-    print(value);
-
     value.where((element) => element != null).toList().forEach((e) {
       userInfos[e?.package ?? ""] = e!;
     });

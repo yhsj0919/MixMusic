@@ -86,12 +86,11 @@ class _ExtensionPageState extends State<ExtensionPage> {
                 if (baiduPlugins == null) {
                   print("插件无效");
                 } else {
-                  Sp.addList(Constant.KEY_EXTENSION, baiduPlugins, check: (oldValue, newValue) {
+                  Sp.replaceList(Constant.KEY_EXTENSION, baiduPlugins, check: (oldValue, newValue) {
                     return oldValue.package == newValue.package;
                   }).then((v) {
+                    getPlugins();
                     initPlugins();
-                  }).catchError((e) {
-                    print("插件已经安装");
                   });
                 }
               } else {
@@ -144,9 +143,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
                         if (homeSite == item.package) {
                           Sp.remove(Constant.KEY_HOME_SITE);
                         }
-                        await Sp.removeList<PluginsInfo>(Constant.KEY_EXTENSION, check: (old) {
-                          return old.package == item.package;
-                        });
+                        deleteExtension(item.package);
                         getPlugins();
                         initPlugins();
                       },
@@ -162,5 +159,11 @@ class _ExtensionPageState extends State<ExtensionPage> {
         ],
       ),
     );
+  }
+
+  Future<void> deleteExtension(String? package) async {
+    await Sp.removeList<PluginsInfo>(Constant.KEY_EXTENSION, check: (old) {
+      return old.package == package;
+    });
   }
 }

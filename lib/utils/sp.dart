@@ -97,4 +97,23 @@ class Sp {
     });
     return setList(key, list);
   }
+
+  static Future<bool?> replaceList<T>(String key, T value, {required bool Function(T oldValue, T newValue) check}) {
+    var list = _prefs.getStringList(key)?.map((a) => JsonMapper.fromJson<T>(a)!).toList() ?? [];
+    var tmpList = list.where((old) {
+      return check.call(old, value);
+    });
+
+    if (tmpList.isEmpty == true) {
+      list.add(value);
+    } else {
+      list.removeWhere((old) {
+        return check.call(old, value);
+      });
+      print('删除，重新添加数据');
+      list.add(value);
+    }
+
+    return setList(key, list);
+  }
 }

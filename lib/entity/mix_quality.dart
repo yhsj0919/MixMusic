@@ -5,7 +5,7 @@ class MixQuality {
   String package;
   String? title;
   dynamic id;
-  dynamic quality;
+  int? quality;
   int? size;
   String? url;
 

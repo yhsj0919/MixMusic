@@ -241,7 +241,7 @@ class _MvDetailPageState extends State<MvDetailPage> {
       quality.clear();
       quality.addAll(mv.value?.quality ?? []);
       if (quality.isNotEmpty) {
-        var ss = quality.first;
+        var ss = quality.reduce((a, b) => (a.quality ?? 0) < (b.quality ?? 0) ? a : b);
         selectQuality.value = ss;
 
         _initializeVideoPlayer(ss.url ?? "");

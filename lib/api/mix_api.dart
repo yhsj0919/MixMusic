@@ -41,6 +41,7 @@ class MixApi extends MusicApi {
     await current?.enableBigInt();
     await current?.enableCrypto();
     await current?.enableBase64();
+    await current?.enableFastXmlParser();
 
     await current?.injectMethod("setCookie", (args) async {
       String cookie = args.join(';');

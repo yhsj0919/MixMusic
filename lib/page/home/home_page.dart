@@ -174,46 +174,48 @@ class _HomePageState extends State<HomePage> {
                   height: 140,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Obx(
-                    () => ListView.separated(
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: controller.playlist.length,
-                      scrollDirection: Axis.horizontal,
-                      itemBuilder: (BuildContext context, int index) {
-                        var item = controller.playlist[index];
-                        return HyperCard(
-                          borderRadius: BorderRadius.zero,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            child: SizedBox(
-                              width: 92,
-                              height: 140,
-                              child: Column(
-                                children: [
-                                  Hero(
-                                    tag: "${item.package}${item.id}${item.pic}",
-                                    child: AppImage(url: item.pic ?? "", width: 100, radius: 12),
-                                  ).expanded(),
-                                  Container(
-                                    height: 40,
-                                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                    child: Text(
-                                      item.title ?? "",
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w300),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  )
-                                ],
+                    () => ScrollConfiguration(
+                        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                        child: ListView.separated(
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: controller.playlist.length,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (BuildContext context, int index) {
+                            var item = controller.playlist[index];
+                            return HyperCard(
+                              borderRadius: BorderRadius.zero,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                child: SizedBox(
+                                  width: 100,
+                                  height: 140,
+                                  child: Column(
+                                    children: [
+                                      Hero(
+                                        tag: "${item.package}${item.id}${item.pic}",
+                                        child: AppImage(url: item.pic ?? "", width: 100, height: 100, radius: 12),
+                                      ).expanded(),
+                                      Container(
+                                        height: 40,
+                                        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                        child: Text(
+                                          item.title ?? "",
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                onTap: () {
+                                  Get.toNamed(Routes.playListDetail, arguments: item);
+                                },
                               ),
-                            ),
-                            onTap: () {
-                              Get.toNamed(Routes.playListDetail, arguments: item);
-                            },
-                          ),
-                        );
-                      },
-                      separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 12),
-                    ),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 12),
+                        )),
                   ),
                 ),
               ],
@@ -227,51 +229,65 @@ class _HomePageState extends State<HomePage> {
                 },
                 children: [
                   Container(
-                    height: 140,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Obx(
-                      () => ListView.separated(
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: controller.albumList.length,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (BuildContext context, int index) {
-                          var item = controller.albumList[index];
-                          return HyperCard(
-                            borderRadius: BorderRadius.zero,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              child: SizedBox(
-                                width: 92,
-                                height: 140,
-                                child: Column(
-                                  children: [
-                                    Hero(
-                                      tag: "${item.package}${item.id}${item.pic}",
-                                      child: AppImage(url: item.pic ?? "", width: 100, radius: 12),
-                                    ).expanded(),
-                                    Container(
-                                      height: 40,
-                                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                      child: Text(
-                                        item.title ?? "",
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w300),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    )
-                                  ],
+                      height: 140,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Obx(
+                        () => ScrollConfiguration(
+                          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                          child: ListView.separated(
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: controller.albumList.length,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (BuildContext context, int index) {
+                              var item = controller.albumList[index];
+                              return HyperCard(
+                                borderRadius: BorderRadius.zero,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: SizedBox(
+                                    width: 100,
+                                    height: 140,
+                                    child: Column(
+                                      children: [
+                                        Hero(
+                                          tag: "${item.package}${item.id}${item.pic}",
+                                          child: AppImage(url: item.pic ?? "", width: 100, height: 100, radius: 12),
+                                        ).expanded(),
+                                        Container(
+                                          height: 20,
+                                          alignment: Alignment.centerLeft,
+                                          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                          child: Text(
+                                            item.title ?? "",
+                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        Container(
+                                          height: 20,
+                                          alignment: Alignment.centerLeft,
+                                          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                          child: Text(
+                                            item.subTitle ?? "",
+                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w300),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Get.toNamed(Routes.albumDetail, arguments: item);
+                                  },
                                 ),
-                              ),
-                              onTap: () {
-                                Get.toNamed(Routes.albumDetail, arguments: item);
-                              },
-                            ),
-                          );
-                        },
-                        separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 12),
-                      ),
-                    ),
-                  )
+                              );
+                            },
+                            separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 12),
+                          ),
+                        ),
+                      ))
                 ]),
             SliverGap(16),
             HyperGroupBigTitle(
@@ -285,50 +301,52 @@ class _HomePageState extends State<HomePage> {
                     height: 100,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Obx(
-                      () => ListView.separated(
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: controller.mvList.length,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (BuildContext context, int index) {
-                          var item = controller.mvList[index];
-                          return HyperCard(
-                            borderRadius: BorderRadius.zero,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Stack(
-                                alignment: Alignment.bottomRight,
-                                children: [
-                                  Hero(
-                                    tag: "${item.package}${item.id}${item.pic}",
-                                    child: AppImage(url: item.pic ?? "", width: 178, height: 100, radius: 12),
-                                  ),
-                                  Container(
-                                    constraints: BoxConstraints(maxWidth: 178),
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        color: Theme.of(context).colorScheme.surfaceContainer.withAlpha(200),
-                                        child: Text(
-                                          "${item.title}",
-                                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 10),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                      () => ScrollConfiguration(
+                          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                          child: ListView.separated(
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: controller.mvList.length,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (BuildContext context, int index) {
+                              var item = controller.mvList[index];
+                              return HyperCard(
+                                borderRadius: BorderRadius.zero,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Stack(
+                                    alignment: Alignment.bottomRight,
+                                    children: [
+                                      Hero(
+                                        tag: "${item.package}${item.id}${item.pic}",
+                                        child: AppImage(url: item.pic ?? "", width: 178, height: 100, radius: 12),
                                       ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                              onTap: () {
-                                Get.toNamed(Routes.mvDetail, arguments: item);
-                              },
-                            ),
-                          );
-                        },
-                        separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 12),
-                      ),
+                                      Container(
+                                        constraints: BoxConstraints(maxWidth: 178),
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(16),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            color: Theme.of(context).colorScheme.surfaceContainer.withAlpha(200),
+                                            child: Text(
+                                              "${item.title}",
+                                              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 10),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    Get.toNamed(Routes.mvDetail, arguments: item);
+                                  },
+                                ),
+                              );
+                            },
+                            separatorBuilder: (BuildContext context, int index) => const SizedBox(width: 12),
+                          )),
                     ),
                   )
                 ]),

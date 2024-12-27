@@ -68,8 +68,8 @@ PluginsInfo? parseExtension(String extension) {
 extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
   ///启用axios
   Future<JavascriptRuntime> enableAxios() async {
-    String axios = await rootBundle.loadString("assets/axios.js");
-    final evalFetchResult = evaluate(axios);
+    String data = await rootBundle.loadString("assets/axios.js");
+    final evalFetchResult = evaluate(data);
     if (kDebugMode) {
       print('Axios 结果: $evalFetchResult');
     }
@@ -78,8 +78,8 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
 
   ///启用BigInt
   Future<JavascriptRuntime> enableBigInt() async {
-    String axios = await rootBundle.loadString("assets/BigInteger.min.js");
-    final evalFetchResult = evaluate(axios);
+    String data = await rootBundle.loadString("assets/BigInteger.min.js");
+    final evalFetchResult = evaluate(data);
     if (kDebugMode) {
       print('BigInt 结果: $evalFetchResult');
     }
@@ -88,18 +88,28 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
 
   ///启用Base64
   Future<JavascriptRuntime> enableBase64() async {
-    String axios = await rootBundle.loadString("assets/base64-js.js");
-    final evalFetchResult = evaluate(axios);
+    String data = await rootBundle.loadString("assets/base64-js.js");
+    final evalFetchResult = evaluate(data);
     if (kDebugMode) {
       print('Base64 结果: $evalFetchResult');
     }
     return this;
   }
 
+  ///启用FastXmlParser
+  Future<JavascriptRuntime> enableFastXmlParser() async {
+    String data = await rootBundle.loadString("assets/fxparser.min.js");
+    final evalFetchResult = evaluate(data);
+    if (kDebugMode) {
+      print('FastXmlParser 结果: $evalFetchResult');
+    }
+    return this;
+  }
+
   ///启用sleep
   Future<JavascriptRuntime> enableSleep() async {
-    String sleep = await rootBundle.loadString("assets/sleep.js");
-    final evalFetchResult = evaluate(sleep);
+    String data = await rootBundle.loadString("assets/sleep.js");
+    final evalFetchResult = evaluate(data);
     if (kDebugMode) {
       print('sleep 结果: $evalFetchResult');
     }
@@ -108,8 +118,8 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
 
   /// 启用加密
   Future<JavascriptRuntime> enableCrypto() async {
-    String crypto = await rootBundle.loadString("assets/crypto.js");
-    final evalFetchResult = evaluate(crypto);
+    String data = await rootBundle.loadString("assets/crypto.js");
+    final evalFetchResult = evaluate(data);
     if (kDebugMode) {
       print('crypto 结果: $evalFetchResult');
     }

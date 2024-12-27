@@ -27,7 +27,7 @@ class HyperGroupBigTitle extends StatelessWidget {
         child: Material(
           color: Theme.of(context).colorScheme.surfaceContainer,
           child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.only(top: 12,bottom: 12),
               child: Column(
                 children: [
                   Padding(

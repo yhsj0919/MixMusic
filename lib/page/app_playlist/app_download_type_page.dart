@@ -44,7 +44,7 @@ class AppDownloadTypePage extends StatelessWidget {
                   var item = music.currentMusic.value?.quality?[index];
                   return ListTile(
                     title: Text("${item?.title}"),
-                    subtitle: Text("${((item?.size ?? 0) / 1024 / 1024).toStringAsFixed(2)}M"),
+                    subtitle: Text("${item?.size}"),
                     onTap: () {
                       var download = MixDownload.fromSong(music.currentMusic.value!, item);
 

@@ -50,12 +50,16 @@ class DownloadController extends GetxController {
     }
 
     if (mixDownloadContains(download)) {
-      //未添加的
-      mixDownload.insert(0, download);
+      if (download.url?.isNotEmpty == true) {
+        //未添加的
+        mixDownload.insert(0, download);
 
-      addDownload(download.url ?? "", fileName: downloadName);
+        addDownload(download.url ?? "", fileName: downloadName);
 
-      print('>>>>>>>>>第一次下载>>>>>>>>>>>>>>');
+        print('>>>>>>>>>第一次下载>>>>>>>>>>>>>>');
+      } else {
+        showError("地址不存在");
+      }
     } else {
       var old = getOldMixDownload(download);
 

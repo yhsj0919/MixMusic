@@ -84,7 +84,7 @@ class DownloadManager {
 
         String fileExtension = name.split('.').last;
 
-        var downloadName = fileName == null ? name : "$fileName.$fileExtension";
+        var downloadName = (fileName == null ? name : "$fileName.$fileExtension").replaceAll("\"", "").replaceAll("*", "").replaceAll("?", "").replaceAll("<", "").replaceAll(">", "");
         filePath = "$savePath${Platform.pathSeparator}$downloadName";
 
         task.request.fileName = downloadName;

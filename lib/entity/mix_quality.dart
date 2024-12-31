@@ -6,7 +6,7 @@ class MixQuality {
   String? title;
   dynamic id;
   int? quality;
-  int? size;
+  dynamic size;
   String? url;
 
   MixQuality({

@@ -20,6 +20,7 @@ import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/entity/mix_user.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/api/music_api.dart';
+import 'package:mix_music/utils/kwDES.dart';
 import 'package:mix_music/utils/plugins_ext.dart';
 import 'package:mix_music/utils/sp.dart';
 
@@ -42,6 +43,7 @@ class MixApi extends MusicApi {
     await current?.enableCrypto();
     await current?.enableBase64();
     await current?.enableFastXmlParser();
+    current?.enableKwEncrypt2();
 
     await current?.injectMethod("setCookie", (args) async {
       String cookie = args.join(';');

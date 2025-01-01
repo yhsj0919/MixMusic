@@ -44,7 +44,7 @@ class _CookiePageState extends State<CookiePage> {
             title: "Cookie设置",
           ),
           HyperGroup(
-            title: "需要登录的站点",
+            title:Text( "需要登录的站点"),
             children: [
               ListView.builder(
                 padding: EdgeInsets.all(0),

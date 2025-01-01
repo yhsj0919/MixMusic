@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/message.dart';
 
 import '../../entity/mix_play_list.dart';
@@ -57,51 +58,66 @@ class _ParsePlayListState extends State<ParsePlayList> {
           return pinnedHeaderHeight;
         },
         onlyOneScrollInBody: true,
-        body: Column(
+        body: HyperGroup(
+          inSliver: false,
+          title: Row(
+            children: [
+              Text("支持:"),
+              Container(width: 8),
+              ListView.separated(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (BuildContext context, int index) {
+                  var item = plugins[index];
+                  return Container(
+                    alignment: Alignment.center,
+                    child: Text(item.name ?? ""),
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return Container(width: 8);
+                },
+                itemCount: plugins.length,
+              )
+            ],
+          ),
           children: <Widget>[
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              height: 50,
-              child: Row(
-                children: [
-                  Container(
-                    child: Text("支持:"),
-                  ),
-                  Container(width: 8),
-                  ListView.separated(
+            Obx(() => playlist.isEmpty
+                ? Container(
+                    height: 200,
+                    child: Center(
+                      child: Text("暂无数据"),
+                    ),
+                  )
+                : ListView.builder(
                     shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
+                    itemCount: playlist.length,
                     itemBuilder: (BuildContext context, int index) {
-                      var item = plugins[index];
-                      return Container(
-                        alignment: Alignment.center,
-                        child: Text(item.name ?? ""),
+                      var item = playlist[index];
+
+                      var plugin = ApiFactory.getPlugin(item.package);
+                      return ListTile(
+                        leading: Stack(alignment: Alignment.bottomRight, children: [
+                          AppImage(url: item.pic ?? ""),
+                          ClipRRect(
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                              child: Container(
+                                color: Colors.white,
+                                child: AppImage(
+                                  url: plugin?.icon ?? "",
+                                  width: 20,
+                                  height: 20,
+                                ),
+                              ))
+                        ]),
+                        title: Text("${item.title}", maxLines: 1),
+                        subtitle: Text("${item.subTitle}", maxLines: 1),
+                        onTap: () {
+                          Get.toNamed(Routes.playListDetail, arguments: item);
+                        },
                       );
                     },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return Container(width: 8);
-                    },
-                    itemCount: plugins.length,
-                  )
-                ],
-              ),
-            ),
-            Obx(() => ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: playlist.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    var item = playlist[index];
-                    return ListTile(
-                      leading: AppImage(url: item.pic ?? ""),
-                      title: Text("${item.title}", maxLines: 1),
-                      subtitle: Text("${item.subTitle}", maxLines: 1),
-                      trailing: Text("${item.package}", maxLines: 1),
-                      onTap: () {
-                        Get.toNamed(Routes.playListDetail, arguments: item);
-                      },
-                    );
-                  },
-                )),
+                  )),
           ],
         ),
       ),

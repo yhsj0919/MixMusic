@@ -12,7 +12,7 @@ class MethodItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return HyperGroup(
       inSliver: false,
-      title: modules ?? "",
+      title: Text(modules ?? ""),
       children: [
         Container(
           width: double.infinity,

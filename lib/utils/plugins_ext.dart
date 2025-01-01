@@ -7,6 +7,8 @@ import 'package:flutter_js/flutter_js.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:path/path.dart';
 
+import 'kwDES.dart';
+
 ///获取所有插件
 Future<List<PluginsInfo>> getSystemPlugins({required String rootDir}) async {
   var dir = Directory(rootDir);
@@ -103,6 +105,22 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
     if (kDebugMode) {
       print('FastXmlParser 结果: $evalFetchResult');
     }
+    return this;
+  }
+
+  JavascriptRuntime enableKwEncrypt2() {
+    String method = "encrypt2";
+
+    evaluate("""
+      async function $method() {
+         return await sendMessage('$method', JSON.stringify([...arguments]));
+      }
+    """);
+    onMessage('$method', (dynamic args) {
+      var src = args[0];
+      var key = args[1];
+      return Base64Codec().encode(KwDES.encrypt2(utf8.encode(src), utf8.encode(key)));
+    });
     return this;
   }
 

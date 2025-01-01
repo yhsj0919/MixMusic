@@ -29,7 +29,7 @@ class _DownloadPageState extends State<DownloadPage> {
             title: Text("下载管理"),
           ),
           HyperGroup(
-            title: "下载中",
+            title:Text("下载中") ,
             children: [
               Obx(() => ListView.builder(
                     shrinkWrap: true,

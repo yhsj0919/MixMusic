@@ -41,7 +41,7 @@ class _HomeSitePageState extends State<HomeSitePage> {
               title: "首页数据",
             ),
             HyperGroup(
-              title: "下列站点可展示在首页",
+              title: Text("下列站点可展示在首页"),
               children: [
                 ListView.builder(
                   padding: EdgeInsets.all(0),

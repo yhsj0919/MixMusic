@@ -114,7 +114,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
         slivers: [
           const HyperAppbar(title: "插件"),
           HyperGroup(
-            title: "已安装",
+            title: Text("已安装"),
             children: [
               ListView.builder(
                 padding: EdgeInsets.all(0),

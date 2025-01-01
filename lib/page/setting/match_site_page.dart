@@ -57,7 +57,7 @@ class _MatchSitePageState extends State<MatchSitePage> {
               ],
             ),
             HyperGroup(
-              title: "将下列站点作为匹配站点",
+              title: Text("将下列站点作为匹配站点"),
               children: [
                 ListView.builder(
                   padding: EdgeInsets.all(0),

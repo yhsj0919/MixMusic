@@ -61,7 +61,7 @@ class _SettingPageState extends State<SettingPage> {
             ],
           ),
           SliverToBoxAdapter(child: Container(height: 12)),
-          HyperGroup(title: "插件", children: [
+          HyperGroup(title: Text("插件"), children: [
             HyperListTile(
                 leading: HyperIcon(color: Colors.blue, icon: Icons.extension_rounded),
                 title: "插件",
@@ -96,7 +96,7 @@ class _SettingPageState extends State<SettingPage> {
                 }),
           ]),
           SliverToBoxAdapter(child: Container(height: 12)),
-          HyperGroup(title: "下载", children: [
+          HyperGroup(title: Text("下载"), children: [
             HyperListTile(
                 leading: HyperIcon(color: Colors.blue, icon: Icons.folder_rounded),
                 title: "下载设置",
@@ -106,7 +106,7 @@ class _SettingPageState extends State<SettingPage> {
                 }),
           ]),
           SliverToBoxAdapter(child: Container(height: 12)),
-          HyperGroup(title: "电源", children: [
+          HyperGroup(title: Text("电源"), children: [
             HyperListTile(
                 leading: HyperIcon(color: Colors.blue, icon: Icons.battery_unknown_rounded),
                 title: "电源策略",

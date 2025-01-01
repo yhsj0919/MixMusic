@@ -4,7 +4,7 @@ class HyperGroup extends StatelessWidget {
   const HyperGroup({super.key, this.children = const <Widget>[], this.title, this.inSliver = true});
 
   final List<Widget> children;
-  final String? title;
+  final Widget? title;
   final bool inSliver;
 
   @override
@@ -14,14 +14,15 @@ class HyperGroup extends StatelessWidget {
       child: Column(
         children: [
           title != null
-              ? Padding(
+              ? Container(
+                  height: 34,
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   child: Row(
                     children: [
                       AnimatedDefaultTextStyle(
                         style: Theme.of(context).textTheme.labelMedium ?? TextStyle(),
                         duration: kThemeChangeDuration,
-                        child: Text(title ?? ""),
+                        child: title!,
                       ),
                       Expanded(child: Container()),
                       // Text(

@@ -50,7 +50,7 @@ class _DownloadSettingPageState extends State<DownloadSettingPage> {
             title: "下载设置",
           ),
           HyperGroup(
-            title: "保存目录",
+            title: Text("保存目录"),
             children: [
               Obx(() => HyperListTile(
                   // leading: HyperIcon(color: Colors.blue, icon: Icons.folder_rounded),
@@ -94,7 +94,7 @@ class _DownloadSettingPageState extends State<DownloadSettingPage> {
           ),
           SliverGap(12),
           Obx(() => HyperGroup(
-                title: "命名方式",
+                title: Text("命名方式"),
                 children: [
                   RadioListTile<int?>(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

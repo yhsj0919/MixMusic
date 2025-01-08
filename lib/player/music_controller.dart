@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
@@ -33,6 +35,9 @@ class MusicController extends GetxController {
   bool isNext = true;
 
   ThemeController theme = Get.put(ThemeController());
+
+  StreamSubscription<dynamic>? requestTimeOutFuture;
+  StreamSubscription<dynamic>? requestFuture;
 
   @override
   void onInit() {
@@ -108,6 +113,7 @@ class MusicController extends GetxController {
       showInfo('正在加载，稍等吧');
       return;
     }
+    requestTimeOut();
 
     isBuffering.value = true;
     currentMusic.value = music;
@@ -115,7 +121,9 @@ class MusicController extends GetxController {
 
     musicIndex.value = musicList.indexWhere((element) => element.id == music.id && element.package == music.package);
     Player.stop();
-    ApiFactory.playUrl(package: music.package, song: music).then((value) {
+    requestFuture?.cancel();
+    requestFuture = ApiFactory.playUrl(package: music.package, song: music).asStream().listen((value) {
+      requestTimeOutFuture?.cancel();
       musicIndex.value = musicList.indexWhere((element) => element.id == music.id && element.package == music.package);
 
       music.url = value.url;
@@ -148,19 +156,30 @@ class MusicController extends GetxController {
         });
       } else {
         isBuffering.value = false;
-        showError('${music.title} 异常无法播放,尝试下一首');
-        if (musicIndex.value < musicList.length - 1) {
-          if (isNext) {
-            next(loop: false);
-          } else {
-            previous(loop: false);
-          }
-        }
+        showError('${music.title} 异常无法播放');
+        // showError('${music.title} 异常无法播放,尝试下一首');
+        // if (musicIndex.value < musicList.length - 1) {
+        //   if (isNext) {
+        //     next(loop: false);
+        //   } else {
+        //     previous(loop: false);
+        //   }
+        // }
       }
-    }).catchError((e) {
+    }, onError: (e) {
+      requestTimeOutFuture?.cancel();
       isBuffering.value = false;
       print(e);
       showError('${music.title} 获取地址失败:$e');
+    });
+  }
+
+  void requestTimeOut() {
+    requestTimeOutFuture = Future.delayed(const Duration(seconds: 15)).asStream().listen((value) {
+      requestTimeOutFuture?.cancel();
+      requestFuture?.cancel();
+      isBuffering.value = false;
+      showError('请求超时');
     });
   }
 
@@ -225,6 +244,13 @@ class MusicController extends GetxController {
   }
 
   void setPlayMode(PlayerMode mode) {}
+
+  @override
+  void onClose() {
+    super.onClose();
+    requestTimeOutFuture?.cancel();
+    requestFuture?.cancel();
+  }
 }
 
 enum PlayMode {

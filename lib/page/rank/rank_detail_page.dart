@@ -190,7 +190,7 @@ class _RankDetailPageState extends State<RankDetailPage> {
         songList.clear();
         refreshController.finishRefresh();
       }
-      refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success, true);
+      refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
 
       var songs = value.data?.songs ?? [];
       songList.addAll(songs);

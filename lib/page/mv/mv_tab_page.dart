@@ -122,11 +122,10 @@ class _MvTabPageState extends State<MvTabPage> with AutomaticKeepAliveClientMixi
         artistList.clear();
         refreshController.finishRefresh();
       }
-      refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success, true);
+      refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
 
-      if (pageEntity.value != null) {
-        artistList.addAll(value.data ?? []);
-      }
+      artistList.addAll(value.data ?? []);
+
       // showComplete("操作成功");
     }).catchError((e) {
       firstLoad.value = false;

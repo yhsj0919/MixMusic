@@ -77,7 +77,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
               var result = await FilePicker.platform.pickFiles(
                 dialogTitle: "选择插件",
                 lockParentWindow: true,
-                type: FileType.custom,
+                type: GetPlatform.isDesktop ? FileType.custom : FileType.any,
                 allowedExtensions: ["js"],
               );
               if (result != null) {

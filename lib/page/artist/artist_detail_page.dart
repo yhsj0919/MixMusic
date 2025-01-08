@@ -158,11 +158,10 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
     //     songList.clear();
     //     refreshController.finishRefresh();
     //   }
-    //   refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success, true);
+    //         refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
     //
-    //   if (pageEntity.value != null) {
+
     //     songList.addAll(value.data?.songs ?? []);
-    //   }
     //   // showComplete("操作成功");
     // }).catchError((e) {
     //   if (page == 0) {

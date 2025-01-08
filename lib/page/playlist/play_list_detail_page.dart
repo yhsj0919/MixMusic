@@ -184,7 +184,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
         songList.clear();
         refreshController.finishRefresh();
       }
-      refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success, true);
+      refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
       songList.addAll(value.data?.songs ?? []);
 
       // showComplete("操作成功");

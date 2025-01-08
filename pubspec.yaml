@@ -36,7 +36,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   #文件选择
-  file_picker: ^8.1.4
+  file_picker: ^8.1.6
   permission_handler: ^11.3.1
   path_provider: ^2.1.5
   #js插件处理
@@ -78,7 +78,7 @@ dependencies:
 
   #  drop_shadow: ^0.1.0
 
-  shared_preferences: ^2.3.3
+  shared_preferences: ^2.3.4
 
   #============page2===================
   dynamic_color: ^1.7.0

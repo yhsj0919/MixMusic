@@ -13,7 +13,6 @@ import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/hyper/hyper_loading.dart';
 import 'package:mix_music/widgets/message.dart';
 
-
 import '../../widgets/page_list_view.dart';
 
 class PlayListTabPage extends StatefulWidget {
@@ -87,11 +86,10 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
         playlist.clear();
         refreshController.finishRefresh();
       }
-      refreshController.finishLoad((pageEntity.value?.last != null && pageEntity.value?.last == true) ? IndicatorResult.noMore : IndicatorResult.success, true);
+      refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
 
-      if (pageEntity.value != null) {
-        playlist.addAll(value.data ?? []);
-      }
+      playlist.addAll(value.data ?? []);
+
       // showComplete("操作成功");
     }).catchError((e) {
       firstLoad.value = false;

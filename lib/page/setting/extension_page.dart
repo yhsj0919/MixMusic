@@ -78,7 +78,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
                 dialogTitle: "选择插件",
                 lockParentWindow: true,
                 type: GetPlatform.isDesktop ? FileType.custom : FileType.any,
-                allowedExtensions: ["js"],
+                allowedExtensions: GetPlatform.isDesktop ? ["js"] : null,
               );
               if (result != null) {
                 File file = File(result.files.single.path!);

@@ -10,6 +10,8 @@ import 'package:mix_music/page/mv/mv_detail_page.dart';
 import 'package:mix_music/page/mv/mv_page.dart';
 import 'package:mix_music/page/setting/download_setting_page.dart';
 import 'package:mix_music/page/setting/extension_page.dart';
+import 'package:mix_music/page/setting/login/login_by_cookie.dart';
+import 'package:mix_music/page/setting/login/login_by_phone.dart';
 import 'package:mix_music/page/setting/setting_page.dart';
 import 'package:mix_music/page/parse/parse_play_list.dart';
 import 'package:mix_music/page/permission/permission_page.dart';
@@ -48,6 +50,8 @@ class Routes {
   static const String matchSite = "/matchSite";
   static const String homeSite = "/homeSite";
   static const String cookieSetting = "/cookieSetting";
+  static const String loginByCookie = "/loginByCookie";
+  static const String loginByPhone = "/loginByPhone";
   static const String album = "/album";
   static const String albumDetail = "/albumDetail";
 
@@ -67,6 +71,8 @@ class Routes {
     GetPage(name: matchSite, page: () => const MatchSitePage(), customTransition: MyCustomTransition()),
     GetPage(name: homeSite, page: () => const HomeSitePage(), customTransition: MyCustomTransition()),
     GetPage(name: cookieSetting, page: () => const CookiePage(), customTransition: MyCustomTransition()),
+    GetPage(name: loginByCookie, page: () => const LoginByCookiePage(), customTransition: MyCustomTransition()),
+    GetPage(name: loginByPhone, page: () => const LoginByPhonePage(), customTransition: MyCustomTransition()),
     GetPage(name: home, page: () => const HomePage(), customTransition: MyCustomTransition()),
     GetPage(name: setting, page: () => const SettingPage(), customTransition: MyCustomTransition()),
     GetPage(name: search, page: () => const SearchPage(), customTransition: MyCustomTransition()),

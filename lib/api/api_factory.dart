@@ -98,6 +98,14 @@ class ApiFactory {
     return api(package: package ?? "")?.keys(obj: "music.artist.detail") ?? [];
   }
 
+  static List<PluginsInfo> getLoginPlugins({String type = "music"}) {
+    return getPlugins(key: "login");
+  }
+
+  static List<String> getLoginMethod(String? package) {
+    return api(package: package ?? "")?.keys(obj: "music.login") ?? [];
+  }
+
   static List<PluginsInfo> getPlugins({String? key, String obj = "music"}) {
     if (key == null) return _plugins;
 

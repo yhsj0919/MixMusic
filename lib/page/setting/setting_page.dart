@@ -89,7 +89,7 @@ class _SettingPageState extends State<SettingPage> {
             HyperListTile(
                 leading: HyperIcon(color: Colors.blue, icon: Icons.cookie),
                 title: "站点登录",
-                subtitle: "配置cookie，实现登录",
+                subtitle: "登录获取更多资源",
                 trailing: HyperTrailing(),
                 onTap: () {
                   Get.toNamed(Routes.cookieSetting);

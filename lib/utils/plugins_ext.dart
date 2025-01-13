@@ -98,6 +98,16 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
     return this;
   }
 
+  ///启用JsEncrypt
+  Future<JavascriptRuntime> enableJsbn() async {
+    String data = await rootBundle.loadString("assets/jsbn.js");
+    final evalFetchResult = evaluate(data);
+    if (kDebugMode) {
+      print('Jsbn 结果: $evalFetchResult');
+    }
+    return this;
+  }
+
   ///启用FastXmlParser
   Future<JavascriptRuntime> enableFastXmlParser() async {
     String data = await rootBundle.loadString("assets/fxparser.min.js");

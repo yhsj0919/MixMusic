@@ -153,6 +153,22 @@ abstract class MusicApi {
   ///=====================================MV=====================================================
   ///
   ///
+  ///=====================================登录=====================================================
+  ///设置Cookie
+  Future<bool> setCookie({required String cookie});
+
+  ///获取Cookie
+  Future<String> getCookie();
+
+  ///发送验证码
+  Future<AppRespEntity<dynamic>> sendPhoneCode({required String phone});
+
+  ///验证码登录
+  Future<AppRespEntity<MixUser>> loginByPhone({required String phone, required String code});
+
+  ///=====================================登录=====================================================
+  ///
+  ///
   ///=====================================公共=====================================================
   ///执行方法
   Future<dynamic> invokeMethod({required String method, List<String> params = const []});
@@ -162,10 +178,6 @@ abstract class MusicApi {
 
   ///是否包含某个key
   bool contains({required String key, String obj = "music"});
-
-  void setCookie({required String cookie});
-
-  String getCookie();
 
   ///=====================================公共=====================================================
 

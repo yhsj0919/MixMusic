@@ -810,10 +810,10 @@ const music = {
         ,
         refresh: async function () {
             //获取cookie
-            let cookie = await getCookie();
+            let cookie = await getStorage("cookie");
             //自己刷新cookie
             //保存cookie
-            setCookie(cookie);
+            setStorage("cookie", cookie);
             return {
                 code: 200,
                 msg: '操作成功',

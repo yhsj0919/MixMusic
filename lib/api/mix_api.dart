@@ -42,18 +42,23 @@ class MixApi extends MusicApi {
     await current?.enableBigInt();
     await current?.enableCrypto();
     await current?.enableBase64();
+    await current?.enableJsbn();
     await current?.enableFastXmlParser();
     current?.enableKwEncrypt2();
 
-    await current?.injectMethod("setCookie", (args) async {
-      String cookie = args.join(';');
-      return await Sp.setString("${Constant.KEY_COOKIE}_${plugins?.package}", cookie);
+    await current?.injectMethod("setStorage", (args) async {
+      String key = args[0];
+      String value = args[1];
+      return await Sp.setString("${plugins?.package}_$key", value.toString());
     });
-    await current?.injectMethod("getCookie", (args) {
-      return Sp.getString("${Constant.KEY_COOKIE}_${plugins?.package}") ?? "";
+    await current?.injectMethod("getStorage", (args) {
+      String key = args[0];
+      return Sp.getString("${plugins?.package}_$key") ?? "";
     });
     current?.enableStringPlugin(code: plugins?.code ?? "");
   }
+
+
 
   @override
   void dispose() {
@@ -479,17 +484,50 @@ class MixApi extends MusicApi {
   ///是否包含某个key
   @override
   bool contains({required String key, String obj = "music"}) {
-    var check = current?.evaluate("'$key' in $obj").rawResult as bool?;
-    return check ?? false;
+    var ss = current?.evaluate("'$key' in $obj");
+    if (ss?.isError == true) {
+      return false;
+    } else {
+      var check = ss?.rawResult as bool?;
+      return check ?? false;
+    }
   }
 
   @override
-  void setCookie({required String cookie}) {
-    Sp.setString("${Constant.KEY_COOKIE}_${plugins?.package}", cookie);
+  Future<bool> setCookie({required String cookie}) {
+    return invokeMethod(method: "music.login.cookie.set", params: [cookie]).then((value) {
+      return Future(() => (value as bool));
+    });
   }
 
   @override
-  String getCookie() {
-    return Sp.getString("${Constant.KEY_COOKIE}_${plugins?.package}") ?? "";
+  Future<String> getCookie() {
+    return invokeMethod(method: "music.login.cookie.get", params: []).then((value) {
+      return Future(() => (value as String));
+    });
+  }
+
+  @override
+  Future<AppRespEntity<dynamic>> sendPhoneCode({required String phone}) {
+    return invokeMethod(method: "music.login.phone.code", params: [phone]).then((value) {
+      AppRespEntity<MixUser> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
+  @override
+  Future<AppRespEntity<MixUser>> loginByPhone({required String phone, required String code}) {
+    return invokeMethod(method: "music.login.phone.login", params: [phone, code]).then((value) {
+      AppRespEntity<MixUser> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
   }
 }

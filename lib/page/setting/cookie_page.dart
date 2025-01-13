@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/page/setting/user_controller.dart';
+import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/common_item.dart';
@@ -30,9 +32,7 @@ class _CookiePageState extends State<CookiePage> {
   }
 
   void getPlugins() {
-    List<PluginsInfo>? list = Sp.getList(Constant.KEY_EXTENSION);
-    plugins.clear();
-    plugins.addAll(list ?? []);
+    plugins.value = ApiFactory.getLoginPlugins();
   }
 
   @override
@@ -41,77 +41,77 @@ class _CookiePageState extends State<CookiePage> {
       body: CustomScrollView(
         slivers: [
           HyperAppbar(
-            title: "Cookie设置",
+            title: "站点登录",
           ),
-          HyperGroup(
-            title:Text( "需要登录的站点"),
-            children: [
-              ListView.builder(
-                padding: EdgeInsets.all(0),
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: plugins.length,
-                itemBuilder: (BuildContext context, int index) {
-                  var plugin = plugins[index];
-                  var api = ApiFactory.api(package: plugin.package ?? "");
-                  var cookie = api?.getCookie();
-                  var user = userController.userInfos[plugin.package ?? ""];
+          SliverToBoxAdapter(
+            child: ListView.separated(
+              padding: EdgeInsets.all(0),
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: plugins.length,
+              itemBuilder: (BuildContext context, int index) {
+                var plugin = plugins[index];
+                var user = userController.userInfos[plugin.package ?? ""];
+                var detailMethod = ApiFactory.getLoginMethod(plugin.package ?? "") ?? [];
 
-                  return ListTile(
-                    leading: HyperLeading(
-                      size: 40,
-                      child: AppImage(url: "${plugin.icon}"),
+                return HyperGroup(
+                  inSliver: false,
+                  children: [
+                    ListTile(
+                      leading: HyperLeading(
+                        size: 40,
+                        child: AppImage(url: "${plugin.icon}"),
+                      ),
+                      title: Text("${plugin.name}"),
+                      subtitle: Text(
+                        user?.login == 1 ? "${user?.name ?? "未知"} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "普通用户"}" : "未登录",
+                        maxLines: 1,
+                      ),
                     ),
-                    title: Text("${plugin.name}"),
-                    subtitle: Text(
-                      cookie?.isNotEmpty == true ? "${user?.name ?? "未知"} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "普通用户"}" : "未设置",
-                      maxLines: 1,
-                    ),
-                    onTap: () {
-                      var controller = TextEditingController(text: cookie);
-
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('设置'),
-                            content: TextField(
-                              maxLines: 5,
-                              controller: controller,
-                              decoration: const InputDecoration(
-                                hintText: "请输入cookie",
-                                border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
-                              ),
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                child: const Text('取消'),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Row(
+                        children: detailMethod.map((element) {
+                          print(element);
+                          if (element == "cookie") {
+                            return IconButton(
                                 onPressed: () {
-                                  Navigator.of(context).pop(); // 关闭对话框
-                                },
-                              ),
-                              TextButton(
-                                child: const Text('确定'),
-                                onPressed: () {
-                                  print(controller.text);
-                                  api?.setCookie(cookie: controller.text);
-                                  Navigator.of(context).pop(); // 关闭对话框
-                                  userController.getAllUser().then((v) {
+                                  Get.toNamed(Routes.loginByCookie, arguments: plugin)?.then((v) {
                                     setState(() {});
                                   });
                                 },
-                              ),
-                            ],
-                          );
-                        },
-                      ).then((v) {
-                        setState(() {});
-                      });
-                    },
-                  );
-                },
-              ),
-            ],
+                                icon: Icon(Icons.cookie));
+                          }
+                          if (element == "phone") {
+                            return IconButton(
+                                onPressed: () {
+                                  Get.toNamed(Routes.loginByPhone, arguments: plugin)?.then((v) {
+                                    setState(() {});
+                                  });
+                                },
+                                icon: Icon(Icons.phone_android));
+                          }
+                          if (element == "user") {
+                            return IconButton(onPressed: () {}, icon: Icon(Icons.person));
+                          }
+                          if (element == "web") {
+                            return IconButton(onPressed: () {}, icon: Icon(Icons.browser_updated));
+                          }
+                          if (element == "qr") {
+                            return IconButton(onPressed: () {}, icon: Icon(Icons.qr_code));
+                          }
+
+                          return IconButton(onPressed: () {}, icon: Icon(Icons.error));
+                        }).toList(),
+                      ),
+                    )
+                  ],
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return Gap(12);
+              },
+            ),
           )
         ],
       ),

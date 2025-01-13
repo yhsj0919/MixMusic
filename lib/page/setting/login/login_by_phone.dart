@@ -29,7 +29,7 @@ class _LoginByPhonePageState extends State<LoginByPhonePage> {
   final TextEditingController _codeController = TextEditingController();
   bool _isButtonDisabled = false;
   int _countdown = 60;
-  late Timer _timer;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -77,13 +77,13 @@ class _LoginByPhonePageState extends State<LoginByPhonePage> {
           _isButtonDisabled = false;
           _countdown = 60;
         });
-        _timer.cancel();
+        _timer?.cancel();
       }
     });
   }
 
   void _stopCountdown() {
-    _timer.cancel();
+    _timer?.cancel();
     setState(() {
       _isButtonDisabled = false;
       _countdown = 60;
@@ -94,8 +94,8 @@ class _LoginByPhonePageState extends State<LoginByPhonePage> {
   void dispose() {
     _phoneController.dispose();
     _codeController.dispose();
-    if (_timer.isActive) {
-      _timer.cancel();
+    if (_timer?.isActive == true) {
+      _timer?.cancel();
     }
     super.dispose();
   }

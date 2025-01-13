@@ -42,9 +42,13 @@ class MixApi extends MusicApi {
     await current?.enableBigInt();
     await current?.enableCrypto();
     await current?.enableBase64();
-    await current?.enableJsbn();
     await current?.enableFastXmlParser();
     current?.enableKwEncrypt2();
+    current?.enableAesDecrypt();
+    current?.enableAesEncrypt();
+    current?.enableRsaDecrypt();
+    current?.enableRsaEncrypt();
+    current?.enableMd5();
 
     await current?.injectMethod("setStorage", (args) async {
       String key = args[0];
@@ -57,8 +61,6 @@ class MixApi extends MusicApi {
     });
     current?.enableStringPlugin(code: plugins?.code ?? "");
   }
-
-
 
   @override
   void dispose() {

@@ -92,7 +92,7 @@ class _SettingPageState extends State<SettingPage> {
                 subtitle: "登录获取更多资源",
                 trailing: HyperTrailing(),
                 onTap: () {
-                  Get.toNamed(Routes.cookieSetting);
+                  Get.toNamed(Routes.loginListSetting);
                 }),
           ]),
           SliverToBoxAdapter(child: Container(height: 12)),

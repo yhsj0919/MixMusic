@@ -16,8 +16,9 @@ import 'dart:convert';
 import 'package:encrypt/encrypt.dart' as encrypt;
 
 import 'package:pointycastle/api.dart';
-import 'package:pointycastle/asymmetric/api.dart'as asApi;
+import 'package:pointycastle/asymmetric/api.dart' as asApi;
 import 'package:pointycastle/asymmetric/rsa.dart';
+
 ///获取所有插件
 Future<List<PluginsInfo>> getSystemPlugins({required String rootDir}) async {
   var dir = Directory(rootDir);
@@ -143,8 +144,8 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
       var data = args[0].toString();
       var key = args[1].toString();
 
-      print(">>>>data>>>>" + data);
-      print(">>>>key>>>>" + key);
+      // print(">>>>data>>>>" + data);
+      // print(">>>>key>>>>" + key);
 
       // // 公钥和私钥
       // final publicKey = parseKeyFromString<asApi.RSAPublicKey>(key);
@@ -157,7 +158,6 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
       // print('Encrypted: ${encrypted.base64}');
       //
       // // return encrypted.bytes.hex.toLowerCase();
-
 
       asApi.RSAPublicKey pubKey = RSAKeyParser().parse(key) as asApi.RSAPublicKey;
       final rsa = RSAEngine();
@@ -186,8 +186,8 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
       final encrypter = encrypt.Encrypter(encrypt.RSA(privateKey: privateKey));
 
       // 加密
-      final encrypted = encrypter.decrypt(Encrypted.fromUtf8(data));
-      print('Encrypted: ${encrypted}');
+      final encrypted = encrypter.decrypt(Encrypted.fromBase16(data));
+      // print('Encrypted: ${encrypted}');
 
       return encrypted;
     });
@@ -206,9 +206,9 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
       var key = args[1].toString();
       var iv = args[2].toString();
 
-      print(data);
-      print(key);
-      print(iv);
+      // print(data);
+      // print(key);
+      // print(iv);
 
       final myKey = encrypt.Key.fromUtf8(key);
       final myIv = encrypt.IV.fromUtf8(iv);
@@ -217,7 +217,7 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
 
       final encrypted = encrypter.encrypt(data, iv: myIv);
 
-      print(encrypted.base16); // R4PxiU3h8YoIRqVowBXm36ZcCeNeZ4s1OvVBTfFlZRdmohQqOpPQqD1YecJeZMAop/hZ4OxqgC1WtwvX/hP9mw==
+      // print(encrypted.base16); // R4PxiU3h8YoIRqVowBXm36ZcCeNeZ4s1OvVBTfFlZRdmohQqOpPQqD1YecJeZMAop/hZ4OxqgC1WtwvX/hP9mw==
 
       return encrypted.base16;
     });
@@ -244,9 +244,9 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
       final myIv = encrypt.IV.fromUtf8(iv);
 
       final encrypter = Encrypter(AES(myKey, mode: encrypt.AESMode.cbc, padding: "PKCS7"));
-      final decrypted = encrypter.encrypt(data, iv: myIv);
+      final decrypted = encrypter.decrypt(Encrypted.fromBase16(data), iv: myIv);
 
-      print(decrypted); // Lorem ipsum dolor sit amet, consectetur adipiscing elit
+      // print(decrypted); // Lorem ipsum dolor sit amet, consectetur adipiscing elit
 
       return decrypted;
     });
@@ -270,7 +270,7 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
       var md5Hash = md5.convert(bytes);
 
       // 输出 MD5 哈希值
-      print("MD5 Hash: ${md5Hash.toString()}");
+      // print("MD5 Hash: ${md5Hash.toString()}");
 
       return md5Hash.toString();
     });
@@ -302,7 +302,6 @@ T parseKeyFromString<T extends asApi.RSAAsymmetricKey>(String key) {
   final parser = RSAKeyParser();
   return parser.parse(key) as T;
 }
-
 
 ///js扩展
 extension MethodExtension on JavascriptRuntime {

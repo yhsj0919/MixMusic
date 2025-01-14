@@ -31,7 +31,7 @@ class _LoginByCookiePageState extends State<LoginByCookiePage> {
   }
 
   void getCookie() async {
-    cookie.value = await api?.getCookie() ?? "";
+    cookie.value = (await api?.getCookie())?.data ?? "";
     controller.text = cookie.value ?? "";
   }
 

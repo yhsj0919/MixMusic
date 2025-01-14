@@ -496,23 +496,33 @@ class MixApi extends MusicApi {
   }
 
   @override
-  Future<bool> setCookie({required String cookie}) {
+  Future<AppRespEntity<dynamic>> setCookie({required String cookie}) {
     return invokeMethod(method: "music.login.cookie.set", params: [cookie]).then((value) {
-      return Future(() => (value as bool));
+      AppRespEntity<dynamic> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
     });
   }
 
   @override
-  Future<String> getCookie() {
+  Future<AppRespEntity<String>> getCookie() {
     return invokeMethod(method: "music.login.cookie.get", params: []).then((value) {
-      return Future(() => (value as String));
+      AppRespEntity<String> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
     });
   }
 
   @override
   Future<AppRespEntity<dynamic>> sendPhoneCode({required String phone}) {
     return invokeMethod(method: "music.login.phone.code", params: [phone]).then((value) {
-      AppRespEntity<MixUser> data = AppRespEntity.fromJson(value);
+      AppRespEntity<dynamic> data = AppRespEntity.fromJson(value);
       if (data.code == 200) {
         return Future(() => data);
       } else {

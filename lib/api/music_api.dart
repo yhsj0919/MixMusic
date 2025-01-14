@@ -155,10 +155,10 @@ abstract class MusicApi {
   ///
   ///=====================================登录=====================================================
   ///设置Cookie
-  Future<bool> setCookie({required String cookie});
+  Future<AppRespEntity<dynamic>> setCookie({required String cookie});
 
   ///获取Cookie
-  Future<String> getCookie();
+  Future<AppRespEntity<String>> getCookie();
 
   ///发送验证码
   Future<AppRespEntity<dynamic>> sendPhoneCode({required String phone});

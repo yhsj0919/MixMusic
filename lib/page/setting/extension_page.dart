@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/constant.dart';
@@ -155,7 +156,8 @@ class _ExtensionPageState extends State<ExtensionPage> {
                 },
               ),
             ],
-          )
+          ),
+          SliverGap(80)
         ],
       ),
     );

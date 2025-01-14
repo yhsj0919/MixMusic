@@ -75,6 +75,11 @@ xhr
 BigInteger
 base64 - js
 FastXmlParser
+await rsaEncrypt(data, key) //返回hex格式字符串
+await rsaDecrypt(data, key) //接收hex格式字符串，返回解密后字符串
+await aesEncrypt(data, key, iv) //返回hex格式字符串
+await aesDecrypt(data, key, iv) //接收hex格式字符串，返回解密后字符串
+await md5(data)  //返回32位字符串
 ```
 
 ### 音质

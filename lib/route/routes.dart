@@ -24,7 +24,7 @@ import 'package:mix_music/page/setting/home_site_page.dart';
 import 'package:mix_music/widgets/OpacityRoute.dart';
 
 import '../page/artist/artist_detail_page.dart';
-import '../page/setting/cookie_page.dart';
+import '../page/setting/login_list_page.dart';
 import '../page/setting/match_site_page.dart';
 import '../page/welcome/welcome_page.dart';
 
@@ -49,7 +49,7 @@ class Routes {
   static const String playListDetail = "/playlistDetail";
   static const String matchSite = "/matchSite";
   static const String homeSite = "/homeSite";
-  static const String cookieSetting = "/cookieSetting";
+  static const String loginListSetting = "/loginListSetting";
   static const String loginByCookie = "/loginByCookie";
   static const String loginByPhone = "/loginByPhone";
   static const String album = "/album";
@@ -70,7 +70,7 @@ class Routes {
     GetPage(name: extension, page: () => const ExtensionPage(), customTransition: MyCustomTransition()),
     GetPage(name: matchSite, page: () => const MatchSitePage(), customTransition: MyCustomTransition()),
     GetPage(name: homeSite, page: () => const HomeSitePage(), customTransition: MyCustomTransition()),
-    GetPage(name: cookieSetting, page: () => const CookiePage(), customTransition: MyCustomTransition()),
+    GetPage(name: loginListSetting, page: () => const LoginListPage(), customTransition: MyCustomTransition()),
     GetPage(name: loginByCookie, page: () => const LoginByCookiePage(), customTransition: MyCustomTransition()),
     GetPage(name: loginByPhone, page: () => const LoginByPhonePage(), customTransition: MyCustomTransition()),
     GetPage(name: home, page: () => const HomePage(), customTransition: MyCustomTransition()),

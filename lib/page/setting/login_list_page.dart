@@ -13,14 +13,14 @@ import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
 import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/hyper/hyper_leading.dart';
 
-class CookiePage extends StatefulWidget {
-  const CookiePage({super.key});
+class LoginListPage extends StatefulWidget {
+  const LoginListPage({super.key});
 
   @override
-  State<CookiePage> createState() => _CookiePageState();
+  State<LoginListPage> createState() => _LoginListPageState();
 }
 
-class _CookiePageState extends State<CookiePage> {
+class _LoginListPageState extends State<LoginListPage> {
   RxList<PluginsInfo> plugins = RxList();
   UserController userController = Get.put(UserController());
 
@@ -64,7 +64,7 @@ class _CookiePageState extends State<CookiePage> {
                       ),
                       title: Text("${plugin.name}"),
                       subtitle: Text(
-                        user?.login == 1 ? "${user?.name ?? "未知"} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "普通用户"}" : "未登录",
+                        user?.login == 1 ? "${user?.name ?? "未知"} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "普通用户"} ${user?.vipEndTime}" : "未登录",
                         maxLines: 1,
                       ),
                     ),

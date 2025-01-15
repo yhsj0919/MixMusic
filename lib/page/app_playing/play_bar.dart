@@ -29,100 +29,101 @@ class _PlayBarState extends State<PlayBar> {
 
   @override
   Widget build(BuildContext context1) {
-    return Obx(() => AnimatedTheme(
-        data: ThemeData(
-          colorSchemeSeed: theme.playingColor.value ?? Theme.of(context).colorScheme.primary,
-          brightness: Theme.of(context1).brightness,
-        ),
-        child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-          return Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+    return Obx(() => music.currentMusic.value == null
+        ? Container()
+        : AnimatedTheme(
+            data: ThemeData(
+              colorSchemeSeed: theme.playingColor.value ?? Theme.of(context).colorScheme.primary,
+              brightness: Theme.of(context1).brightness,
             ),
-            child: Stack(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () async {
-                          // if (music.currentMusic.value != null) {
-                          Navigator.of(context).push(OpacityRoute(
-                            builder: (BuildContext context) => PhonePlaying(),
-                          ));
-                          // }
-                        },
-                        child: Container(
-                            width: 56,
-                            height: 56,
-                            child: Stack(
-                              alignment: Alignment.bottomRight,
-                              children: [
-                                Hero(
-                                  tag: "BarCover",
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: music.currentMusic.value == null
-                                        ? Container(
-                                            color: Theme.of(context).shadowColor.withOpacity(0.1),
-                                            width: 56,
-                                            height: 56,
-                                          )
-                                        : Obx(() => AppImage(
-                                              url: music.currentMusic.value?.pic ?? "",
-                                              width: 56,
-                                              height: 56,
-                                              fit: BoxFit.cover,
-                                            )),
-                                  ),
-                                ),
-                                Obx(() => MixSiteItem(
-                                      mixSong: music.currentMusic.value,
-                                      size: 15,
-                                    ))
-                              ],
-                            ))),
-                    const Gap(8),
-                    Obx(
-                      () => AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
-                        transitionBuilder: (Widget child, Animation<double> animation) {
-                          return ScaleTransition(
-                            scale: animation,
-                            child: child,
-                          );
-                        },
-                        child: music.isBuffering.value
-                            ? AnimatedContainer(
-                                width: 48,
-                                height: 48,
-                                padding: const EdgeInsets.all(8),
+            child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+              return ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    color: Theme.of(context).cardColor,
+                    child: Stack(
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () async {
+                                  // if (music.currentMusic.value != null) {
+                                  Navigator.of(context).push(OpacityRoute(
+                                    builder: (BuildContext context) => PhonePlaying(),
+                                  ));
+                                  // }
+                                },
+                                child: Container(
+                                    width: 56,
+                                    height: 56,
+                                    child: Stack(
+                                      alignment: Alignment.bottomRight,
+                                      children: [
+                                        Hero(
+                                          tag: "BarCover",
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(16),
+                                            child: music.currentMusic.value == null
+                                                ? Container(
+                                                    color: Theme.of(context).shadowColor.withOpacity(0.1),
+                                                    width: 56,
+                                                    height: 56,
+                                                  )
+                                                : Obx(() => AppImage(
+                                                      url: music.currentMusic.value?.pic ?? "",
+                                                      width: 56,
+                                                      height: 56,
+                                                      fit: BoxFit.cover,
+                                                    )),
+                                          ),
+                                        ),
+                                        Obx(() => MixSiteItem(
+                                              mixSong: music.currentMusic.value,
+                                              size: 15,
+                                            ))
+                                      ],
+                                    ))),
+                            const Gap(8),
+                            Obx(
+                              () => AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 200),
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.black12 : Colors.white12,
-                                ),
-                              )
-                            : Container(
-                                width: 48,
-                                height: 48,
-                                child: IconButton(
-                                  onPressed: () {
-                                    music.playOrPause();
-                                  },
-                                  icon: Icon(music.state.value == PlayerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
-                                ),
+                                transitionBuilder: (Widget child, Animation<double> animation) {
+                                  return ScaleTransition(
+                                    scale: animation,
+                                    child: child,
+                                  );
+                                },
+                                child: music.isBuffering.value
+                                    ? AnimatedContainer(
+                                        width: 48,
+                                        height: 48,
+                                        padding: const EdgeInsets.all(8),
+                                        duration: const Duration(milliseconds: 200),
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.black12 : Colors.white12,
+                                        ),
+                                      )
+                                    : Container(
+                                        width: 48,
+                                        height: 48,
+                                        child: IconButton(
+                                          onPressed: () {
+                                            music.playOrPause();
+                                          },
+                                          icon: Icon(music.state.value == PlayerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
+                                        ),
+                                      ),
                               ),
-                      ),
+                            ),
+                            const Gap(8),
+                          ],
+                        ),
+                      ],
                     ),
-                    const Gap(8),
-                  ],
-                ),
-              ],
-            ),
-          );
-        })));
+                  ));
+            })));
   }
 }

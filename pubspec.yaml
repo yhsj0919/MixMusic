@@ -104,6 +104,8 @@ dependencies:
   #加密
   encrypt: ^5.0.3
   crypto: ^3.0.6
+  #滚动隐藏
+  hidable: ^1.0.6
 dependency_overrides:
   web: ^1.1.0
   intl: ^0.20.1

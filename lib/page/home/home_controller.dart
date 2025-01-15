@@ -6,6 +6,7 @@ import 'package:mix_music/entity/mix_album.dart';
 import 'package:mix_music/entity/mix_mv.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_song.dart';
+import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/page/setting/user_controller.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/utils/sp.dart';
@@ -19,6 +20,7 @@ class HomeController extends GetxController {
   RxList<MixMv> mvList = RxList();
 
   RxnString homeSitePackage = RxnString();
+  Rxn<PluginsInfo> plugin = Rxn();
 
   UserController userController = Get.put(UserController());
 
@@ -30,6 +32,9 @@ class HomeController extends GetxController {
   }
 
   void getData() {
+    homeSitePackage.value = Sp.getString(Constant.KEY_HOME_SITE) ?? ApiFactory.getRecPlugins().firstOrNull?.package;
+    plugin.value = ApiFactory.getPlugin(homeSitePackage.value);
+
     userController.refreshAllCookie().then((v) {
       userController.getAllUser();
     });
@@ -38,8 +43,6 @@ class HomeController extends GetxController {
     albumList.clear();
     songList.clear();
     mvList.clear();
-
-    homeSitePackage.value = Sp.getString(Constant.KEY_HOME_SITE) ?? ApiFactory.getRecPlugins().firstOrNull?.package;
 
     getSongRec();
     getPlayListRec();

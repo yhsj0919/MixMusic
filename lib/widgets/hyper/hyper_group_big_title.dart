@@ -9,6 +9,7 @@ class HyperGroupBigTitle extends StatelessWidget {
     this.title,
     this.subTitle,
     this.inSliver = true,
+    this.alpha,
     this.onTap,
   });
 
@@ -17,6 +18,7 @@ class HyperGroupBigTitle extends StatelessWidget {
   final String? subTitle;
   final bool inSliver;
   final GestureTapCallback? onTap;
+  final double? alpha;
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +27,9 @@ class HyperGroupBigTitle extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Material(
-          color: Theme.of(context).colorScheme.surfaceContainer,
+          color: Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: alpha),
           child: Padding(
-              padding: const EdgeInsets.only(top: 12,bottom: 12),
+              padding: const EdgeInsets.only(top: 12, bottom: 12),
               child: Column(
                 children: [
                   Padding(

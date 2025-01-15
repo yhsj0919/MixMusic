@@ -117,7 +117,9 @@ class _LoginByPhonePageState extends State<LoginByPhonePage> {
 
     api?.loginByPhone(phone: phone, code: code).then((v) {
       showInfo("登录成功!");
-      Get.back();
+      userController.getAllUser().then((v) {
+        Get.back();
+      });
     }).catchError((e) {
       print(e);
       _stopCountdown();

@@ -234,7 +234,7 @@ class _MvDetailPageState extends State<MvDetailPage> {
 
   ///获取专辑
   void getAlbumInfo() {
-    ApiFactory.api(package: mv.value?.package ?? "")?.mvInfo(mv: mv.value!, page: 0, size: 20).then((value) {
+    ApiFactory.api(package: mv.value?.package ?? "")?.mvInfo(mv: mv.value!).then((value) {
       firstLoad.value = false;
 
       mv.value = value.data;

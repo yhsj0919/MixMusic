@@ -148,7 +148,7 @@ abstract class MusicApi {
   Future<AppRespEntity<List<MixMv>>> mvList({Map<String, dynamic>? type, required int page, required int size});
 
   ///获取MV详情
-  Future<AppRespEntity<MixMv>> mvInfo({required MixMv mv, required int page, required int size});
+  Future<AppRespEntity<MixMv>> mvInfo({required MixMv mv});
 
   ///=====================================MV=====================================================
   ///

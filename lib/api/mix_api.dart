@@ -377,9 +377,9 @@ class MixApi extends MusicApi {
   }
 
   @override
-  Future<AppRespEntity<MixMv>> mvInfo({required MixMv mv, required int page, required int size}) {
+  Future<AppRespEntity<MixMv>> mvInfo({required MixMv mv}) {
     var myAlbum = JsonMapper.toMap(mv);
-    return invokeMethod(method: "music.mv.info", params: [myAlbum, page, size]).then((value) {
+    return invokeMethod(method: "music.mv.info", params: [myAlbum]).then((value) {
       AppRespEntity<MixMv> data = AppRespEntity.fromJson(value);
       if (data.code == 200) {
         return Future(() => data);

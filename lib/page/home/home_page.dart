@@ -65,7 +65,7 @@ class _HomePageState extends State<HomePage> {
               colors: [
                 Theme.of(context).colorScheme.surface,
                 NewSurfaceTheme.getSurfaceColorWithSeed(
-                    SurfaceColorEnum.surfaceContainer, theme.pluginColors[controller.homeSitePackage.value] ?? Theme.of(context).colorScheme.primary, context),
+                    SurfaceColorEnum.surfaceContainer, theme.pluginColors[controller.homeSitePackage.value ?? ""] ?? Theme.of(context).colorScheme.primary, context),
               ], // 渐变的颜色
             ),
           ),

@@ -9,6 +9,7 @@ import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/page/home/home_controller.dart';
+import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/plugins_ext.dart';
 import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/OpacityRoute.dart';
@@ -18,6 +19,7 @@ import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/hyper/hyper_leading.dart';
 import 'package:mix_music/widgets/hyper/hyper_list_tile.dart';
 import 'package:mix_music/widgets/hyper/hyper_trailing.dart';
+import 'package:mix_music/widgets/message.dart';
 import 'package:mix_music/widgets/plugin_item.dart';
 
 import 'extension_detail_page.dart';
@@ -72,41 +74,46 @@ class _ExtensionPageState extends State<ExtensionPage> {
         ),
         children: [
           SpeedDialChild(
-            child: const Icon(Icons.file_open),
-            label: '本地',
-            onTap: () async {
-              var result = await FilePicker.platform.pickFiles(
-                dialogTitle: "选择插件",
-                lockParentWindow: true,
-                type: GetPlatform.isDesktop ? FileType.custom : FileType.any,
-                allowedExtensions: GetPlatform.isDesktop ? ["js"] : null,
-              );
-              if (result != null) {
-                File file = File(result.files.single.path!);
-                var baiduPlugins = parseExtension(file.readAsStringSync());
-                if (baiduPlugins == null) {
-                  print("插件无效");
-                } else {
-                  Sp.replaceList(Constant.KEY_EXTENSION, baiduPlugins, check: (oldValue, newValue) {
-                    return oldValue.package == newValue.package;
-                  }).then((v) {
-                    getPlugins();
-                    initPlugins();
-                  });
-                }
-              } else {
-                // User canceled the picker
-              }
+              child: const Icon(Icons.file_open),
+              label: '本地',
+              onTap: () async {
+                try {
+                  var result = await FilePicker.platform.pickFiles(
+                    dialogTitle: "选择插件",
+                    lockParentWindow: true,
+                    type: GetPlatform.isDesktop ? FileType.custom : FileType.any,
+                    allowedExtensions: GetPlatform.isDesktop ? ["js"] : null,
+                  );
+                  if (result != null) {
+                    File file = File(result.files.single.path!);
+                    var plugins = parseExtension(file.readAsStringSync());
+                    if (plugins == null) {
+                      showError("插件无效");
+                    } else {
+                      Sp.replaceList(Constant.KEY_EXTENSION, plugins, check: (oldValue, newValue) {
+                        return oldValue.package == newValue.package;
+                      }).then((v) {
+                        getPlugins();
+                        initPlugins();
+                      });
+                    }
+                  } else {
+                    // User canceled the picker
+                  }
 
-              getPlugins();
-            },
-          ),
+                  getPlugins();
+                } catch (e) {
+                  showError('文件异常，可能不存在');
+                }
+              }),
           SpeedDialChild(
             child: const Icon(Icons.add_link_outlined),
             label: '网络',
             onTap: () {
-              // 第二个选项的点击事件
-              print('网络导入');
+              Get.toNamed(Routes.extensionNet)?.then((v) {
+                getPlugins();
+                initPlugins();
+              });
             },
           ),
         ],

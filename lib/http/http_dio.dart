@@ -40,7 +40,7 @@ class HttpDio {
       // 添加拦截器
       if (kDebugMode == true) {
         //只在测试的时候添加
-        _dio?.interceptors.add(LogInterceptor(request: false, requestHeader: false, responseHeader: false, responseBody: true, requestBody: true));
+        // _dio?.interceptors.add(LogInterceptor(request: false, requestHeader: false, responseHeader: false, responseBody: true, requestBody: true));
       }
       _dio?.interceptors.add(ErrorInterceptor());
       _dio?.interceptors.add(TokenInterceptor());

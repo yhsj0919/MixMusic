@@ -9,6 +9,7 @@ import 'package:mix_music/page/home/home_page.dart';
 import 'package:mix_music/page/mv/mv_detail_page.dart';
 import 'package:mix_music/page/mv/mv_page.dart';
 import 'package:mix_music/page/setting/download_setting_page.dart';
+import 'package:mix_music/page/setting/extension_net_page.dart';
 import 'package:mix_music/page/setting/extension_page.dart';
 import 'package:mix_music/page/setting/login/login_by_cookie.dart';
 import 'package:mix_music/page/setting/login/login_by_phone.dart';
@@ -34,6 +35,7 @@ class Routes {
   // static const key = 1;
   static const String permission = "/permission";
   static const String extension = "/extension";
+  static const String extensionNet = "/extensionNet";
   static const String welcome = "/welcome";
 
   static const String main = "/main";
@@ -68,6 +70,7 @@ class Routes {
     GetPage(name: welcome, page: () => const WelcomePage(), customTransition: MyCustomTransition()),
     GetPage(name: permission, page: () => const PermissionPage(), customTransition: MyCustomTransition()),
     GetPage(name: extension, page: () => const ExtensionPage(), customTransition: MyCustomTransition()),
+    GetPage(name: extensionNet, page: () => const ExtensionNetPage(), customTransition: MyCustomTransition()),
     GetPage(name: matchSite, page: () => const MatchSitePage(), customTransition: MyCustomTransition()),
     GetPage(name: homeSite, page: () => const HomeSitePage(), customTransition: MyCustomTransition()),
     GetPage(name: loginListSetting, page: () => const LoginListPage(), customTransition: MyCustomTransition()),

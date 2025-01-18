@@ -43,8 +43,14 @@ class CommonApi {
       ),
     ).then((value) {
       try {
-        T data = JsonMapper.fromJson(value);
-        return Future.value(data);
+        if (T is String) {
+          return Future.value(value.toString() as T?);
+        } else if (T is Map<dynamic, dynamic>) {
+          return Future.value(value as T?);
+        } else {
+          /// List类型数据由fromJsonAsT判断处理
+          return Future.value(JsonMapper.fromJson<T>(json.encode(value)));
+        }
       } catch (e) {
         if (kDebugMode) {
           print(e.toString());
@@ -55,7 +61,7 @@ class CommonApi {
   }
 
   //公共请求方法
-  static Future<dynamic> get(String path, {Map<String, dynamic>? params}) async {
+  static Future<T> get<T>(String path, {Map<String, dynamic>? params}) async {
     await _initHttp();
 
     return Http.get(
@@ -66,7 +72,23 @@ class CommonApi {
         // 响应流上前后两次接受到数据的间隔，单位为毫秒。
         receiveTimeout: const Duration(milliseconds: 15000),
       ),
-    );
+    ).then((value) {
+      try {
+        if (T is String) {
+          return Future.value(value.toString() as T?);
+        } else if (T is Map<dynamic, dynamic>) {
+          return Future.value(value as T?);
+        } else {
+          /// List类型数据由fromJsonAsT判断处理
+          return Future.value(JsonMapper.fromJson<T>(json.encode(value)));
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print(e.toString());
+        }
+        return Future.error(AppException(500, "对象转换异常"));
+      }
+    });
   }
 
   //公共请求方法
@@ -92,8 +114,14 @@ class CommonApi {
       ),
     ).then((value) {
       try {
-        T data = JsonMapper.fromJson(value);
-        return Future.value(data);
+        if (T is String) {
+          return Future.value(value.toString() as T?);
+        } else if (T is Map<dynamic, dynamic>) {
+          return Future.value(value as T?);
+        } else {
+          /// List类型数据由fromJsonAsT判断处理
+          return Future.value(JsonMapper.fromJson<T>(json.encode(value)));
+        }
       } catch (e) {
         if (kDebugMode) {
           print(e.toString());

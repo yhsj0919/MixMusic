@@ -52,12 +52,14 @@ class _AppImageState extends State<AppImage> with SingleTickerProviderStateMixin
                     );
                   case LoadState.failed:
                     state.imageProvider.evict();
-                    return GestureDetector(
-                      child: Container(color: Colors.black12),
-                      onTap: () {
-                        state.reLoadImage();
-                      },
-                    );
+                    return Container(color: Colors.black12);
+
+                  // return GestureDetector(
+                  //   child: Container(color: Colors.black12),
+                  //   onTap: () {
+                  //     state.reLoadImage();
+                  //   },
+                  // );
                 }
               },
             )

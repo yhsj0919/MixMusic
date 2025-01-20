@@ -84,206 +84,68 @@ class _PhonePlayingState extends State<PhonePlaying> {
                   ),
                 ),
               )),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(height: statusBarHeight),
-
-              Expanded(
-                child: PageView(
-                  onPageChanged: (index) {
-                    _showLrc.value = index == 1;
-                  },
+          context.isLandscape
+              ? Row(
                   children: [
-                    Obx(() => Hero(
-                          tag: "BarCover",
-                          child: Container(
-                              width: 300,
-                              height: 300,
-                              alignment: Alignment.center,
-                              margin: EdgeInsets.all(32),
-                              child: AppImage(
-                                radius: 12,
-                                width: 300,
-                                height: 300,
-                                url: music.currentMusic.value?.pic?.toString() ?? "",
-                              )),
-                        )),
-                    Obx(
-                      () => AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 500),
-                        child: _showLrc.value ? Obx(() => buildLrc(context)) : Container(),
+                    Expanded(
+                      flex: 5,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(height: statusBarHeight),
+                          Expanded(child: buildImage()),
+                          buildTitle(width),
+                          buildProgressBar(),
+                          Container(height: 8),
+                          buildButton(),
+                          Container(height: 8),
+                          buildAction(),
+                          Gap(bottom),
+                        ],
                       ),
                     ),
+                    Expanded(
+                      flex: 6,
+                      child: Container(
+                        padding: EdgeInsets.only(top: 80, bottom: 150),
+                        child: Obx(() => buildLrc(context)),
+                      ),
+                    )
                   ],
-                ),
-              ),
-              // SliverAppBar( centerTitle: true, title: Text("正在播放"), backgroundColor: Colors.transparent),
-
-              // const Gap(8),
-
-              Container(
-                width: width,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 4,
-                  children: [
-                    Obx(
-                      () => Text(
-                        music.currentMusic.value?.title ?? "N/A",
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Obx(
-                      () => InkWell(
-                        onTap: music.currentMusic.value?.album == null
-                            ? null
-                            : () {
-                                Get.offAndToNamed(Routes.albumDetail, arguments: music.currentMusic.value?.album);
-                              },
-                        child: Text(
-                          music.currentMusic.value?.album?.title ?? "N/A",
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
-                        ),
-                      ),
-                    ),
-                    Obx(
-                      () => Container(
-                        height: 20,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: music.currentMusic.value?.artist?.length ?? 0,
-                          itemBuilder: (BuildContext context, int index) {
-                            var item = music.currentMusic.value?.artist?[index];
-
-                            return InkWell(
-                              onTap: item == null
-                                  ? null
-                                  : () {
-                                      Get.offAndToNamed(Routes.artistDetail, arguments: item);
-                                    },
-                              child: Text(
-                                item?.title ?? "N/A",
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Obx(
-                  () => ProgressBar(
-                    progress: music.position.value ?? const Duration(),
-                    // buffered: const Duration(milliseconds: 2000),
-                    total: music.duration.value ?? const Duration(),
-                    timeLabelLocation: TimeLabelLocation.below,
-                    timeLabelTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).brightness == Brightness.light ? Colors.black54 : Colors.white54),
-                    thumbColor: Colors.transparent,
-                    barHeight: 2,
-                    baseBarColor: Theme.of(context).brightness == Brightness.light ? Colors.black38 : Colors.white38,
-                    progressBarColor: Theme.of(context).colorScheme.onSurface,
-                    onDragStart: (value) {},
-                    onSeek: (duration) {
-                      music.seek(duration);
-                    },
-                  ),
-                ),
-              ),
-              Container(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
+                )
+              : Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(width: 16),
-                    IconButton(
-                        onPressed: () {
-                          music.previous();
+                    Container(height: statusBarHeight),
+
+                    Expanded(
+                      child: PageView(
+                        onPageChanged: (index) {
+                          _showLrc.value = index == 1;
                         },
-                        icon: const Icon(Icons.skip_previous_rounded, size: 35)),
-                    Container(width: 16),
-                    Obx(
-                      () => IconButton(
-                        onPressed: music.isBuffering.value
-                            ? null
-                            : () {
-                                music.playOrPause();
-                              },
-                        icon: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                            return ScaleTransition(
-                              scale: animation,
-                              child: child,
-                            );
-                          },
-                          child: music.isBuffering.value
-                              ? AnimatedContainer(
-                                  width: 55,
-                                  height: 55,
-                                  padding: const EdgeInsets.all(4),
-                                  duration: const Duration(milliseconds: 200),
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: theme.playingColor.value ?? Theme.of(context).colorScheme.primary,
-                                    backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.black12 : Colors.white12,
-                                  ),
-                                )
-                              : Icon(music.state.value == PlayerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded, size: 55),
-                        ),
+                        children: [
+                          buildImage(),
+                          Obx(
+                            () => AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 500),
+                              child: _showLrc.value ? Obx(() => buildLrc(context)) : Container(),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Container(width: 16),
-                    IconButton(
-                        onPressed: () {
-                          music.next();
-                        },
-                        icon: const Icon(Icons.skip_next_rounded, size: 35)),
-                    // Container(width: 8),
+                    // SliverAppBar( centerTitle: true, title: Text("正在播放"), backgroundColor: Colors.transparent),
+
+                    buildTitle(width),
+
+                    buildProgressBar(),
+                    Container(height: 8),
+                    buildButton(),
+                    Container(height: 8),
+                    buildAction(),
+                    Gap(bottom),
                   ],
                 ),
-              ),
-              Container(height: 8),
-              Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      IconButton(onPressed: () {}, icon: Icon(Icons.chat_rounded)),
-                      Expanded(child: Container()),
-                      IconButton(
-                          onPressed: () {
-                            showBottomDownload(context);
-                          },
-                          icon: Icon(Icons.download_rounded)),
-                      Expanded(child: Container()),
-                      IconButton(
-                          onPressed: () {
-                            showBottomPlayList(context);
-                          },
-                          icon: const Icon(Icons.playlist_play)),
-                      Expanded(child: Container()),
-                      IconButton(
-                          onPressed: music.currentMusic.value?.mv == null
-                              ? null
-                              : () {
-                                  Get.toNamed(Routes.mvDetail, arguments: music.currentMusic.value?.mv);
-                                },
-                          icon: const Icon(Icons.music_video)),
-                      Expanded(child: Container()),
-                      IconButton(onPressed: () {}, icon: Icon(Icons.more_vert_outlined)),
-                    ],
-                  )),
-              Gap(bottom),
-            ],
-          ),
           // Obx(() => AnimatedOpacity(
           //       duration: const Duration(milliseconds: 500),
           //       opacity: _isVisible.value ? 1.0 : 0.0,
@@ -300,6 +162,193 @@ class _PhonePlayingState extends State<PhonePlaying> {
         ],
       ),
     );
+  }
+
+  Widget buildImage() {
+    return Obx(() => Hero(
+          tag: "BarCover",
+          child: Container(
+              width: 300,
+              height: 300,
+              alignment: Alignment.center,
+              margin: EdgeInsets.all(32),
+              child: AppImage(
+                radius: 12,
+                width: 300,
+                height: 300,
+                url: music.currentMusic.value?.pic?.toString() ?? "",
+              )),
+        ));
+  }
+
+  //标题
+  Widget buildTitle(double width) {
+    return Container(
+      width: width,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 4,
+        children: [
+          Obx(
+            () => Text(
+              music.currentMusic.value?.title ?? "N/A",
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Obx(
+            () => InkWell(
+              onTap: music.currentMusic.value?.album == null
+                  ? null
+                  : () {
+                      Get.offAndToNamed(Routes.albumDetail, arguments: music.currentMusic.value?.album);
+                    },
+              child: Text(
+                music.currentMusic.value?.album?.title ?? "N/A",
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
+              ),
+            ),
+          ),
+          Obx(
+            () => Container(
+              height: 20,
+              child: ListView.builder(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                itemCount: music.currentMusic.value?.artist?.length ?? 0,
+                itemBuilder: (BuildContext context, int index) {
+                  var item = music.currentMusic.value?.artist?[index];
+
+                  return InkWell(
+                    onTap: item == null
+                        ? null
+                        : () {
+                            Get.offAndToNamed(Routes.artistDetail, arguments: item);
+                          },
+                    child: Text(
+                      item?.title ?? "N/A",
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildProgressBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Obx(
+        () => ProgressBar(
+          progress: music.position.value ?? const Duration(),
+          // buffered: const Duration(milliseconds: 2000),
+          total: music.duration.value ?? const Duration(),
+          timeLabelLocation: TimeLabelLocation.below,
+          timeLabelTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).brightness == Brightness.light ? Colors.black54 : Colors.white54),
+          thumbColor: Colors.transparent,
+          barHeight: 2,
+          baseBarColor: Theme.of(context).brightness == Brightness.light ? Colors.black38 : Colors.white38,
+          progressBarColor: Theme.of(context).colorScheme.onSurface,
+          onDragStart: (value) {},
+          onSeek: (duration) {
+            music.seek(duration);
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget buildButton() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(width: 16),
+          IconButton(
+              onPressed: () {
+                music.previous();
+              },
+              icon: const Icon(Icons.skip_previous_rounded, size: 35)),
+          Container(width: 16),
+          Obx(
+            () => IconButton(
+              onPressed: music.isBuffering.value
+                  ? null
+                  : () {
+                      music.playOrPause();
+                    },
+              icon: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(
+                    scale: animation,
+                    child: child,
+                  );
+                },
+                child: music.isBuffering.value
+                    ? AnimatedContainer(
+                        width: 55,
+                        height: 55,
+                        padding: const EdgeInsets.all(4),
+                        duration: const Duration(milliseconds: 200),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: theme.playingColor.value ?? Theme.of(context).colorScheme.primary,
+                          backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.black12 : Colors.white12,
+                        ),
+                      )
+                    : Icon(music.state.value == PlayerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded, size: 55),
+              ),
+            ),
+          ),
+          Container(width: 16),
+          IconButton(
+              onPressed: () {
+                music.next();
+              },
+              icon: const Icon(Icons.skip_next_rounded, size: 35)),
+          // Container(width: 8),
+        ],
+      ),
+    );
+  }
+
+  Widget buildAction() {
+    return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            IconButton(onPressed: () {}, icon: Icon(Icons.chat_rounded)),
+            Expanded(child: Container()),
+            IconButton(
+                onPressed: () {
+                  showBottomDownload(context);
+                },
+                icon: Icon(Icons.download_rounded)),
+            Expanded(child: Container()),
+            IconButton(
+                onPressed: () {
+                  showBottomPlayList(context);
+                },
+                icon: const Icon(Icons.playlist_play)),
+            Expanded(child: Container()),
+            IconButton(
+                onPressed: music.currentMusic.value?.mv == null
+                    ? null
+                    : () {
+                        Get.toNamed(Routes.mvDetail, arguments: music.currentMusic.value?.mv);
+                      },
+                icon: const Icon(Icons.music_video)),
+            Expanded(child: Container()),
+            IconButton(onPressed: () {}, icon: Icon(Icons.more_vert_outlined)),
+          ],
+        ));
   }
 
   Widget buildLrc(BuildContext context) {

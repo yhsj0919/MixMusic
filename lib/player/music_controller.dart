@@ -130,6 +130,7 @@ class MusicController extends GetxController {
       music.lyric = value.lyric;
       music.match = value.match;
       music.matchSong = value.matchSong;
+      music.quality = value.quality;
 
       currentMusic.update((old) {
         old = music;

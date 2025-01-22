@@ -58,18 +58,20 @@ class _PhonePlayingState extends State<PhonePlaying> {
     final double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          Obx(() => Container(
-              height: 70,
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              child: MixSiteItem(
-                mixSong: music.currentMusic.value,
-                size: 20,
-              )))
-        ],
-      ),
+      appBar: context.isPhone && context.isLandscape
+          ? null
+          : AppBar(
+              actions: [
+                Obx(() => Container(
+                    height: kToolbarHeight,
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    child: MixSiteItem(
+                      mixSong: music.currentMusic.value,
+                      size: 20,
+                    )))
+              ],
+            ),
       body: Stack(
         children: [
           Obx(() => Container(
@@ -84,68 +86,126 @@ class _PhonePlayingState extends State<PhonePlaying> {
                   ),
                 ),
               )),
-          context.isLandscape
-              ? Row(
-                  children: [
-                    Expanded(
-                      flex: 5,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(height: statusBarHeight),
-                          Expanded(child: buildImage()),
-                          buildTitle(width),
-                          buildProgressBar(),
-                          Container(height: 8),
-                          buildButton(),
-                          Container(height: 8),
-                          buildAction(),
-                          Gap(bottom),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      flex: 6,
-                      child: Container(
-                        padding: EdgeInsets.only(top: 80, bottom: 150),
-                        child: Obx(() => buildLrc(context)),
-                      ),
-                    )
-                  ],
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(height: statusBarHeight),
-
-                    Expanded(
-                      child: PageView(
-                        onPageChanged: (index) {
-                          _showLrc.value = index == 1;
-                        },
-                        children: [
-                          buildImage(),
-                          Obx(
-                            () => AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 500),
-                              child: _showLrc.value ? Obx(() => buildLrc(context)) : Container(),
+          SafeArea(
+              child: context.isLandscape
+                  ? context.isPhone
+                      ? Row(
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    height: kToolbarHeight,
+                                    child: Row(
+                                      children: [
+                                        IconButton(
+                                            onPressed: () {
+                                              Get.back();
+                                            },
+                                            icon: Icon(Icons.arrow_back)),
+                                        Expanded(child: Container()),
+                                        Obx(() => Container(
+                                            alignment: Alignment.centerLeft,
+                                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                                            child: MixSiteItem(
+                                              mixSong: music.currentMusic.value,
+                                              size: 20,
+                                            )))
+                                      ],
+                                    ),
+                                  ),
+                                  buildTitle(width),
+                                  buildProgressBar(),
+                                  Container(height: 4),
+                                  buildButton(),
+                                  Container(height: 4),
+                                  buildAction(),
+                                  Gap(bottom),
+                                ],
+                              ),
                             ),
+                            Expanded(
+                              flex: 6,
+                              child: PageView(
+                                onPageChanged: (index) {
+                                  _showLrc.value = index == 1;
+                                },
+                                children: [
+                                  buildImage(),
+                                  Obx(
+                                    () => AnimatedSwitcher(
+                                      duration: const Duration(milliseconds: 500),
+                                      child: _showLrc.value ? Obx(() => buildLrc(context)) : Container(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(height: statusBarHeight),
+                                  Expanded(child: buildImage()),
+                                  buildTitle(width),
+                                  buildProgressBar(),
+                                  Container(height: 8),
+                                  buildButton(),
+                                  Container(height: 8),
+                                  buildAction(),
+                                  Gap(bottom),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 6,
+                              child: Container(
+                                padding: EdgeInsets.only(top: 80, bottom: 150),
+                                child: Obx(() => buildLrc(context)),
+                              ),
+                            )
+                          ],
+                        )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(height: statusBarHeight),
+
+                        Expanded(
+                          child: PageView(
+                            onPageChanged: (index) {
+                              _showLrc.value = index == 1;
+                            },
+                            children: [
+                              buildImage(),
+                              Obx(
+                                () => AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 500),
+                                  child: _showLrc.value ? Obx(() => buildLrc(context)) : Container(),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                    // SliverAppBar( centerTitle: true, title: Text("正在播放"), backgroundColor: Colors.transparent),
+                        ),
+                        // SliverAppBar( centerTitle: true, title: Text("正在播放"), backgroundColor: Colors.transparent),
 
-                    buildTitle(width),
+                        buildTitle(width),
 
-                    buildProgressBar(),
-                    Container(height: 8),
-                    buildButton(),
-                    Container(height: 8),
-                    buildAction(),
-                    Gap(bottom),
-                  ],
-                ),
+                        buildProgressBar(),
+                        Container(height: 8),
+                        buildButton(),
+                        Container(height: 8),
+                        buildAction(),
+                        Gap(bottom),
+                      ],
+                    )),
           // Obx(() => AnimatedOpacity(
           //       duration: const Duration(milliseconds: 500),
           //       opacity: _isVisible.value ? 1.0 : 0.0,
@@ -274,7 +334,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
               onPressed: () {
                 music.previous();
               },
-              icon: const Icon(Icons.skip_previous_rounded, size: 35)),
+              icon: Icon(Icons.skip_previous_rounded, size: 35)),
           Container(width: 16),
           Obx(
             () => IconButton(
@@ -312,7 +372,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
               onPressed: () {
                 music.next();
               },
-              icon: const Icon(Icons.skip_next_rounded, size: 35)),
+              icon: Icon(Icons.skip_next_rounded, size: 35)),
           // Container(width: 8),
         ],
       ),

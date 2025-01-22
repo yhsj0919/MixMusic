@@ -107,11 +107,15 @@ class Sp {
     if (tmpList.isEmpty == true) {
       list.add(value);
     } else {
+      var index = list.indexWhere((old) {
+        return check.call(old, value);
+      });
+
       list.removeWhere((old) {
         return check.call(old, value);
       });
       print('删除，重新添加数据');
-      list.add(value);
+      list.insert(index, value);
     }
 
     return setList(key, list);

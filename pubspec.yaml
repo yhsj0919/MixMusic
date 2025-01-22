@@ -113,7 +113,11 @@ dependency_overrides:
   #文件路径处理
   path: ^1.9.1
 
-
+  #文件导入
+  receive_sharing_intent:
+    git:
+      url: https://github.com/KasemJaffer/receive_sharing_intent
+      ref: master
 dev_dependencies:
   flutter_test:
     sdk: flutter

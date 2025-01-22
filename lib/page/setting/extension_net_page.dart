@@ -79,6 +79,7 @@ class _ExtensionNetPageState extends State<ExtensionNetPage> {
                         onPressed: () {
                           if (controller.text.isEmpty || !controller.text.startsWith("http")) {
                             showInfo("请先输入链接");
+                            return;
                           }
                           if (controller.text.endsWith(".js")) {
                             installPlugin(controller.text);

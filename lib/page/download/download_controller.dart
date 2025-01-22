@@ -42,9 +42,9 @@ class DownloadController extends GetxController {
 
     String downloadName;
     if (nameType == 1) {
-      downloadName = "${download.title}-${download.artist}";
+      downloadName = "${download.title} - ${download.artist}";
     } else if (nameType == 2) {
-      downloadName = "${download.artist}-${download.title}";
+      downloadName = "${download.artist} - ${download.title}";
     } else {
       downloadName = "${download.title}";
     }

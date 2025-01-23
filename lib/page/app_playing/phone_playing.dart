@@ -253,6 +253,8 @@ class _PhonePlayingState extends State<PhonePlaying> {
           Obx(
             () => Text(
               music.currentMusic.value?.title ?? "N/A",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
@@ -265,6 +267,8 @@ class _PhonePlayingState extends State<PhonePlaying> {
                     },
               child: Text(
                 music.currentMusic.value?.album?.title ?? "N/A",
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
               ),
             ),
@@ -272,7 +276,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
           Obx(
             () => Container(
               height: 20,
-              child: ListView.builder(
+              child: ListView.separated(
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
                 itemCount: music.currentMusic.value?.artist?.length ?? 0,
@@ -290,6 +294,9 @@ class _PhonePlayingState extends State<PhonePlaying> {
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
                     ),
                   );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return Gap(8);
                 },
               ),
             ),

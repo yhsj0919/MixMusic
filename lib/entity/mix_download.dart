@@ -33,7 +33,7 @@ class MixDownload {
       id: song.id,
       title: song.title,
       pic: song.pic,
-      artist: song.artist?.first.title ?? "",
+      artist: song.artist?.map((e) => e.title).join(",") ?? "",
       album: song.album?.title,
       quality: quality,
     );

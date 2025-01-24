@@ -6,9 +6,11 @@ import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
+import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/player/Player.dart';
 import 'package:mix_music/theme/theme_controller.dart';
+import 'package:mix_music/utils/sp.dart';
 
 import '../widgets/message.dart';
 
@@ -42,6 +44,10 @@ class MusicController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    currentMusic.value = Sp.getObject<MixSong>(Constant.KEY_APP_CURRENT_MUSIC);
+
+    musicList.addAll(Sp.getList<MixSong>(Constant.KEY_APP_MUSIC_LIST) ?? []);
+
     Player.onNext.listen((event) {
       print('下一首');
       next();
@@ -99,6 +105,8 @@ class MusicController extends GetxController {
     musicList.addAll(list);
     musicIndex.value = index;
     var music = list[index];
+    Sp.setList(Constant.KEY_APP_MUSIC_LIST, list);
+
     play(music: music);
   }
 
@@ -113,6 +121,12 @@ class MusicController extends GetxController {
       showInfo('正在加载，稍等吧');
       return;
     }
+
+    Sp.setObject(Constant.KEY_APP_CURRENT_MUSIC, music);
+    Sp.insertList(Constant.KEY_APP_HISTORY_MUSIC_LIST, music, index: 0, check: (oldValue, newValue) {
+      return oldValue.package == newValue.package && oldValue.id.toString() == newValue.id.toString();
+    });
+
     requestTimeOut();
 
     isBuffering.value = true;
@@ -193,6 +207,10 @@ class MusicController extends GetxController {
     } else {
       if (media.value != null) {
         Player.playMediaItem(media.value!);
+      } else {
+        if (currentMusic.value != null) {
+          play(music: currentMusic.value!);
+        }
       }
     }
   }

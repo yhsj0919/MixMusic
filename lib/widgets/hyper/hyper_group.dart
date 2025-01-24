@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 class HyperGroup extends StatelessWidget {
-  const HyperGroup({super.key, this.children = const <Widget>[], this.title, this.inSliver = true});
+  const HyperGroup({super.key, this.children = const <Widget>[], this.title, this.inSliver = true, this.trailing});
 
   final List<Widget> children;
   final Widget? title;
+  final Widget? trailing;
   final bool inSliver;
 
   @override
@@ -25,6 +26,13 @@ class HyperGroup extends StatelessWidget {
                         child: title!,
                       ),
                       Expanded(child: Container()),
+                      trailing != null
+                          ? AnimatedDefaultTextStyle(
+                              style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary) ?? TextStyle(),
+                              duration: kThemeChangeDuration,
+                              child: trailing!,
+                            )
+                          : Container(),
                       // Text(
                       //   "刷新",
                       //   style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary),

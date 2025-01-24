@@ -35,32 +35,34 @@ class HomeController extends GetxController {
     super.onInit();
 
     getData();
-    // Listen to media sharing coming from outside the app while the app is in the memory.
-    _intentSub = ReceiveSharingIntent.instance.getMediaStream().listen((value) {
-      // setState(() {
-      if (value.firstOrNull != null) {
-        installPlugin(value.firstOrNull?.path);
-      }
 
-      // showInfo(value.firstOrNull?.path);
-      //
-      // print("这是文件地址1${value.firstOrNull?.path}");
-      // print("这是文件信息1${value.firstOrNull?.toMap()}");
-      // });
-    }, onError: (err) {
-      print("getIntentDataStream error: $err");
-    });
+    if (Platform.isAndroid || Platform.isIOS) {
+      // Listen to media sharing coming from outside the app while the app is in the memory.
+      _intentSub = ReceiveSharingIntent.instance.getMediaStream().listen((value) {
+        // setState(() {
+        if (value.firstOrNull != null) {
+          installPlugin(value.firstOrNull?.path);
+        }
 
-    // Get the media sharing coming from outside the app while the app is closed.
-    ReceiveSharingIntent.instance.getInitialMedia().then((value) {
-      // setState(() {
-      if (value.firstOrNull != null) {
-        installPlugin(value.firstOrNull?.path);
-      }
-      // Tell the library that we are done processing the intent.
-      ReceiveSharingIntent.instance.reset();
-      // });
-    });
+        // showInfo(value.firstOrNull?.path);
+        //
+        // print("这是文件地址1${value.firstOrNull?.path}");
+        // print("这是文件信息1${value.firstOrNull?.toMap()}");
+        // });
+      }, onError: (err) {
+        print("getIntentDataStream error: $err");
+      });
+      // Get the media sharing coming from outside the app while the app is closed.
+      ReceiveSharingIntent.instance.getInitialMedia().then((value) {
+        // setState(() {
+        if (value.firstOrNull != null) {
+          installPlugin(value.firstOrNull?.path);
+          // Tell the library that we are done processing the intent.
+          ReceiveSharingIntent.instance.reset();
+        }
+        // });
+      });
+    }
   }
 
   void getData() {

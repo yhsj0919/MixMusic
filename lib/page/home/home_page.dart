@@ -104,92 +104,125 @@ class _HomePageState extends State<HomePage> {
               SliverToBoxAdapter(
                 child: Container(
                   alignment: Alignment.centerLeft,
+                  height: 90,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Wrap(
-                    alignment: WrapAlignment.start,
-                    spacing: 16,
-                    runSpacing: 8,
-                    children: [
-                      HyperCard(
-                        width: 100,
-                        height: 100,
-                        alpha: 0.7,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: EdgeInsets.all(4),
-                            child: GridTile(
-                              header: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                alignment: Alignment.topLeft,
-                                child: const Icon(Icons.align_vertical_top_rounded),
+                  child: ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context).copyWith(scrollbars: true, overscroll: true),
+                    child: ListView(
+                      shrinkWrap: true,
+                      physics: BouncingScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        HyperCard(
+                          width: 90,
+                          height: 90,
+                          alpha: 0.7,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: EdgeInsets.all(4),
+                              child: GridTile(
+                                header: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                  alignment: Alignment.topLeft,
+                                  child: const Icon(Icons.align_vertical_top_rounded),
+                                ),
+                                footer: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                  alignment: Alignment.bottomRight,
+                                  child: const Text("排行"),
+                                ),
+                                child: Container(),
                               ),
-                              footer: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                alignment: Alignment.bottomRight,
-                                child: const Text("排行"),
-                              ),
-                              child: Container(),
                             ),
+                            onTap: () {
+                              Get.toNamed(Routes.rank);
+                            },
                           ),
-                          onTap: () {
-                            Get.toNamed(Routes.rank);
-                          },
                         ),
-                      ),
-                      HyperCard(
-                        width: 100,
-                        height: 100,
-                        alpha: 0.7,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                              padding: EdgeInsets.all(4),
-                              child: GridTile(
-                                header: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                  alignment: Alignment.topLeft,
-                                  child: const Icon(Icons.group_rounded),
-                                ),
-                                footer: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                  alignment: Alignment.bottomRight,
-                                  child: const Text("歌手"),
-                                ),
-                                child: Container(),
-                              )),
-                          onTap: () {
-                            Get.toNamed(Routes.artist);
-                          },
+                        Gap(16),
+                        HyperCard(
+                          width: 90,
+                          height: 90,
+                          alpha: 0.7,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                                padding: EdgeInsets.all(4),
+                                child: GridTile(
+                                  header: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                    alignment: Alignment.topLeft,
+                                    child: const Icon(Icons.group_rounded),
+                                  ),
+                                  footer: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                    alignment: Alignment.bottomRight,
+                                    child: const Text("歌手"),
+                                  ),
+                                  child: Container(),
+                                )),
+                            onTap: () {
+                              Get.toNamed(Routes.artist);
+                            },
+                          ),
                         ),
-                      ),
-                      HyperCard(
-                        width: 100,
-                        height: 100,
-                        alpha: 0.7,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                              padding: EdgeInsets.all(4),
-                              child: GridTile(
-                                header: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                  alignment: Alignment.topLeft,
-                                  child: const Icon(Icons.import_contacts),
-                                ),
-                                footer: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                  alignment: Alignment.bottomRight,
-                                  child: const Text("导入"),
-                                ),
-                                child: Container(),
-                              )),
-                          onTap: () {
-                            Get.toNamed(Routes.parsePlayList);
-                          },
+                        Gap(16),
+                        HyperCard(
+                          width: 90,
+                          height: 90,
+                          alpha: 0.7,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                                padding: EdgeInsets.all(4),
+                                child: GridTile(
+                                  header: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                    alignment: Alignment.topLeft,
+                                    child: const Icon(Icons.import_contacts),
+                                  ),
+                                  footer: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                    alignment: Alignment.bottomRight,
+                                    child: const Text("导入"),
+                                  ),
+                                  child: Container(),
+                                )),
+                            onTap: () {
+                              Get.toNamed(Routes.parsePlayList);
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                        Gap(16),
+                        HyperCard(
+                          width: 90,
+                          height: 90,
+                          alpha: 0.7,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                                padding: EdgeInsets.all(4),
+                                child: GridTile(
+                                  header: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                    alignment: Alignment.topLeft,
+                                    child: const Icon(Icons.history),
+                                  ),
+                                  footer: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                    alignment: Alignment.bottomRight,
+                                    child: const Text("历史"),
+                                  ),
+                                  child: Container(),
+                                )),
+                            onTap: () {
+                              Get.toNamed(Routes.appHistoryMusicList);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

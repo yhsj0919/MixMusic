@@ -61,6 +61,24 @@ class Sp {
     return _prefs.getStringList(key);
   }
 
+  static T? getObject<T>(String key) {
+    try {
+      final obj = _prefs.getString(key);
+      if (obj == null) {
+        return null;
+      }
+      // 尝试将字符串列表转换为目标类型 T 的列表
+      return JsonMapper.fromJson<T>(obj)!;
+    } catch (e) {
+      _prefs.remove(key);
+      return null;
+    }
+  }
+
+  static Future<bool> setObject(String key, dynamic value) {
+    return _prefs.setString(key, JsonMapper.toJson(value));
+  }
+
   static List<T>? getList<T>(String key) {
     final list = _prefs.getStringList(key);
     if (list == null) {
@@ -110,12 +128,34 @@ class Sp {
       var index = list.indexWhere((old) {
         return check.call(old, value);
       });
-
       list.removeWhere((old) {
         return check.call(old, value);
       });
       print('删除，重新添加数据');
       list.insert(index, value);
+    }
+
+    return setList(key, list);
+  }
+
+  static Future<bool?> insertList<T>(String key, T value, {int? index, required bool Function(T oldValue, T newValue) check}) {
+    var list = _prefs.getStringList(key)?.map((a) => JsonMapper.fromJson<T>(a)!).toList() ?? [];
+    var tmpList = list.where((old) {
+      return check.call(old, value);
+    });
+
+    if (tmpList.isEmpty == true) {
+      list.insert(index ?? 0, value);
+    } else {
+      var myIndex = index ??
+          list.indexWhere((old) {
+            return check.call(old, value);
+          });
+      list.removeWhere((old) {
+        return check.call(old, value);
+      });
+      print('删除，重新添加数据');
+      list.insert(myIndex, value);
     }
 
     return setList(key, list);

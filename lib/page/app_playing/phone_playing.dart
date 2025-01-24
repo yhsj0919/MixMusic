@@ -336,6 +336,15 @@ class _PhonePlayingState extends State<PhonePlaying> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Obx(() => IconButton(
+              onPressed: () {
+                if (music.playMode.value == PlayMode.RepeatAll) {
+                  music.playMode.value = PlayMode.RepeatOne;
+                } else {
+                  music.playMode.value = PlayMode.RepeatAll;
+                }
+              },
+              icon: Icon(music.playMode.value == PlayMode.RepeatAll ? Icons.repeat_outlined : Icons.repeat_one, size: 25))),
           Container(width: 16),
           IconButton(
               onPressed: () {
@@ -380,6 +389,13 @@ class _PhonePlayingState extends State<PhonePlaying> {
                 music.next();
               },
               icon: Icon(Icons.skip_next_rounded, size: 35)),
+          Container(width: 16),
+          Gap(41),
+          // IconButton(
+          //     onPressed: () {
+          //       music.next();
+          //     },
+          //     icon: Icon(Icons.skip_next_rounded, size: 25)),
           // Container(width: 8),
         ],
       ),

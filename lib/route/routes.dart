@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/page/album/album_detail_page.dart';
 import 'package:mix_music/page/album/album_page.dart';
+import 'package:mix_music/page/app_music_history/app_history_music_list.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
 import 'package:mix_music/page/artist/artist_page.dart';
 import 'package:mix_music/page/download/download_page.dart';
@@ -41,6 +42,7 @@ class Routes {
   static const String main = "/main";
   static const String appPlaying = "/appPlaying";
   static const String appPlayList = "/appPlayList";
+  static const String appHistoryMusicList = "/appHistoryMusicList";
   static const String search = "/search";
   static const String download = "/download";
   static const String setting = "/setting";
@@ -80,6 +82,7 @@ class Routes {
     GetPage(name: setting, page: () => const SettingPage(), customTransition: MyCustomTransition()),
     GetPage(name: search, page: () => const SearchPage(), customTransition: MyCustomTransition()),
     GetPage(name: appPlayList, page: () => AppPlayListPage(), customTransition: MyCustomTransition()),
+    GetPage(name: appHistoryMusicList, page: () => AppHistoryMusicList(), customTransition: MyCustomTransition()),
     GetPage(name: playList, page: () => const PlayListPage(), customTransition: MyCustomTransition()),
     GetPage(name: playListDetail, page: () => PlayListDetailPage(), customTransition: MyCustomTransition()),
     GetPage(name: album, page: () => const AlbumPage(), customTransition: MyCustomTransition()),

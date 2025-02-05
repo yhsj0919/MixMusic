@@ -30,4 +30,7 @@ class Constant {
 
   //播放历史
   static String KEY_APP_HISTORY_MUSIC_LIST = "KEY_APP_HISTORY_MUSIC_LIST";
+
+  //搜索历史
+  static String KEY_APP_HISTORY_SEARCH_LIST = "KEY_APP_HISTORY_SEARCH_LIST";
 }

@@ -2,12 +2,15 @@ import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
+import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/page/search/search_album_page.dart';
 import 'package:mix_music/page/search/search_artist_page.dart';
 import 'package:mix_music/page/search/search_music_page.dart';
+import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/hyper/hyper_card.dart';
+import 'package:mix_music/widgets/hyper/hyper_trailing.dart';
 
 import '../../widgets/sliver_search_appbar.dart';
 import 'search_mv_page.dart';
@@ -46,11 +49,24 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
 
   Rx<Map> currentType = Rx({});
 
+  RxBool showHistory = RxBool(true);
+
+  RxList<String> searchList = RxList();
+
   @override
   void initState() {
     super.initState();
+    getSearchHistory();
     getSupportType();
     getPlugins(type: currentType.value);
+
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus || controller.text.isEmpty) {
+        showHistory.value = true;
+      } else {
+        // showHistory.value = false;
+      }
+    });
   }
 
   void getSupportType() {
@@ -73,6 +89,18 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     tabController = TabController(length: plugins.length, vsync: this);
   }
 
+  void getSearchHistory() {
+    searchList.value = Sp.getStringList(Constant.KEY_APP_HISTORY_SEARCH_LIST) ?? [];
+  }
+
+  void addSearchHistory(String value) {
+    Sp.insertStringList(Constant.KEY_APP_HISTORY_SEARCH_LIST, value);
+  }
+
+  void removeSearchHistory(String value) {
+    Sp.removeStringList(Constant.KEY_APP_HISTORY_SEARCH_LIST, value);
+  }
+
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
@@ -80,62 +108,111 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
 
     return Scaffold(
       floatingActionButton: PlayBar(),
-      body: ExtendedNestedScrollView(
-        headerSliverBuilder: (BuildContext c, bool f) {
-          return [
-            SliverSearchAppBar(
-              hintText: "请输入关键字",
-              forceElevated: f,
-              focusNode: _focusNode,
-              pinned: true,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              onSubmitted: (value) {
-                _focusNode.unfocus();
-                searchController.search(keyword: value);
-              },
-              bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(bottomBarHeight),
-                  child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Obx(
-                              () => TabBar(
-                                indicatorPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                                isScrollable: true,
-                                controller: tabController,
-                                tabs: plugins
-                                    .map((item) => Tab(
-                                          text: item.name,
-                                          // icon: AppImage(url: '${item.icon}', width: 25, height: 25),
-                                        ))
-                                    .toList(),
+      body: Obx(
+        () => ExtendedNestedScrollView(
+          headerSliverBuilder: (BuildContext c, bool f) {
+            return [
+              SliverSearchAppBar(
+                hintText: "请输入关键字",
+                forceElevated: f,
+                focusNode: _focusNode,
+                pinned: true,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                onSubmitted: (value) {
+                  addSearchHistory(value);
+                  getSearchHistory();
+                  _focusNode.unfocus();
+                  showHistory.value = false;
+                  searchController.search(keyword: value);
+                },
+                // onChanged: (v) {
+                //   showHistory.value = controller.text.isEmpty;
+                // },
+                bottom: PreferredSize(
+                    preferredSize: Size.fromHeight(bottomBarHeight),
+                    child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Obx(
+                                () => TabBar(
+                                  indicatorPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                                  isScrollable: true,
+                                  controller: tabController,
+                                  tabs: plugins
+                                      .map((item) => Tab(
+                                            text: item.name,
+                                            // icon: AppImage(url: '${item.icon}', width: 25, height: 25),
+                                          ))
+                                      .toList(),
+                                ),
                               ),
                             ),
+                            Obx(() => IconButton(
+                                onPressed: () {
+                                  _focusNode.unfocus();
+                                  showTypeSelectDialog(context);
+                                },
+                                icon: Icon(currentType.value["icon"] ?? Icons.filter_list)))
+                          ],
+                        ))),
+                textEditingController: controller,
+              ),
+              // PinnedHeaderSliver(
+              //   child: Container(height: 1, color: Theme.of(context).dividerColor.withOpacity(0.2)),
+              // ),
+            ];
+          },
+          pinnedHeaderSliverHeightBuilder: () {
+            return pinnedHeaderHeight;
+          },
+          onlyOneScrollInBody: true,
+          body: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 600),
+            child: showHistory.value
+                ? ListView.builder(
+                    itemCount: searchList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      var item = searchList[index];
+                      return ListTile(
+                        leading: Text(
+                          "${index + 1}",
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+                        ),
+                        title: Text(item),
+                        trailing: InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Padding(
+                            padding: EdgeInsets.all(8),
+                            child: HyperTrailing(
+                              icon: Icons.clear,
+                            ),
                           ),
-                          Obx(() => IconButton(
-                              onPressed: () {
-                                _focusNode.unfocus();
-                                showTypeSelectDialog(context);
-                              },
-                              icon: Icon(currentType.value["icon"] ?? Icons.filter_list)))
-                        ],
-                      ))),
-              textEditingController: controller,
-            ),
-            // PinnedHeaderSliver(
-            //   child: Container(height: 1, color: Theme.of(context).dividerColor.withOpacity(0.2)),
-            // ),
-          ];
-        },
-        pinnedHeaderSliverHeightBuilder: () {
-          return pinnedHeaderHeight;
-        },
-        onlyOneScrollInBody: true,
-        body: Column(
-          children: <Widget>[Expanded(child: _buildTabBarView())],
+                          onTap: () async {
+                            var value = searchList[index];
+                            removeSearchHistory(value);
+                            getSearchHistory();
+                          },
+                        ),
+                        onTap: () {
+                          var value = searchList[index];
+
+                          controller.text = value;
+                          addSearchHistory(value);
+                          getSearchHistory();
+                          _focusNode.unfocus();
+                          showHistory.value = false;
+                          searchController.search(keyword: value);
+                        },
+                      );
+                    },
+                  )
+                : Column(
+                    children: <Widget>[Expanded(child: _buildTabBarView())],
+                  ),
+          ),
         ),
       ),
     );

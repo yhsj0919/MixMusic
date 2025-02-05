@@ -160,4 +160,25 @@ class Sp {
 
     return setList(key, list);
   }
+
+  static Future<bool?> insertStringList(String key, String value, {int? index}) {
+
+    var list = _prefs.getStringList(key) ?? [];
+    var tmpList = list.contains(value);
+
+    if (!tmpList) {
+      list.insert(index ?? 0, value);
+    } else {
+      var myIndex = index ?? list.indexOf(value);
+      list.remove(value);
+      list.insert(myIndex, value);
+    }
+    return setStringList(key, list);
+  }
+
+  static Future<bool?> removeStringList<T>(String key,String value) {
+    var list = _prefs.getStringList(key)?? [];
+    list.remove(value);
+    return setStringList(key, list);
+  }
 }

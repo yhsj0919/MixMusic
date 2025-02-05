@@ -48,6 +48,16 @@ class DownloadController extends GetxController {
     } else {
       downloadName = "${download.title}";
     }
+    downloadName = downloadName
+        .replaceAll(":", "：")
+        .replaceAll("\\", " ")
+        .replaceAll("/", " ")
+        .replaceAll("*", " ")
+        .replaceAll("?", " ")
+        .replaceAll("\"", "”")
+        .replaceAll("<", "《")
+        .replaceAll(">", "》")
+        .replaceAll("|", " ");
 
     if (mixDownloadContains(download)) {
       if (download.url?.isNotEmpty == true) {

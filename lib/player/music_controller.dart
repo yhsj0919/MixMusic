@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/mix_song.dart';
@@ -15,13 +15,12 @@ import 'package:mix_music/utils/sp.dart';
 import '../widgets/message.dart';
 
 class MusicController extends GetxController {
-  Rxn<Duration> duration = Rxn();
-  Rxn<Duration> position = Rxn();
+  Rx<Duration> duration = Rx(Duration());
+  Rx<Duration> position = Rx(Duration());
   Rxn<MediaItem> media = Rxn();
+  Rxn<MixPlayState> state = Rxn();
   Rxn<MixSong> currentMusic = Rxn();
-  Rxn<PlayerState> state = Rxn();
-  Rx<bool> isBuffering = Rx(false);
-  Duration? _tempPosition;
+  Rx<bool> isPlaying = Rx(false);
 
   //播放模式
   Rx<PlayMode> playMode = Rx(PlayMode.RepeatAll);
@@ -48,6 +47,53 @@ class MusicController extends GetxController {
 
     musicList.addAll(Sp.getList<MixSong>(Constant.KEY_APP_MUSIC_LIST) ?? []);
 
+    Player.media.listen((event) {
+      media.value = event;
+    });
+
+    Player.playingStream.listen((playing) {
+      print('>>>>播放状态${playing}>>>>>>');
+      isPlaying.value = playing;
+    });
+
+    Player.processingStateStream.listen((s) {
+      print('>>>>状态${s}>>>>>>');
+      if (s == ProcessingState.loading) {
+        state.value = MixPlayState.loading;
+      } else if (s == ProcessingState.buffering) {
+        state.value = MixPlayState.buffering;
+      } else if (s == ProcessingState.completed) {
+        state.value = MixPlayState.completed;
+      } else if (s == ProcessingState.ready) {
+        state.value = MixPlayState.ready;
+      }
+    });
+
+    Player.durationStream.listen((event) {
+      duration.value = event ?? Duration();
+    });
+    Player.positionStream.listen((event) {
+      if ((event?.inMilliseconds ?? 0) >= (duration.value.inMilliseconds ?? 1)) {
+        position.value = duration.value;
+        isPlaying.value = false;
+
+        if ((duration.value.inMilliseconds > 0 && duration.value == position.value)) {
+          if (playMode.value == PlayMode.RepeatOne) {
+            playOrPause();
+          }
+          if (playMode.value == PlayMode.RepeatAll) {
+            if (musicList.length == 1) {
+              playOrPause();
+            } else {
+              next(loop: false);
+            }
+          }
+        }
+      } else {
+        position.value = event ?? Duration();
+      }
+    });
+
     Player.onNext.listen((event) {
       print('下一首');
       next();
@@ -58,45 +104,6 @@ class MusicController extends GetxController {
       previous();
     });
 
-    Player.media.listen((event) {
-      media.value = event;
-    });
-
-    Player.onPlayerComplete.listen((event) {
-      duration.value = Duration();
-      position.value = Duration();
-      // playOrPause();
-      if (playMode.value == PlayMode.RepeatOne) {
-        playOrPause();
-      }
-      if (playMode.value == PlayMode.RepeatAll) {
-        if (musicList.length == 1) {
-          playOrPause();
-        } else {
-          next(loop: false);
-        }
-      }
-    });
-    Player.onDurationChanged.listen((event) {
-      duration.value = event;
-    });
-    Player.onPositionChanged.listen((event) {
-      if ((event.inMilliseconds - (_tempPosition?.inMilliseconds ?? 0)).abs() > 100) {
-        if (event.inMilliseconds >= (duration.value?.inMilliseconds ?? 1)) {
-          position.value = duration.value;
-        } else {
-          position.value = event;
-        }
-        _tempPosition = event;
-      }
-    });
-
-    Player.onPlayerStateChanged.listen((event) {
-      if (event == PlayerState.playing) {
-        isBuffering.value = false;
-      }
-      state.value = event;
-    });
   }
 
   ///播放音乐
@@ -112,15 +119,16 @@ class MusicController extends GetxController {
 
   ///播放音乐
   void play({required MixSong music}) {
-    if (music.id == currentMusic.value?.id && music.package == currentMusic.value?.package && Player.state == PlayerState.playing) {
+    if (music.id == currentMusic.value?.id && music.package == currentMusic.value?.package && isPlaying.value) {
       print('同一首歌，不进行其他操作');
       return;
     }
 
-    if (isBuffering.value) {
+    if (state.value == MixPlayState.loading || state.value == MixPlayState.buffering) {
       showInfo('正在加载，稍等吧');
       return;
     }
+    state.value = MixPlayState.loading;
 
     Sp.setObject(Constant.KEY_APP_CURRENT_MUSIC, music);
     Sp.insertList(Constant.KEY_APP_HISTORY_MUSIC_LIST, music, index: 0, check: (oldValue, newValue) {
@@ -129,16 +137,16 @@ class MusicController extends GetxController {
 
     requestTimeOut();
 
-    isBuffering.value = true;
     currentMusic.value = music;
     theme.getColorScheme(music.pic);
 
-    musicIndex.value = musicList.indexWhere((element) => element.id == music.id && element.package == music.package);
+    musicIndex.value = musicList.indexWhere((element) => element.id.toString() == music.id.toString() && element.package == music.package);
     Player.stop();
     requestFuture?.cancel();
     requestFuture = ApiFactory.playUrl(package: music.package, song: music).asStream().listen((value) {
+      state.value = MixPlayState.buffering;
       requestTimeOutFuture?.cancel();
-      musicIndex.value = musicList.indexWhere((element) => element.id == music.id && element.package == music.package);
+      musicIndex.value = musicList.indexWhere((element) => element.id.toString() == music.id.toString() && element.package == music.package);
 
       music.url = value.url;
       music.lyric = value.lyric;
@@ -160,17 +168,12 @@ class MusicController extends GetxController {
         // if (music.match == true) {
         //   showComplete('音频来自:${ApiFactory.getPlugin(value.matchSong?.package)?.name ?? "未知"}');
         // }
-        isBuffering.value = true;
-        Player.playMediaItem(music.mediaItem()).then((value) {
-          isBuffering.value = false;
-        }).catchError((e) {
+        Player.playMediaItem(music.mediaItem()).then((value) {}).catchError((e) {
           print(e);
-          isBuffering.value = false;
           media.value = null;
           showError("播放失败");
         });
       } else {
-        isBuffering.value = false;
         showError('${music.title} 异常无法播放');
         // showError('${music.title} 异常无法播放,尝试下一首');
         // if (musicIndex.value < musicList.length - 1) {
@@ -183,7 +186,6 @@ class MusicController extends GetxController {
       }
     }, onError: (e) {
       requestTimeOutFuture?.cancel();
-      isBuffering.value = false;
       print(e);
       showError('${music.title} 获取地址失败:$e');
     });
@@ -193,36 +195,43 @@ class MusicController extends GetxController {
     requestTimeOutFuture = Future.delayed(const Duration(seconds: 15)).asStream().listen((value) {
       requestTimeOutFuture?.cancel();
       requestFuture?.cancel();
-      isBuffering.value = false;
       showError('请求超时');
     });
   }
 
   ///播放音乐
   void playOrPause() {
-    if (Player.state == PlayerState.playing) {
+    if (isPlaying.value) {
       Player.pause();
-    } else if (Player.state == PlayerState.paused) {
-      Player.resume();
     } else {
-      if (media.value != null) {
-        Player.playMediaItem(media.value!);
+      if (state.value == null) {
+        if (media.value != null) {
+          Player.playMediaItem(media.value!);
+        } else {
+          if (currentMusic.value != null) {
+            play(music: currentMusic.value!);
+          }
+        }
       } else {
-        if (currentMusic.value != null) {
-          play(music: currentMusic.value!);
+        if (state.value == MixPlayState.completed || (duration.value.inMilliseconds > 0 && duration.value == position.value)) {
+          Player.seek(Duration.zero);
+          isPlaying.value = Player.isPlaying();
+        } else {
+          Player.resume();
         }
       }
     }
   }
 
   void pause() {
-    if (Player.state == PlayerState.playing) {
+    if (isPlaying.value) {
       Player.pause();
     }
   }
 
   ///跳转
   Future<void> seek(Duration position) async {
+    isPlaying.value = Player.isPlaying();
     return Player.seek(position);
   }
 
@@ -262,13 +271,12 @@ class MusicController extends GetxController {
     // Get.toNamed(Routes.playing);
   }
 
-  void setPlayMode(PlayerMode mode) {}
-
   @override
   void onClose() {
     super.onClose();
     requestTimeOutFuture?.cancel();
     requestFuture?.cancel();
+    Player.dispose();
   }
 }
 

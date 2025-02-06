@@ -1,14 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
-import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:mix_music/widgets/message.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:smtc_windows/smtc_windows.dart';
 
-import 'AudioPlayerHandler.dart';
+import 'just_audio_background.dart';
 
 class Player {
-  static late AudioHandler _audioHandler;
   static late AudioSession _session;
 
   static final AudioPlayer _player = AudioPlayer();
@@ -17,36 +16,13 @@ class Player {
 
   static final StreamController<MediaItem> _mediaController = StreamController<MediaItem>();
 
-  ///进度修改
-  static Stream<Duration> get onPositionChanged => _player.onPositionChanged.asBroadcastStream();
+  static Stream<Duration?> get durationStream => _player.durationStream;
 
-  ///歌曲时间
-  static Stream<Duration> get onDurationChanged => _player.onDurationChanged;
+  static Stream<Duration?> get positionStream => _player.positionStream;
 
-  ///播放状态
-  static Stream<PlayerState> get onPlayerStateChanged => _player.onPlayerStateChanged;
+  static Stream<ProcessingState> get processingStateStream => _player.processingStateStream;
 
-  ///播放完成
-  static Stream<void> get onPlayerComplete => _player.onPlayerComplete;
-
-  static Stream<void> get eventStream => _player.eventStream;
-
-  ///进度条拖动后的回调
-  static Stream<void> get onSeekComplete => _player.onSeekComplete;
-
-  ///状态
-  static PlayerState get state => _player.state;
-
-  static Stream<AudioInterruptionEvent> get interruptionEventStream => _session.interruptionEventStream;
-
-  ///
-  static Stream<Set<AudioDevice>> get devicesStream => _session.devicesStream;
-
-  ///拔下耳机
-  static Stream<void> get becomingNoisyEventStream => _session.becomingNoisyEventStream;
-
-  ///设备更改
-  static Stream<AudioDevicesChangedEvent> get devicesChangedEventStream => _session.devicesChangedEventStream;
+  static Stream<bool> get playingStream => _player.playingStream;
 
   ///下一首
   static Stream<void> get onNext => _onNext.stream;
@@ -64,27 +40,59 @@ class Player {
     return __onPrevious ??= StreamController<void>();
   }
 
+
+  static bool isPlaying() {
+    return _player.playing;
+  }
+
+  static bool isLoading() {
+    return _player.playerState.processingState == ProcessingState.loading || _player.playerState.processingState == ProcessingState.buffering;
+  }
+
+  static bool completed() {
+    return _player.playerState.processingState == ProcessingState.completed;
+  }
+
+  static ProcessingState processingState() {
+    return _player.playerState.processingState;
+  }
+
   ///初始化控件
   static Future<void> init() async {
     _session = await AudioSession.instance;
     await _session.configure(const AudioSessionConfiguration.music());
     // await _session.setActive(true);
     print('>>>>_session初始化>>>>>>>>');
-    _audioHandler = await AudioService.init(
-      builder: () => AudioPlayerHandler(),
-      config: const AudioServiceConfig(
-        androidNotificationChannelId: 'com.ryanheise.myapp.channel.audio',
-        androidNotificationChannelName: 'Audio playback',
-        androidNotificationOngoing: true,
-      ),
+    await JustAudioBackground.init(
+      androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
+      androidNotificationChannelName: 'Audio playback',
+      androidNotificationOngoing: true,
     );
+
+    final session = await AudioSession.instance;
+    await session.configure(const AudioSessionConfiguration.music());
+    // Listen to errors during playback.
+    _player.playbackEventStream.listen((event) {}, onError: (Object e, StackTrace stackTrace) {
+      print('A stream error occurred: $e');
+    });
   }
 
   ///播放音乐
-  static Future<void> playMediaItem(MediaItem mediaItem) {
+  static Future<void> playMediaItem(MediaItem mediaItem) async {
     _mediaController.add(mediaItem);
 
-    return _audioHandler.playMediaItem(mediaItem);
+    var media = AudioSource.uri(
+      Uri.parse(mediaItem.id),
+      tag: mediaItem,
+    );
+    try {
+      await _player.setAudioSource(media);
+    } catch (e, stackTrace) {
+      print("Error loading playlist: $e");
+      print(stackTrace);
+    }
+
+    return _player.play();
   }
 
   ///停止
@@ -99,16 +107,11 @@ class Player {
 
   ///恢复播放
   static Future<void> resume() async {
-    if (_player.source != null) {
-      return _player.resume();
+    if (_player.audioSource != null) {
+      return _player.play();
     } else {
       return Future(() => null);
     }
-  }
-
-  ///播放器播放
-  static Future<void> play(Source source, {double? volume, double? balance, AudioContext? ctx, Duration? position, PlayerMode? mode}) async {
-    return Future.delayed(const Duration(milliseconds: 200)).then((value) => _player.play(source, volume: volume, balance: balance, ctx: ctx, position: position, mode: mode));
   }
 
   ///跳转
@@ -143,4 +146,26 @@ class Player {
   static AudioSession getSession() {
     return _session;
   }
+
+  static void dispose() {
+    _player.stop();
+    _player.dispose();
+  }
+}
+
+enum MixPlayState {
+  ///没有任何数据
+  idle,
+
+  ///加载中
+  loading,
+
+  ///缓冲
+  buffering,
+
+  ///准备好
+  ready,
+
+  ///完成
+  completed,
 }

@@ -1,8 +1,8 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/player/Player.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/widgets/OpacityRoute.dart';
@@ -105,7 +105,7 @@ class _PlayBarState extends State<PlayBar> {
                                 child: child,
                               );
                             },
-                            child: music.isBuffering.value
+                            child: music.state.value == MixPlayState.loading || music.state.value == MixPlayState.buffering
                                 ? AnimatedContainer(
                                     width: 48,
                                     height: 48,
@@ -123,7 +123,7 @@ class _PlayBarState extends State<PlayBar> {
                                       onPressed: () {
                                         music.playOrPause();
                                       },
-                                      icon: Icon(music.state.value == PlayerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
+                                      icon: Icon(music.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded),
                                     ),
                                   ),
                           ),

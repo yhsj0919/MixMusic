@@ -2,13 +2,13 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader_widget.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/page/app_playlist/app_download_type_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
+import 'package:mix_music/player/Player.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/theme/app_theme.dart';
@@ -354,7 +354,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
           Container(width: 16),
           Obx(
             () => IconButton(
-              onPressed: music.isBuffering.value
+              onPressed: music.state.value == MixPlayState.loading || music.state.value == MixPlayState.buffering
                   ? null
                   : () {
                       music.playOrPause();
@@ -367,7 +367,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                     child: child,
                   );
                 },
-                child: music.isBuffering.value
+                child: music.state.value == MixPlayState.loading || music.state.value == MixPlayState.buffering
                     ? AnimatedContainer(
                         width: 55,
                         height: 55,
@@ -379,7 +379,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                           backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.black12 : Colors.white12,
                         ),
                       )
-                    : Icon(music.state.value == PlayerState.playing ? Icons.pause_rounded : Icons.play_arrow_rounded, size: 55),
+                    : Icon(music.isPlaying.value ? Icons.pause_rounded : Icons.play_arrow_rounded, size: 55),
               ),
             ),
           ),
@@ -447,7 +447,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
         playingOtherMainTextColor: Theme.of(context).colorScheme.onSecondary,
       ),
       model: music.lyricModel.value,
-      playing: music.state.value == PlayerState.playing,
+      playing: true,
       onTap: () {
         showCover.value = !showCover.value;
       },

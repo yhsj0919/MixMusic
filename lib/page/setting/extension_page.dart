@@ -15,6 +15,7 @@ import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/OpacityRoute.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
+import 'package:mix_music/widgets/hyper/hyper_background.dart';
 import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/hyper/hyper_leading.dart';
 import 'package:mix_music/widgets/hyper/hyper_list_tile.dart';
@@ -36,6 +37,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
 
   List<PluginsInfo> plugins = [];
   String? homeSite;
+  final ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
@@ -118,54 +120,56 @@ class _ExtensionPageState extends State<ExtensionPage> {
           ),
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
-          const HyperAppbar(title: "插件"),
-          HyperGroup(
-            title: Text("已安装"),
-            children: [
-              ListView.builder(
-                padding: EdgeInsets.all(0),
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: plugins.length,
-                shrinkWrap: true,
-                itemBuilder: (BuildContext context, int index) {
-                  var item = plugins[index];
-                  return HyperListTile(
-                    leading: HyperLeading(
-                      size: 40,
-                      child: AppImage(url: "${item.icon}"),
-                    ),
-                    title: "${item.name} ${item.version}",
-                    subtitle: "${item.desc}",
-                    trailing: InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: EdgeInsets.all(8),
-                        child: HyperTrailing(
-                          icon: Icons.clear,
-                        ),
+      body: HyperBackground(
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar.large(title: Text("插件")),
+            HyperGroup(
+              title: Text("已安装"),
+              children: [
+                ListView.builder(
+                  padding: EdgeInsets.all(0),
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: plugins.length,
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int index) {
+                    var item = plugins[index];
+                    return HyperListTile(
+                      leading: HyperLeading(
+                        size: 40,
+                        child: AppImage(url: "${item.icon}"),
                       ),
-                      onTap: () async {
-                        ///删除设置的首页
-                        if (homeSite == item.package) {
-                          Sp.remove(Constant.KEY_HOME_SITE);
-                        }
-                        deleteExtension(item.package);
-                        getPlugins();
-                        initPlugins();
+                      title: "${item.name} ${item.version}",
+                      subtitle: "${item.desc}",
+                      trailing: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: EdgeInsets.all(8),
+                          child: HyperTrailing(
+                            icon: Icons.clear,
+                          ),
+                        ),
+                        onTap: () async {
+                          ///删除设置的首页
+                          if (homeSite == item.package) {
+                            Sp.remove(Constant.KEY_HOME_SITE);
+                          }
+                          deleteExtension(item.package);
+                          getPlugins();
+                          initPlugins();
+                        },
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(OpacityRoute(builder: (context) => ExtensionDetailPage(pluginInfo: item)));
                       },
-                    ),
-                    onTap: () {
-                      Navigator.of(context).push(OpacityRoute(builder: (context) => ExtensionDetailPage(pluginInfo: item)));
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-          SliverGap(80)
-        ],
+                    );
+                  },
+                ),
+              ],
+            ),
+            SliverGap(80)
+          ],
+        ),
       ),
     );
   }

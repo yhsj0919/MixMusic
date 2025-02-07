@@ -10,6 +10,7 @@ import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/common_item.dart';
 import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
+import 'package:mix_music/widgets/hyper/hyper_background.dart';
 import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/hyper/hyper_leading.dart';
 
@@ -38,16 +39,12 @@ class _LoginListPageState extends State<LoginListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
+      body: HyperBackground(
+          child: CustomScrollView(
         slivers: [
-          HyperAppbar(
-            title: "站点登录",
-          ),
-          SliverToBoxAdapter(
-            child: ListView.separated(
-              padding: EdgeInsets.all(0),
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
+          SliverAppBar.large(title: Text("站点登录")),
+          Obx(
+            () => SliverList.separated(
               itemCount: plugins.length,
               itemBuilder: (BuildContext context, int index) {
                 var plugin = plugins[index];
@@ -114,7 +111,7 @@ class _LoginListPageState extends State<LoginListPage> {
             ),
           )
         ],
-      ),
+      )),
     );
   }
 }

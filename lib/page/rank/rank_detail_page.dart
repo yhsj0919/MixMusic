@@ -1,24 +1,21 @@
-import 'dart:math';
-
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/widgets/hidable/hidable_widget.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_rank.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/route/routes.dart';
-import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/app_image.dart';
-import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
 import 'package:mix_music/widgets/hyper/hyper_loading.dart';
+import 'package:mix_music/widgets/page_custom_scroll_view.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 import '../../entity/page_entity.dart';
 import '../../player/music_controller.dart';
 import '../../widgets/message.dart';
-import '../../widgets/page_list_view.dart';
 
 class RankDetailPage extends StatefulWidget {
   const RankDetailPage({super.key});
@@ -55,12 +52,18 @@ class _RankDetailPageState extends State<RankDetailPage> {
     final double width = MediaQuery.of(context).size.width;
     final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight;
     return Scaffold(
-      floatingActionButton: PlayBar(),
-      body: ExtendedNestedScrollView(
-        headerSliverBuilder: (BuildContext c, bool f) {
-          return [
-            HyperAppbar(
-              title: rank.value?.title ?? "",
+        floatingActionButton: PlayBar(),
+        body: PageCustomScrollView(
+          controller: refreshController,
+          onRefresh: () {
+            return getRankInfo();
+          },
+          onLoad: () {
+            return getRankInfo(page: pageEntity.value?.page ?? 0);
+          },
+          slivers: [
+            SliverAppBar.large(
+              title: Text(rank.value?.title ?? ""),
               actions: [
                 IconButton(
                     onPressed: () {
@@ -113,71 +116,59 @@ class _RankDetailPageState extends State<RankDetailPage> {
                 ),
               ),
             ),
-          ];
-        },
-        pinnedHeaderSliverHeightBuilder: () {
-          return pinnedHeaderHeight;
-        },
-        onlyOneScrollInBody: true,
-        // physics: NeverScrollableScrollPhysics(),
-        body: Obx(
-          () => AnimatedSwitcher(
-            duration: const Duration(milliseconds: 600),
-            child: firstLoad.value
-                ? const HyperLoading()
-                : PageListView(
-                    controller: refreshController,
-                    onRefresh: () {
-                      return getRankInfo();
-                    },
-                    onLoad: () {
-                      return getRankInfo(page: pageEntity.value?.page ?? 0);
-                    },
-                    itemCount: songList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      var song = songList[index];
-                      return Obx(() => ListTile(
-                            selected: music.currentMusic.value?.id == song.id,
-                            leading: AppImage(url: song.pic ?? ""),
-                            title: Row(
-                              children: [
-                                Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
-                                song.vip == 1
-                                    ? Container(
-                                        alignment: Alignment.center,
-                                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                                        decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-                                          border: Border.all(width: 1, color: Colors.green),
-                                        ),
-                                        child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
-                                      )
-                                    : Container(),
-                              ],
-                            ),
-                            subtitle: Text(
-                              song.subTitle ?? "",
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                            trailing: song.mv != null
-                                ? IconButton(
-                                    onPressed: () {
-                                      Get.toNamed(Routes.mvDetail, arguments: song.mv);
-                                    },
-                                    icon: Icon(Icons.music_video))
-                                : null,
-                            onTap: () {
-                              music.playList(list: songList, index: index);
-                            },
-                          ));
-                    },
-                  ),
-          ),
-        ),
-      ),
-    );
+            Obx(
+              () => SliverAnimatedSwitcher(
+                duration: const Duration(milliseconds: 600),
+                child: firstLoad.value
+                    ? const SliverToBoxAdapter(
+                        child: HyperLoading(height: 400),
+                      )
+                    : SliverList.builder(
+                        itemCount: songList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          var song = songList[index];
+                          return Obx(() => ListTile(
+                                selected: music.currentMusic.value?.id == song.id,
+                                leading: AppImage(url: song.pic ?? ""),
+                                title: Row(
+                                  children: [
+                                    Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
+                                    song.vip == 1
+                                        ? Container(
+                                            alignment: Alignment.center,
+                                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                                            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                                            decoration: BoxDecoration(
+                                              borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+                                              border: Border.all(width: 1, color: Colors.green),
+                                            ),
+                                            child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
+                                          )
+                                        : Container(),
+                                  ],
+                                ),
+                                subtitle: Text(
+                                  song.subTitle ?? "",
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                                trailing: song.mv != null
+                                    ? IconButton(
+                                        onPressed: () {
+                                          Get.toNamed(Routes.mvDetail, arguments: song.mv);
+                                        },
+                                        icon: Icon(Icons.music_video))
+                                    : null,
+                                onTap: () {
+                                  music.playList(list: songList, index: index);
+                                },
+                              ));
+                        },
+                      ),
+              ),
+            )
+          ],
+        ));
   }
 
   ///获取专辑

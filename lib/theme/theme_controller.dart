@@ -9,7 +9,8 @@ class ThemeController extends GetxController {
   Rxn<Color> customerColor = Rxn();
   Rxn<Brightness> themeBrightness = Rxn();
   Rxn<Color> playingColor = Rxn();
-  RxMap<String, Color> pluginColors = RxMap();
+  Rxn<Color> mainColor = Rxn();
+  final RxMap<String, Color> _pluginColors = RxMap();
 
   Future<void> getColorScheme(String? image) async {
     if (image != null) {
@@ -18,23 +19,28 @@ class ThemeController extends GetxController {
     }
   }
 
+  Color? getColorByPackage(String? package) {
+    return _pluginColors[package];
+  }
+
   @override
   void onInit() {
     super.onInit();
-    intPluginsColors();
+    refreshMainColor();
   }
 
-  Future<void> intPluginsColors() async {
+  Future<void> refreshMainColor() async {
     List<PluginsInfo> plugins = Sp.getList(Constant.KEY_EXTENSION) ?? [];
+    var package = Sp.getString(Constant.KEY_HOME_SITE) ?? plugins.firstOrNull?.package;
 
     plugins.forEach((item) async {
       if (item.icon != null) {
-       ColorScheme.fromImageProvider(provider: CachedNetworkImageProvider(item.icon ?? "")).then((v){
-         pluginColors[item.package ?? ""] = v.primary;
-         print('${item.name}初始化颜色');
-
-       });
-
+        ColorScheme.fromImageProvider(provider: CachedNetworkImageProvider(item.icon ?? "")).then((v) {
+          _pluginColors[item.package ?? ""] = v.primary;
+          if (package == item.package) {
+            mainColor.value = _pluginColors[package];
+          }
+        });
       }
     });
   }

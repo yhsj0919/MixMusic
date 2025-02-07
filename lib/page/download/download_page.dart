@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -7,6 +8,7 @@ import 'package:mix_music/api/download_manager/download_status.dart';
 import 'package:mix_music/api/download_manager/download_task.dart';
 import 'package:mix_music/page/download/download_controller.dart';
 import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/hyper/hyper_background.dart';
 import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/hyper/hyper_leading.dart';
 
@@ -23,70 +25,73 @@ class _DownloadPageState extends State<DownloadPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          const SliverAppBar.large(
-            title: Text("下载管理"),
-          ),
-          HyperGroup(
-            title:Text("下载中") ,
-            children: [
-              Obx(() => ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: controller.mixDownload.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      var mixDownload = controller.mixDownload[index];
-                      var task = controller.downloadManager.getDownload(mixDownload.url ?? "");
+      body: HyperBackground(
+        child: CustomScrollView(
+          slivers: [
+            const SliverAppBar.large(
+              title: Text("下载管理"),
+            ),
+            HyperGroup(
+              title: Text("下载中"),
+              children: [
+                Obx(() => ListView.builder(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
+                      itemCount: controller.mixDownload.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        var mixDownload = controller.mixDownload[index];
+                        var task = controller.downloadManager.getDownload(mixDownload.url ?? "");
 
-                      return ListItem(
-                        onDownloadPlayPausedPressed: (url) async {
-                          setState(() {
-                            if (task != null && !task.status.value.isCompleted) {
-                              switch (task.status.value) {
-                                case DownloadStatus.downloading:
-                                  controller.downloadManager.pauseDownload(url);
-                                  break;
-                                case DownloadStatus.paused:
-                                  controller.downloadManager.resumeDownload(url);
-                                  break;
-                                case DownloadStatus.queued:
-                                // TODO: Handle this case.
-                                case DownloadStatus.completed:
-                                // TODO: Handle this case.
-                                case DownloadStatus.failed:
-                                // TODO: Handle this case.
-                                case DownloadStatus.canceled:
-                                // TODO: Handle this case.
+                        return ListItem(
+                          onDownloadPlayPausedPressed: (url) async {
+                            setState(() {
+                              if (task != null && !task.status.value.isCompleted) {
+                                switch (task.status.value) {
+                                  case DownloadStatus.downloading:
+                                    controller.downloadManager.pauseDownload(url);
+                                    break;
+                                  case DownloadStatus.paused:
+                                    controller.downloadManager.resumeDownload(url);
+                                    break;
+                                  case DownloadStatus.queued:
+                                  // TODO: Handle this case.
+                                  case DownloadStatus.completed:
+                                  // TODO: Handle this case.
+                                  case DownloadStatus.failed:
+                                  // TODO: Handle this case.
+                                  case DownloadStatus.canceled:
+                                  // TODO: Handle this case.
+                                }
+                              } else {
+                                controller.downloadManager.addDownload(url, "${controller.fileRoot}");
                               }
-                            } else {
-                              controller.downloadManager.addDownload(url, "${controller.fileRoot}");
+                            });
+                          },
+                          onDelete: (url) {
+                            try {
+                              var fileName = "${task?.request.path}${Platform.pathSeparator}${task?.request.fileName}";
+                              var file = File(fileName);
+                              file.delete();
+                            } catch (e) {
+                              print('文件异常，可能不存在');
                             }
-                          });
-                        },
-                        onDelete: (url) {
-                          try {
-                            var fileName = "${task?.request.path}${Platform.pathSeparator}${task?.request.fileName}";
-                            var file = File(fileName);
-                            file.delete();
-                          } catch (e) {
-                            print('文件异常，可能不存在');
-                          }
 
-                          controller.downloadManager.removeDownload(url);
-                          controller.mixDownload.remove(mixDownload);
-                        },
-                        downloadTask: task,
-                        title: task?.request.fileName,
-                        leading: HyperLeading(
-                          size: 40,
-                          child: AppImage(url: mixDownload.pic ?? ""),
-                        ),
-                      );
-                    },
-                  )),
-            ],
-          ),
-        ],
+                            controller.downloadManager.removeDownload(url);
+                            controller.mixDownload.remove(mixDownload);
+                          },
+                          downloadTask: task,
+                          title: task?.request.fileName,
+                          leading: HyperLeading(
+                            size: 40,
+                            child: AppImage(url: mixDownload.pic ?? ""),
+                          ),
+                        );
+                      },
+                    )),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

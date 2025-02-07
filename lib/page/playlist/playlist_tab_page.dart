@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
@@ -123,6 +125,8 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
         backgroundColor: Colors.transparent,
         scrollControlDisabledMaxHeightRatio: 3 / 4,
         builder: (BuildContext context) {
+          double statusBarHeight = max(MediaQuery.of(context).padding.top, 16);
+          double bottom = max(MediaQuery.of(context).padding.bottom, 16);
           return Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainer,
@@ -137,7 +141,7 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
               // margin: const EdgeInsets.all(16),
               child: ListView.builder(
                 // shrinkWrap: true,
-                padding: const EdgeInsets.only(bottom: 16),
+                padding:  EdgeInsets.only(bottom: bottom),
                 itemCount: playlistType.length,
                 itemBuilder: (BuildContext context, int index) {
                   return buildItem(playlistType[index]);

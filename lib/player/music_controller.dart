@@ -77,7 +77,7 @@ class MusicController extends GetxController {
         position.value = duration.value;
         isPlaying.value = false;
 
-        if ((duration.value.inMilliseconds > 0 && duration.value == position.value)) {
+        if ((duration.value.inMilliseconds > 3000 && duration.value == position.value)) {
           if (playMode.value == PlayMode.RepeatOne) {
             playOrPause();
           }
@@ -103,7 +103,6 @@ class MusicController extends GetxController {
       print('上一首');
       previous();
     });
-
   }
 
   ///播放音乐

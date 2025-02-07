@@ -40,8 +40,8 @@ class _RankPageState extends State<RankPage> with TickerProviderStateMixin {
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [
-            HyperAppbar(
-                title: '榜单',
+          SliverAppBar.large(
+              title: Text( '榜单'),
                 forceElevated: f,
                 bottom: PreferredSize(
                   preferredSize: Size.fromHeight(bottomBarHeight),

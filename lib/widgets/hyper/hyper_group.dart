@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 class HyperGroup extends StatelessWidget {
-  const HyperGroup({super.key, this.children = const <Widget>[], this.title, this.inSliver = true, this.trailing});
+  const HyperGroup({super.key, this.children = const <Widget>[], this.title, this.inSliver = true, this.trailing, this.alpha = 0.7});
 
   final List<Widget> children;
   final Widget? title;
   final Widget? trailing;
   final bool inSliver;
+  final double? alpha;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +44,7 @@ class HyperGroup extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Material(
-              color: Theme.of(context).colorScheme.surfaceContainer,
+              color: Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: alpha),
               child: Column(
                 children: children,
               ),

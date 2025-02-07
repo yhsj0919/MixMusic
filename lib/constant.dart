@@ -33,4 +33,7 @@ class Constant {
 
   //搜索历史
   static String KEY_APP_HISTORY_SEARCH_LIST = "KEY_APP_HISTORY_SEARCH_LIST";
+
+  //调试弹窗
+  static String KEY_APP_DEBUG_ALERT = "KEY_APP_DEBUG_ALERT";
 }

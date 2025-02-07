@@ -8,7 +8,6 @@ import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/widgets/app_image.dart';
-import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
 import 'package:mix_music/widgets/hyper/hyper_loading.dart';
 import 'package:mix_music/widgets/page_custom_scroll_view.dart';
 import 'package:sliver_tools/sliver_tools.dart';
@@ -66,8 +65,8 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
           return getAlbumInfo(page: pageEntity.value?.page ?? 0);
         },
         slivers: [
-          HyperAppbar(
-            title: album.value?.title ?? "",
+          SliverAppBar.large(
+            title: Text(album.value?.title ?? ""),
             actions: [
               IconButton(
                   onPressed: () {

@@ -2,13 +2,14 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_play_list.dart';
 import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/widgets/app_image.dart';
-import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
+import 'package:mix_music/widgets/hidable/hidable_widget.dart';
 import 'package:mix_music/widgets/hyper/hyper_loading.dart';
 import 'package:mix_music/widgets/page_custom_scroll_view.dart';
 import 'package:sliver_tools/sliver_tools.dart';
@@ -66,8 +67,8 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
           return getPlayListInfo(page: pageEntity.value?.page ?? 0);
         },
         slivers: [
-          HyperAppbar(
-            title: playlist.value?.title ?? "",
+          SliverAppBar.large(
+            title: Text(playlist.value?.title ?? ""),
             actions: [
               IconButton(
                   onPressed: () {

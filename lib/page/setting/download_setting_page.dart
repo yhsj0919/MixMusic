@@ -13,6 +13,7 @@ import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/common_item.dart';
 import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
+import 'package:mix_music/widgets/hyper/hyper_background.dart';
 import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/hyper/hyper_icon.dart';
 import 'package:mix_music/widgets/hyper/hyper_leading.dart';
@@ -44,91 +45,93 @@ class _DownloadSettingPageState extends State<DownloadSettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          HyperAppbar(
-            title: "下载设置",
-          ),
-          HyperGroup(
-            title: Text("保存目录"),
-            children: [
-              Obx(() => HyperListTile(
-                  // leading: HyperIcon(color: Colors.blue, icon: Icons.folder_rounded),
-                  title: "下载目录",
-                  subtitle: downloadFolder.value ?? "暂无设置",
-                  trailing: HyperTrailing(),
-                  onTap: () async {
-                    getSystemVersion().then((value) async {
-                      if (value >= 30) {
-                        var ss = await getManageExternalStoragePermission();
-                        if (ss) {
-                          var result = await FilePicker.platform.getDirectoryPath(
-                            dialogTitle: "选择目录",
-                            lockParentWindow: true,
-                          );
-                          if (result != null) {
-                            downloadFolder.value = result;
-                            Sp.setString(Constant.KEY_DOWNLOAD_FOLDER, result);
+      body: HyperBackground(
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar.large(
+              title: Text("下载设置"),
+            ),
+            HyperGroup(
+              title: Text("保存目录"),
+              children: [
+                Obx(() => HyperListTile(
+                    // leading: HyperIcon(color: Colors.blue, icon: Icons.folder_rounded),
+                    title: "下载目录",
+                    subtitle: downloadFolder.value ?? "暂无设置",
+                    trailing: HyperTrailing(),
+                    onTap: () async {
+                      getSystemVersion().then((value) async {
+                        if (value >= 30) {
+                          var ss = await getManageExternalStoragePermission();
+                          if (ss) {
+                            var result = await FilePicker.platform.getDirectoryPath(
+                              dialogTitle: "选择目录",
+                              lockParentWindow: true,
+                            );
+                            if (result != null) {
+                              downloadFolder.value = result;
+                              Sp.setString(Constant.KEY_DOWNLOAD_FOLDER, result);
+                            }
+                          } else {
+                            showError("未获取文件权限");
                           }
                         } else {
-                          showError("未获取文件权限");
-                        }
-                      } else {
-                        var ss = await getStoragePermission();
-                        if (ss) {
-                          var result = await FilePicker.platform.getDirectoryPath(
-                            dialogTitle: "选择目录",
-                            lockParentWindow: true,
-                          );
-                          if (result != null) {
-                            downloadFolder.value = result;
-                            Sp.setString(Constant.KEY_DOWNLOAD_FOLDER, result);
+                          var ss = await getStoragePermission();
+                          if (ss) {
+                            var result = await FilePicker.platform.getDirectoryPath(
+                              dialogTitle: "选择目录",
+                              lockParentWindow: true,
+                            );
+                            if (result != null) {
+                              downloadFolder.value = result;
+                              Sp.setString(Constant.KEY_DOWNLOAD_FOLDER, result);
+                            }
+                          } else {
+                            showError("未获取文件权限");
                           }
-                        } else {
-                          showError("未获取文件权限");
                         }
-                      }
-                    });
-                  })),
-            ],
-          ),
-          SliverGap(12),
-          Obx(() => HyperGroup(
-                title: Text("命名方式"),
-                children: [
-                  RadioListTile<int?>(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    title: Text("歌曲名"),
-                    groupValue: downloadName.value,
-                    value: 0,
-                    onChanged: (int? value) {
-                      Sp.setInt(Constant.KEY_DOWNLOAD_NAME, value ?? 0);
-                      downloadName.value = value ?? 0;
-                    },
-                  ),
-                  RadioListTile<int?>(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    title: Text("歌曲名-歌手"),
-                    groupValue: downloadName.value,
-                    value: 1,
-                    onChanged: (int? value) {
-                      Sp.setInt(Constant.KEY_DOWNLOAD_NAME, value ?? 1);
-                      downloadName.value = value ?? 1;
-                    },
-                  ),
-                  RadioListTile<int?>(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    title: Text("歌手-歌曲名"),
-                    groupValue: downloadName.value,
-                    value: 2,
-                    onChanged: (int? value) {
-                      Sp.setInt(Constant.KEY_DOWNLOAD_NAME, value ?? 2);
-                      downloadName.value = value ?? 2;
-                    },
-                  )
-                ],
-              ))
-        ],
+                      });
+                    })),
+              ],
+            ),
+            SliverGap(12),
+            Obx(() => HyperGroup(
+                  title: Text("命名方式"),
+                  children: [
+                    RadioListTile<int?>(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      title: Text("歌曲名"),
+                      groupValue: downloadName.value,
+                      value: 0,
+                      onChanged: (int? value) {
+                        Sp.setInt(Constant.KEY_DOWNLOAD_NAME, value ?? 0);
+                        downloadName.value = value ?? 0;
+                      },
+                    ),
+                    RadioListTile<int?>(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      title: Text("歌曲名-歌手"),
+                      groupValue: downloadName.value,
+                      value: 1,
+                      onChanged: (int? value) {
+                        Sp.setInt(Constant.KEY_DOWNLOAD_NAME, value ?? 1);
+                        downloadName.value = value ?? 1;
+                      },
+                    ),
+                    RadioListTile<int?>(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      title: Text("歌手-歌曲名"),
+                      groupValue: downloadName.value,
+                      value: 2,
+                      onChanged: (int? value) {
+                        Sp.setInt(Constant.KEY_DOWNLOAD_NAME, value ?? 2);
+                        downloadName.value = value ?? 2;
+                      },
+                    )
+                  ],
+                ))
+          ],
+        ),
       ),
     );
   }

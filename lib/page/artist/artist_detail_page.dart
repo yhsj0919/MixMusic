@@ -64,8 +64,8 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [
-            HyperAppbar(
-              title: artist.value?.title ?? "",
+          SliverAppBar.large(
+              title: Text( artist.value?.title ?? ""),
               actions: [
                 IconButton(
                     onPressed: () {

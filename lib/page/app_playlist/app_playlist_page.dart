@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/widgets/app_image.dart';
@@ -13,6 +16,8 @@ class AppPlayListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double statusBarHeight = max(MediaQuery.of(context).padding.top, 16);
+    double bottom = max(MediaQuery.of(context).padding.bottom, 16);
     return Column(
       children: [
         Container(
@@ -35,7 +40,7 @@ class AppPlayListPage extends StatelessWidget {
             color: Colors.transparent,
             child: Obx(
               () => ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 0),
+                padding: EdgeInsets.only(bottom: bottom),
                 shrinkWrap: true,
                 controller: scrollController,
                 itemCount: music.musicList.length,

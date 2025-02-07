@@ -7,7 +7,9 @@ import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/api/music_api.dart';
 import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/page/setting/user_controller.dart';
+import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
+import 'package:mix_music/widgets/hyper/hyper_background_color.dart';
 import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/message.dart';
 
@@ -30,6 +32,7 @@ class _LoginByPhonePageState extends State<LoginByPhonePage> {
   bool _isButtonDisabled = false;
   int _countdown = 60;
   Timer? _timer;
+  ThemeController theme = Get.put(ThemeController());
 
   @override
   void initState() {
@@ -130,78 +133,81 @@ class _LoginByPhonePageState extends State<LoginByPhonePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          HyperAppbar(
-            title: "验证码登录",
-          ),
-          SliverGap(100),
-          HyperGroup(
-            children: [
-              Gap(12),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                child: TextField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: '手机号',
-                    hintText: '请输入手机号',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
+      body: HyperBackgroundColor(
+        color: theme.getColorByPackage(plugin?.package),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar.large(
+              title: Text("验证码登录"),
+            ),
+            SliverGap(100),
+            HyperGroup(
+              children: [
+                Gap(12),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  child: TextField(
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(
+                      labelText: '手机号',
+                      hintText: '请输入手机号',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: TextField(
-                        controller: _codeController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: '验证码',
-                          hintText: '请输入验证码',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(12)),
+                Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    child: Row(
+                      children: [
+                        Expanded(
+                            child: TextField(
+                          controller: _codeController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: '验证码',
+                            hintText: '请输入验证码',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(12)),
+                            ),
+                          ),
+                        )),
+                        Gap(12),
+                        FilledButton(
+                          style: ButtonStyle(
+                            shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0))),
+                            padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 20, vertical: 20)),
+                          ),
+                          onPressed: _isButtonDisabled ? null : _sendCode,
+                          child: Text(_isButtonDisabled ? '重新获取($_countdown)' : '获取验证码'),
+                        ),
+                      ],
+                    )),
+              ],
+            ),
+            SliverGap(16),
+            SliverToBoxAdapter(
+              child: Container(
+                  // height: 45,
+                  margin: EdgeInsets.all(12),
+                  child: FilledButton(
+                      style: ButtonStyle(
+                        shape: WidgetStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0), // 设置圆角
                           ),
                         ),
-                      )),
-                      Gap(12),
-                      FilledButton(
-                        style: ButtonStyle(
-                          shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0))),
-                          padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 20, vertical: 23)),
-                        ),
-                        onPressed: _isButtonDisabled ? null : _sendCode,
-                        child: Text(_isButtonDisabled ? '重新获取($_countdown)' : '获取验证码'),
+                        padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 20, vertical: 20)),
                       ),
-                    ],
-                  )),
-            ],
-          ),
-          SliverGap(16),
-          SliverToBoxAdapter(
-            child: Container(
-                // height: 45,
-                margin: EdgeInsets.all(12),
-                child: FilledButton(
-                    style: ButtonStyle(
-                      shape: WidgetStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0), // 设置圆角
-                        ),
-                      ),
-                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 20, vertical: 20)),
-                    ),
-                    onPressed: () {
-                      _loginByCode();
-                    },
-                    child: Text("登录"))),
-          ),
-        ],
+                      onPressed: () {
+                        _loginByCode();
+                      },
+                      child: Text("登录"))),
+            ),
+          ],
+        ),
       ),
     );
   }

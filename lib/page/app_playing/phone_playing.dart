@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
@@ -176,8 +177,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(height: statusBarHeight),
-
+                        // Container(height: statusBarHeight),
                         Expanded(
                           child: PageView(
                             onPageChanged: (index) {
@@ -194,7 +194,6 @@ class _PhonePlayingState extends State<PhonePlaying> {
                             ],
                           ),
                         ),
-                        // SliverAppBar( centerTitle: true, title: Text("正在播放"), backgroundColor: Colors.transparent),
 
                         buildTitle(width),
 
@@ -203,7 +202,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                         buildButton(),
                         Container(height: 8),
                         buildAction(),
-                        Gap(bottom),
+                        // Gap(bottom),
                       ],
                     )),
           // Obx(() => AnimatedOpacity(
@@ -225,20 +224,22 @@ class _PhonePlayingState extends State<PhonePlaying> {
   }
 
   Widget buildImage() {
-    return Obx(() => Hero(
-          tag: "BarCover",
-          child: Container(
+    return Obx(
+      () => Container(
+        width: 300,
+        height: 300,
+        alignment: Alignment.center,
+        margin: EdgeInsets.all(32),
+        child: Hero(
+            tag: "BarCover",
+            child: AppImage(
+              radius: 12,
               width: 300,
               height: 300,
-              alignment: Alignment.center,
-              margin: EdgeInsets.all(32),
-              child: AppImage(
-                radius: 12,
-                width: 300,
-                height: 300,
-                url: music.currentMusic.value?.pic?.toString() ?? "",
-              )),
-        ));
+              url: music.currentMusic.value?.pic?.toString() ?? "",
+            )),
+      ),
+    );
   }
 
   //标题
@@ -344,7 +345,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                   music.playMode.value = PlayMode.RepeatAll;
                 }
               },
-              icon: Icon(music.playMode.value == PlayMode.RepeatAll ? Icons.repeat_outlined : Icons.repeat_one, size: 25))),
+              icon: Icon(music.playMode.value == PlayMode.RepeatAll ? Icons.repeat_rounded : Icons.repeat_one_rounded, size: 25))),
           Container(width: 16),
           IconButton(
               onPressed: () {
@@ -390,7 +391,14 @@ class _PhonePlayingState extends State<PhonePlaying> {
               },
               icon: Icon(Icons.skip_next_rounded, size: 35)),
           Container(width: 16),
-          Gap(41),
+          IconButton(
+              onPressed: () {
+                showBottomPlayList(context);
+              },
+              icon: const Icon(
+                Icons.playlist_play_rounded,
+                size: 25,
+              )),
           // IconButton(
           //     onPressed: () {
           //       music.next();
@@ -416,12 +424,6 @@ class _PhonePlayingState extends State<PhonePlaying> {
                 icon: Icon(Icons.download_rounded)),
             Expanded(child: Container()),
             IconButton(
-                onPressed: () {
-                  showBottomPlayList(context);
-                },
-                icon: const Icon(Icons.playlist_play)),
-            Expanded(child: Container()),
-            IconButton(
                 onPressed: music.currentMusic.value?.mv == null
                     ? null
                     : () {
@@ -437,11 +439,11 @@ class _PhonePlayingState extends State<PhonePlaying> {
   Widget buildLrc(BuildContext context) {
     return LyricsReader(
       padding: EdgeInsets.symmetric(horizontal: 16),
-      position: music.position.value?.inMilliseconds ?? 0,
+      position: music.position.value.inMilliseconds,
       lyricUi: UIMix(
-        defaultSize: 24,
-        otherMainSize: 20,
-        defaultExtSize: 22,
+        defaultSize: context.isPhone ? 22 : 24,
+        otherMainSize: context.isPhone ? 18 : 20,
+        defaultExtSize: context.isPhone ? 20 : 22,
         highlight: false,
         playingMainTextColor: Theme.of(context).colorScheme.onSurface,
         playingOtherMainTextColor: Theme.of(context).colorScheme.onSecondary,
@@ -523,7 +525,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
         context: context,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        scrollControlDisabledMaxHeightRatio: 3 / 4,
+        scrollControlDisabledMaxHeightRatio: 3 / 5,
         builder: (BuildContext context) {
           return Container(
             decoration: BoxDecoration(
@@ -536,7 +538,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                 ),
               ],
             ),
-            margin: const EdgeInsets.all(16),
+            // margin: const EdgeInsets.all(16),
             child: AppDownloadTypePage(
               onTap: () {
                 Navigator.of(context).pop();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class HyperAppbar extends StatelessWidget {
-  const HyperAppbar({super.key, this.title, this.bottom, this.actions, this.forceElevated = false});
+class HyperAppbar1 extends StatelessWidget {
+  const HyperAppbar1({super.key, this.title, this.bottom, this.actions, this.forceElevated = false});
 
   final String? title;
   final List<Widget>? actions;

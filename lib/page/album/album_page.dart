@@ -40,8 +40,8 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [
-            HyperAppbar(
-              title: '专辑',
+          SliverAppBar.large(
+              title: Text( '专辑'),
               forceElevated: f,
               bottom: PreferredSize(
                 preferredSize: Size.fromHeight(bottomBarHeight),

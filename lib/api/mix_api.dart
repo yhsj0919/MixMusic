@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dart_json_mapper/dart_json_mapper.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_js/flutter_js.dart';
+import 'package:get/get.dart';
 import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/app_resp_entity.dart';
 import 'package:mix_music/entity/mix_album.dart';
@@ -59,6 +61,38 @@ class MixApi extends MusicApi {
       String key = args[0];
       return Sp.getString("${plugins?.package}_$key") ?? "";
     });
+
+    current?.injectMethod("alert", (args) {
+      String output = args.join(' ');
+      var alert = Sp.getBool(Constant.KEY_APP_DEBUG_ALERT) ?? false;
+      if (alert) {
+        return Future.delayed(Duration(milliseconds: 100)).then((v) {
+          showDialog<void>(
+            context: Get.context!,
+            barrierDismissible: false, // 用户必须点击按钮来关闭对话框
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('调试'),
+                content: SingleChildScrollView(
+                  child: Text(output),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('OK'),
+                    onPressed: () {
+                      Get.back();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        });
+      } else {
+        return null;
+      }
+    });
+
     current?.enableStringPlugin(code: plugins?.code ?? "");
   }
 

@@ -57,8 +57,8 @@ class _ExtensionDetailPageState extends State<ExtensionDetailPage> {
       // }),
       body: CustomScrollView(
         slivers: [
-          HyperAppbar(
-            title: "${widget.pluginInfo.name}",
+      SliverAppBar.large(
+      title: Text( "${widget.pluginInfo.name}"),
           ),
           HyperGroup(
             children: [

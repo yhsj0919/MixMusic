@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -173,6 +175,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
             duration: const Duration(milliseconds: 600),
             child: showHistory.value
                 ? ListView.builder(
+                    padding: EdgeInsets.zero,
                     itemCount: searchList.length,
                     itemBuilder: (BuildContext context, int index) {
                       var item = searchList[index];
@@ -247,6 +250,8 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
         backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
         scrollControlDisabledMaxHeightRatio: 3 / 4,
         builder: (BuildContext context) {
+          double statusBarHeight = max(MediaQuery.of(context).padding.top, 16);
+          double bottom = max(MediaQuery.of(context).padding.bottom, 16);
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -272,7 +277,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                           });
                     }).toList()),
               ),
-              Container(height: 32)
+              Container(height: bottom + 16)
             ],
           );
         }).then((value) {});

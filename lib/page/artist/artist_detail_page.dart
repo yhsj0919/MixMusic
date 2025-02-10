@@ -64,8 +64,8 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [
-          SliverAppBar.large(
-              title: Text( artist.value?.title ?? ""),
+            SliverAppBar.large(
+              title: Text(artist.value?.title ?? ""),
               actions: [
                 IconButton(
                     onPressed: () {
@@ -158,7 +158,9 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
     //     songList.clear();
     //     refreshController.finishRefresh();
     //   }
-    //         refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
+    //         Future.delayed(Duration(milliseconds: 200)).then((v) {
+    //refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
+    // });
     //
 
     //     songList.addAll(value.data?.songs ?? []);

@@ -189,7 +189,9 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
         songList.clear();
         refreshController.finishRefresh();
       }
-      refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
+      Future.delayed(Duration(milliseconds: 200)).then((v) {
+        refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
+      });
 
       var songs = value.data?.songs ?? [];
       album.value?.songs = null;

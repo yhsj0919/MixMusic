@@ -97,7 +97,9 @@ class _SearchPlayListPageState extends SearchTabPageState<SearchPlayListPage> wi
         songList.clear();
         refreshController.finishRefresh();
       }
-      refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
+      Future.delayed(Duration(milliseconds: 200)).then((v) {
+        refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
+      });
 
       songList.addAll(value.data ?? []);
       // showComplete("操作成功");

@@ -34,7 +34,7 @@ class _SearchMusicPageState extends SearchTabPageState<SearchMusicPage> with Aut
   Rxn<PageEntity> pageEntity = Rxn();
   RxList<MixSong> songList = RxList();
 
-  RxBool dataLoad = RxBool(false);
+  RxBool firstLoad = RxBool(true);
 
   @override
   void initState() {
@@ -51,7 +51,7 @@ class _SearchMusicPageState extends SearchTabPageState<SearchMusicPage> with Aut
     return Obx(
       () => AnimatedSwitcher(
         duration: const Duration(milliseconds: 600),
-        child: dataLoad.value
+        child: firstLoad.value
             ? const HyperLoading()
             : PageListView(
                 controller: refreshController,
@@ -109,23 +109,22 @@ class _SearchMusicPageState extends SearchTabPageState<SearchMusicPage> with Aut
       refreshController.finishLoad(IndicatorResult.noMore, true);
       return;
     }
-    if (page == 0) {
-      dataLoad.value = true;
-    }
-
     ApiFactory.api(package: widget.plugin.package!)?.searchMusic(keyword: keyword ?? "", page: page, size: size).then((value) {
-      dataLoad.value = false;
+      firstLoad.value = false;
       pageEntity.value = value.page;
       if (page == 0) {
         songList.clear();
-        refreshController.finishRefresh();
+        refreshController.finishRefresh(IndicatorResult.success, true);
       }
-      refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
+      Future.delayed(Duration(milliseconds: 200)).then((v) {
+        refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
+      });
 
       songList.addAll(value.data ?? []);
+
       // showComplete("操作成功");
     }).catchError((e) {
-      dataLoad.value = false;
+      firstLoad.value = false;
 
       if (page == 0) {
         refreshController.finishRefresh(IndicatorResult.fail, true);

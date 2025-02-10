@@ -52,6 +52,7 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double bottom = MediaQuery.of(context).padding.bottom;
     final double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -173,6 +174,7 @@ class _AlbumDetailPageState extends State<AlbumDetailPage> {
                     ),
             ),
           ),
+          SliverGap(bottom),
         ],
       ),
     );

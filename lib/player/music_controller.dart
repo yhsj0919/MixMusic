@@ -63,6 +63,7 @@ class MusicController extends GetxController {
       } else if (s == ProcessingState.buffering) {
         state.value = MixPlayState.buffering;
       } else if (s == ProcessingState.completed) {
+        isPlaying.value = false;
         state.value = MixPlayState.completed;
       } else if (s == ProcessingState.ready) {
         state.value = MixPlayState.ready;
@@ -75,9 +76,10 @@ class MusicController extends GetxController {
     Player.positionStream.listen((event) {
       if ((event?.inMilliseconds ?? 0) >= (duration.value.inMilliseconds ?? 1)) {
         position.value = duration.value;
-        isPlaying.value = false;
+        // print('这里改变了播放状态false');
+        // isPlaying.value = false;
 
-        if ((duration.value.inMilliseconds > 3000 && duration.value == position.value)) {
+        if ((duration.value.inMilliseconds > 1000 && duration.value == position.value)) {
           if (playMode.value == PlayMode.RepeatOne) {
             playOrPause();
           }
@@ -90,6 +92,7 @@ class MusicController extends GetxController {
           }
         }
       } else {
+        // isPlaying.value = true;
         position.value = event ?? Duration();
       }
     });
@@ -122,11 +125,12 @@ class MusicController extends GetxController {
       print('同一首歌，不进行其他操作');
       return;
     }
+    requestTimeOutFuture?.cancel();
 
-    if (state.value == MixPlayState.loading || state.value == MixPlayState.buffering) {
-      showInfo('正在加载，稍等吧');
-      return;
-    }
+    // if (state.value == MixPlayState.loading || state.value == MixPlayState.buffering || !isPlaying.value) {
+    //   showInfo('正在加载，稍等吧');
+    //   return;
+    // }
     state.value = MixPlayState.loading;
 
     Sp.setObject(Constant.KEY_APP_CURRENT_MUSIC, music);
@@ -185,6 +189,9 @@ class MusicController extends GetxController {
       }
     }, onError: (e) {
       requestTimeOutFuture?.cancel();
+      state.value = null;
+      isPlaying.value = false;
+      Player.stop();
       print(e);
       showError('${music.title} 获取地址失败:$e');
     });
@@ -192,8 +199,11 @@ class MusicController extends GetxController {
 
   void requestTimeOut() {
     requestTimeOutFuture = Future.delayed(const Duration(seconds: 15)).asStream().listen((value) {
+      state.value = null;
+      isPlaying.value = false;
       requestTimeOutFuture?.cancel();
       requestFuture?.cancel();
+      Player.stop();
       showError('请求超时');
     });
   }

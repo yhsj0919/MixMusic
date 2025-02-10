@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/constant.dart';
@@ -34,6 +35,8 @@ class _MatchSitePageState extends State<MatchSitePage> {
 
   @override
   Widget build(BuildContext context) {
+    double bottom = MediaQuery.of(context).padding.bottom;
+
     return Scaffold(
       body: Obx(
         () => HyperBackground(
@@ -94,6 +97,7 @@ class _MatchSitePageState extends State<MatchSitePage> {
                   )
                 ],
               ),
+              SliverGap(bottom + 16)
             ],
           ),
         ),

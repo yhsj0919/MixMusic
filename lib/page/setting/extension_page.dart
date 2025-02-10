@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -61,6 +62,8 @@ class _ExtensionPageState extends State<ExtensionPage> {
 
   @override
   Widget build(BuildContext context) {
+    double bottom = MediaQuery.of(context).padding.bottom;
+
     return Scaffold(
       floatingActionButton: SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
@@ -167,7 +170,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
                 ),
               ],
             ),
-            SliverGap(80)
+            SliverGap(bottom + 80)
           ],
         ),
       ),

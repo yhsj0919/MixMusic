@@ -33,6 +33,8 @@ class _ExtensionNetPageState extends State<ExtensionNetPage> {
 
   @override
   Widget build(BuildContext context) {
+    double bottom = MediaQuery.of(context).padding.bottom;
+
     return Scaffold(
       body: HyperBackground(
         child: CustomScrollView(
@@ -136,7 +138,7 @@ class _ExtensionNetPageState extends State<ExtensionNetPage> {
                     )),
               ],
             ),
-            SliverGap(80)
+            SliverGap(bottom + 16)
           ],
         ),
       ),

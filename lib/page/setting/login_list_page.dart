@@ -38,6 +38,8 @@ class _LoginListPageState extends State<LoginListPage> {
 
   @override
   Widget build(BuildContext context) {
+    double bottom = MediaQuery.of(context).padding.bottom;
+
     return Scaffold(
       body: HyperBackground(
           child: CustomScrollView(
@@ -109,7 +111,8 @@ class _LoginListPageState extends State<LoginListPage> {
                 return Gap(12);
               },
             ),
-          )
+          ),
+          SliverGap(bottom + 16)
         ],
       )),
     );

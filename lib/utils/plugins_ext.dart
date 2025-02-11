@@ -143,6 +143,7 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
     onMessage('$method', (dynamic args) async {
       var data = args[0].toString();
       var key = args[1].toString();
+      var format = args.length > 2 ? args[2].toString() : 'base16';
 
       // print(">>>>data>>>>" + data);
       // print(">>>>key>>>>" + key);
@@ -163,7 +164,11 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
       final rsa = RSAEngine();
       rsa.init(true, PublicKeyParameter<asApi.RSAPublicKey>(pubKey));
       final encrypted = rsa.process(Uint8List.fromList(utf8.encode(data)));
-      return Encrypted(encrypted).base16;
+      if (format == "base64") {
+        return Encrypted(encrypted).base64;
+      } else {
+        return Encrypted(encrypted).base16;
+      }
     });
     return this;
   }
@@ -205,6 +210,7 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
       var data = args[0].toString();
       var key = args[1].toString();
       var iv = args[2].toString();
+      var format = args.length > 3 ? args[3].toString() : 'base16';
 
       // print(data);
       // print(key);
@@ -218,8 +224,11 @@ extension JavascriptRuntimeFetchExtension on JavascriptRuntime {
       final encrypted = encrypter.encrypt(data, iv: myIv);
 
       // print(encrypted.base16); // R4PxiU3h8YoIRqVowBXm36ZcCeNeZ4s1OvVBTfFlZRdmohQqOpPQqD1YecJeZMAop/hZ4OxqgC1WtwvX/hP9mw==
-
-      return encrypted.base16;
+      if (format == "base64") {
+        return encrypted.base64;
+      } else {
+        return encrypted.base16;
+      }
     });
     return this;
   }

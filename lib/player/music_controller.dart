@@ -79,7 +79,9 @@ class MusicController extends GetxController {
         // print('这里改变了播放状态false');
         // isPlaying.value = false;
 
-        if ((duration.value.inMilliseconds > 1000 && duration.value == position.value)) {
+        if ((duration.value.inMilliseconds > 1000 && duration.value.inMilliseconds == position.value.inMilliseconds)) {
+          print('这里触发下一首了');
+
           if (playMode.value == PlayMode.RepeatOne) {
             playOrPause();
           }

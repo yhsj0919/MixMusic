@@ -25,6 +25,7 @@
 - [x] 歌单导入
 - [x] 首页自定义数据
 - [x] 登录(设置cookie)
+- [x] 登录(手机验证码)
 - [x] 登录后刷新cookie
 - [x] 登录后获取用户信息
 - [x] 登录后如果有VIP禁用匹配
@@ -34,8 +35,8 @@
 
 ## 待实现功能
 
-- [ ] 登录，手机号，密码，cookie，网页，扫码等
-- [ ] 音质选择
+- [ ] 登录：密码，网页，扫码等
+- [ ] 播放音质选择
 - [ ] 歌词相关重制
 - [ ] 桌面，平板，车机UI
 - [ ] 评论(暂时的优先比较低)
@@ -107,12 +108,12 @@ await md5(data)  //返回32位字符串
 
 ### 设置Cookie
 
-#### 存储使用package作为键值，注意不要和其他插件相同
+#### 存储使用package+key作为键值，注意不要和其他插件相同
 
 ```js
-//在插件中获取cookie，由于框架限制需要使用await
-const cookie = await getCookie();
+//在插件中获取值，由于框架限制需要使用await
+const value = await getStorage(key);
 
-//在插件中保存cookie,以字符串形式保存,返回Boolean类型
-setCookie(cookie);
+//在插件中保存值,以字符串形式保存,返回Boolean类型
+setStorage(key, value);
 ```

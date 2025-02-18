@@ -62,6 +62,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
       appBar: context.isPhone && context.isLandscape
           ? null
           : AppBar(
+              toolbarHeight: 64,
               actions: [
                 Obx(() => Container(
                     height: kToolbarHeight,
@@ -346,13 +347,13 @@ class _PhonePlayingState extends State<PhonePlaying> {
                 }
               },
               icon: Icon(music.playMode.value == PlayMode.RepeatAll ? Icons.repeat_rounded : Icons.repeat_one_rounded, size: 25))),
-          Container(width: 16),
+          Container(width: 14),
           IconButton(
               onPressed: () {
                 music.previous();
               },
               icon: Icon(Icons.skip_previous_rounded, size: 35)),
-          Container(width: 16),
+          Container(width: 14),
           Obx(
             () => IconButton(
               onPressed: music.state.value == MixPlayState.loading || music.state.value == MixPlayState.buffering
@@ -384,13 +385,13 @@ class _PhonePlayingState extends State<PhonePlaying> {
               ),
             ),
           ),
-          Container(width: 16),
+          Container(width: 14),
           IconButton(
               onPressed: () {
                 music.next();
               },
               icon: Icon(Icons.skip_next_rounded, size: 35)),
-          Container(width: 16),
+          Container(width: 14),
           IconButton(
               onPressed: () {
                 showBottomPlayList(context);

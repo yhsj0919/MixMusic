@@ -83,6 +83,7 @@ class MusicController extends GetxController {
           print('这里触发下一首了');
 
           if (playMode.value == PlayMode.RepeatOne) {
+            isPlaying.value = false;
             playOrPause();
           }
           if (playMode.value == PlayMode.RepeatAll) {

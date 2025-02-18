@@ -166,6 +166,9 @@ abstract class MusicApi {
   ///验证码登录
   Future<AppRespEntity<MixUser>> loginByPhone({required String phone, required String code});
 
+  ///网页登陆地址
+  Future<String> getWebLoginUrl();
+
   ///=====================================登录=====================================================
   ///
   ///

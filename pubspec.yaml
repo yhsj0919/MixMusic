@@ -36,7 +36,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   #文件选择
-  file_picker: ^8.3.1
+  file_picker: ^9.0.0
   permission_handler: ^11.3.1
   path_provider: ^2.1.5
   #js插件处理
@@ -77,7 +77,7 @@ dependencies:
 
   easy_refresh: ^3.4.0
 
-  device_info_plus: ^11.2.2
+  device_info_plus: ^11.3.0
 
   #  carousel_slider: ^5.0.0
 
@@ -86,11 +86,11 @@ dependencies:
 
   #  drop_shadow: ^0.1.0
 
-  shared_preferences: ^2.5.1
+  shared_preferences: ^2.5.2
 
   #============page2===================
   dynamic_color: ^1.7.0
-  get: ^4.6.6
+  get: ^4.7.2
   extended_nested_scroll_view: ^6.2.1
   squiggly_slider: ^1.0.5
   gap: ^3.0.1
@@ -126,6 +126,13 @@ dependency_overrides:
     git:
       url: https://github.com/KasemJaffer/receive_sharing_intent
       ref: master
+  #内嵌浏览器
+  flutter_inappwebview:
+    git:
+      url: https://github.com/pichillilorenzo/flutter_inappwebview
+      path: flutter_inappwebview
+      ref: master
+  url_launcher: ^6.3.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

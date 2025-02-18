@@ -576,4 +576,11 @@ class MixApi extends MusicApi {
       }
     });
   }
+
+  @override
+  Future<String> getWebLoginUrl() {
+    return invokeMethod(method: "music.login.web.getUrl", params: []).then((value) {
+      return Future(() => value.toString());
+    });
+  }
 }

@@ -70,38 +70,43 @@ class _LoginListPageState extends State<LoginListPage> {
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 8),
                       child: Row(
-                        children: detailMethod.map((element) {
-                          print(element);
-                          if (element == "cookie") {
-                            return IconButton(
-                                onPressed: () {
-                                  Get.toNamed(Routes.loginByCookie, arguments: plugin)?.then((v) {
-                                    setState(() {});
-                                  });
-                                },
-                                icon: Icon(Icons.cookie));
-                          }
-                          if (element == "phone") {
-                            return IconButton(
-                                onPressed: () {
-                                  Get.toNamed(Routes.loginByPhone, arguments: plugin)?.then((v) {
-                                    setState(() {});
-                                  });
-                                },
-                                icon: Icon(Icons.phone_android));
-                          }
-                          if (element == "user") {
-                            return IconButton(onPressed: () {}, icon: Icon(Icons.person));
-                          }
-                          if (element == "web") {
-                            return IconButton(onPressed: () {}, icon: Icon(Icons.browser_updated));
-                          }
-                          if (element == "qr") {
-                            return IconButton(onPressed: () {}, icon: Icon(Icons.qr_code));
-                          }
+                        children: [
+                          ...detailMethod.map((element) {
+                            if (element == "cookie") {
+                              return IconButton(
+                                  onPressed: () {
+                                    Get.toNamed(Routes.loginByCookie, arguments: plugin)?.then((v) {
+                                      setState(() {});
+                                    });
+                                  },
+                                  icon: Icon(Icons.cookie));
+                            }
+                            if (element == "phone") {
+                              return IconButton(
+                                  onPressed: () {
+                                    Get.toNamed(Routes.loginByPhone, arguments: plugin)?.then((v) {
+                                      setState(() {});
+                                    });
+                                  },
+                                  icon: Icon(Icons.phone_android));
+                            }
+                            if (element == "user") {
+                              return IconButton(onPressed: () {}, icon: Icon(Icons.person));
+                            }
+                            if (element == "web") {
+                              return IconButton(
+                                  onPressed: () {
+                                    Get.toNamed(Routes.loginByWeb, arguments: plugin);
+                                  },
+                                  icon: Icon(Icons.language_rounded));
+                            }
+                            if (element == "qr") {
+                              return IconButton(onPressed: () {}, icon: Icon(Icons.qr_code));
+                            }
 
-                          return IconButton(onPressed: () {}, icon: Icon(Icons.error));
-                        }).toList(),
+                            return IconButton(onPressed: () {}, icon: Icon(Icons.error));
+                          }).toList()
+                        ],
                       ),
                     )
                   ],

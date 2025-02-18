@@ -29,6 +29,8 @@ class _LoginByWebPageState extends State<LoginByWebPage> {
 
   final GlobalKey webViewKey = GlobalKey();
 
+  RxBool webInit = RxBool(false);
+
   InAppWebViewController? webViewController;
   InAppWebViewSettings settings = InAppWebViewSettings(
       isInspectable: kDebugMode,
@@ -81,8 +83,7 @@ class _LoginByWebPageState extends State<LoginByWebPage> {
           //     " " +
           //     contextMenuItemClicked.title);
         });
-
-    Future.delayed(Duration(milliseconds: 400)).then((v) {
+    webInit.stream.listen((v) {
       api?.getWebLoginUrl().then((v) {
         myUrl.value = v;
         print(v);
@@ -144,6 +145,7 @@ class _LoginByWebPageState extends State<LoginByWebPage> {
                                 child: const Text('保存校验'),
                                 onPressed: () {
                                   api?.setCookie(cookie: temp);
+                                  userController.getAllUser();
                                   api?.userInfo().then((v) {
                                     var user = v.data;
                                     showInfo("${user?.name ?? ""} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "非VIP"}");
@@ -181,6 +183,7 @@ class _LoginByWebPageState extends State<LoginByWebPage> {
               contextMenu: contextMenu,
               onWebViewCreated: (controller) async {
                 webViewController = controller;
+                webInit.value = true;
               },
               onLoadStart: (controller, url) {
                 setState(() {

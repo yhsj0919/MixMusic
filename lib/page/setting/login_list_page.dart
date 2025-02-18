@@ -30,6 +30,11 @@ class _LoginListPageState extends State<LoginListPage> {
     super.initState();
 
     getPlugins();
+    userController.userInfos.stream.listen((a) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   void getPlugins() {
@@ -96,7 +101,9 @@ class _LoginListPageState extends State<LoginListPage> {
                             if (element == "web") {
                               return IconButton(
                                   onPressed: () {
-                                    Get.toNamed(Routes.loginByWeb, arguments: plugin);
+                                    Get.toNamed(Routes.loginByWeb, arguments: plugin)?.then((v) {
+                                      setState(() {});
+                                    });
                                   },
                                   icon: Icon(Icons.language_rounded));
                             }

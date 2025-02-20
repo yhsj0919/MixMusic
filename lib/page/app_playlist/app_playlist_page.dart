@@ -24,7 +24,7 @@ class AppPlayListPage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              Text("播放列表", style: Theme.of(context).textTheme.titleMedium),
+              Text("播放列表", style: Theme.of(context).textTheme.bodyLarge),
               Obx(() => Text(" (${music.musicList.length})")),
               Expanded(child: Container()),
               IconButton(

@@ -30,6 +30,10 @@ final lightTheme = ThemeData(
   ),
   shadowColor: Colors.black,
   listTileTheme: ListTileThemeData(
+    titleTextStyle: TextStyle(
+      color: Colors.black,
+      fontSize: 18,
+    ),
     subtitleTextStyle: TextStyle(
       fontSize: 14,
       color: const Color(0xff999999),
@@ -95,6 +99,10 @@ final darkTheme = ThemeData(
     centerTitle: true,
   ),
   listTileTheme: ListTileThemeData(
+    titleTextStyle: TextStyle(
+      color: Colors.white,
+      fontSize: 18,
+    ),
     subtitleTextStyle: TextStyle(
       fontSize: 14,
       color: const Color(0xff999999),

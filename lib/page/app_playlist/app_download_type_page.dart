@@ -25,7 +25,7 @@ class AppDownloadTypePage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             children: [
-              Text("选择音质", style: Theme.of(context).textTheme.titleMedium),
+              Text("选择音质", style: Theme.of(context).textTheme.bodyLarge),
               Expanded(child: Container()),
             ],
           ),

@@ -156,30 +156,20 @@ class _MvTabPageState extends State<MvTabPage> with AutomaticKeepAliveClientMixi
     }
     showModalBottomSheet(
         context: context,
-        elevation: 0,
-        // barrierColor: Colors.transparent,
-        backgroundColor: Colors.transparent,
+        showDragHandle: true,
+        useSafeArea: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0), // 设置圆角的大小
+        ),
         scrollControlDisabledMaxHeightRatio: 3 / 4,
         builder: (BuildContext context) {
-          return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 12.0,
-                    color: Theme.of(context).shadowColor.withOpacity(0.1),
-                  ),
-                ],
-              ),
-              margin: const EdgeInsets.all(16),
-              child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 16),
-                itemCount: artistType.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return buildItem(artistType[index]);
-                },
-              ));
+          return ListView.builder(
+            padding: const EdgeInsets.only(bottom: 16),
+            itemCount: artistType.length,
+            itemBuilder: (BuildContext context, int index) {
+              return buildItem(artistType[index]);
+            },
+          );
         }).then((value) {});
   }
 

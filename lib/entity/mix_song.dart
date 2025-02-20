@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:audio_service/audio_service.dart';
+import 'package:crypto/crypto.dart';
 import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:mix_music/entity/mix_mv.dart';
 
@@ -50,12 +53,12 @@ class MixSong {
 
   MediaItem mediaItem() {
     return MediaItem(
-      id: (match != true ? url : matchSong?.url) ?? "",
-      album: album?.title,
-      title: title ?? "",
-      artist: artist?.isNotEmpty == true ? artist?.first.title : "未知",
-      duration: const Duration(milliseconds: 10),
-      artUri: Uri.parse(pic ?? ""),
-    );
+        id: (match != true ? url : matchSong?.url) ?? "",
+        album: album?.title,
+        title: title ?? "",
+        artist: artist?.isNotEmpty == true ? artist?.first.title : "未知",
+        duration: const Duration(milliseconds: 10),
+        artUri: Uri.parse(pic ?? ""),
+        extras: {"id": md5.convert(utf8.encode("$package$id")).toString()});
   }
 }

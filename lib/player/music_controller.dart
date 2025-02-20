@@ -8,6 +8,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/constant.dart';
 import 'package:mix_music/entity/mix_song.dart';
+import 'package:mix_music/page/timer/timer_close_controller.dart';
 import 'package:mix_music/player/Player.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/utils/sp.dart';
@@ -40,12 +41,17 @@ class MusicController extends GetxController {
   StreamSubscription<dynamic>? requestTimeOutFuture;
   StreamSubscription<dynamic>? requestFuture;
 
+  //倒计时关闭
+  TimeCloseController timeClose = Get.put(TimeCloseController());
+
   @override
   void onInit() {
     super.onInit();
     currentMusic.value = Sp.getObject<MixSong>(Constant.KEY_APP_CURRENT_MUSIC);
 
     musicList.addAll(Sp.getList<MixSong>(Constant.KEY_APP_MUSIC_LIST) ?? []);
+
+    musicIndex.value = musicList.indexWhere((element) => element.id.toString() == currentMusic.value?.id.toString() && element.package == currentMusic.value?.package);
 
     Player.media.listen((event) {
       media.value = event;
@@ -80,17 +86,26 @@ class MusicController extends GetxController {
         // isPlaying.value = false;
 
         if ((duration.value.inMilliseconds > 1000 && duration.value.inMilliseconds == position.value.inMilliseconds)) {
-          print('这里触发下一首了');
-
-          if (playMode.value == PlayMode.RepeatOne) {
+          if (timeClose.shouldClose.value && timeClose.stopWithTimer.value) {
             isPlaying.value = false;
-            playOrPause();
-          }
-          if (playMode.value == PlayMode.RepeatAll) {
-            if (musicList.length == 1) {
+            duration.value = Duration();
+            position.value = Duration();
+            print('这里触发定时停止');
+            Player.pause();
+            seek(Duration());
+            timeClose.stopCountdown();
+          } else {
+            print('这里触发下一首了');
+            if (playMode.value == PlayMode.RepeatOne) {
+              isPlaying.value = false;
               playOrPause();
-            } else {
-              next(loop: false);
+            }
+            if (playMode.value == PlayMode.RepeatAll) {
+              if (musicList.length == 1) {
+                playOrPause();
+              } else {
+                next(loop: false);
+              }
             }
           }
         }
@@ -235,6 +250,10 @@ class MusicController extends GetxController {
     }
   }
 
+  void stop() {
+    Player.stop();
+  }
+
   void pause() {
     if (isPlaying.value) {
       Player.pause();
@@ -244,7 +263,8 @@ class MusicController extends GetxController {
   ///跳转
   Future<void> seek(Duration position) async {
     isPlaying.value = Player.isPlaying();
-    return Player.seek(position);
+
+    Player.seek(position);
   }
 
   ///跳转
@@ -258,6 +278,8 @@ class MusicController extends GetxController {
         musicIndex.value = musicList.length - 1;
         play(music: musicList[musicIndex.value]);
       } else {
+        seek(Duration());
+        Player.pause();
         showInfo("已经是第一首了");
       }
     }
@@ -273,6 +295,8 @@ class MusicController extends GetxController {
         musicIndex.value = 0;
         play(music: musicList[musicIndex.value]);
       } else {
+        seek(Duration());
+        Player.pause();
         showInfo("已经是最后一首了");
       }
     }

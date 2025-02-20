@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/page/app_playlist/app_download_type_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
+import 'package:mix_music/page/timer/TimerClosePage.dart';
 import 'package:mix_music/player/Player.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/route/routes.dart';
@@ -18,6 +19,8 @@ import 'package:mix_music/theme/surface_color_enum.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/ext.dart';
+import 'package:mix_music/widgets/hyper/hyper_group.dart';
+import 'package:mix_music/widgets/hyper/hyper_group_big_title.dart';
 import 'package:mix_music/widgets/message.dart';
 import 'package:mix_music/widgets/mix_site_item.dart';
 
@@ -347,13 +350,13 @@ class _PhonePlayingState extends State<PhonePlaying> {
                 }
               },
               icon: Icon(music.playMode.value == PlayMode.RepeatAll ? Icons.repeat_rounded : Icons.repeat_one_rounded, size: 25))),
-          Container(width: 14),
+          Flexible(child: Container(width: 14)),
           IconButton(
               onPressed: () {
                 music.previous();
               },
               icon: Icon(Icons.skip_previous_rounded, size: 35)),
-          Container(width: 14),
+          Flexible(child: Container(width: 14)),
           Obx(
             () => IconButton(
               onPressed: music.state.value == MixPlayState.loading || music.state.value == MixPlayState.buffering
@@ -385,13 +388,13 @@ class _PhonePlayingState extends State<PhonePlaying> {
               ),
             ),
           ),
-          Container(width: 14),
+          Flexible(child: Container(width: 14)),
           IconButton(
               onPressed: () {
                 music.next();
               },
               icon: Icon(Icons.skip_next_rounded, size: 35)),
-          Container(width: 14),
+          Flexible(child: Container(width: 14)),
           IconButton(
               onPressed: () {
                 showBottomPlayList(context);
@@ -416,7 +419,11 @@ class _PhonePlayingState extends State<PhonePlaying> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
-            IconButton(onPressed: () {}, icon: Icon(Icons.chat_rounded)),
+            IconButton(
+                onPressed: () {
+                  showBottomTimer(context);
+                },
+                icon: Icon(Icons.timer_outlined)),
             Expanded(child: Container()),
             IconButton(
                 onPressed: () {
@@ -493,30 +500,35 @@ class _PhonePlayingState extends State<PhonePlaying> {
     );
   }
 
+  void showBottomTimer(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        showDragHandle: true,
+        useSafeArea: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0), // 设置圆角的大小
+        ),
+        scrollControlDisabledMaxHeightRatio: 1 / 2,
+        builder: (BuildContext context) {
+          return TimerClosePage();
+        }).then((value) {});
+  }
+
   void showBottomPlayList(BuildContext context) {
     showModalBottomSheet(
         context: context,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
+        showDragHandle: true,
+        useSafeArea: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0), // 设置圆角的大小
+        ),
+        // backgroundColor: Colors.transparent,
         scrollControlDisabledMaxHeightRatio: 3 / 4,
         builder: (BuildContext context) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: const BorderRadius.all(Radius.circular(16)),
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 12.0,
-                  color: Theme.of(context).shadowColor.withOpacity(0.1),
-                ),
-              ],
-            ),
-            // margin: const EdgeInsets.all(16),
-            child: AppPlayListPage(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-            ),
+          return AppPlayListPage(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
           );
         }).then((value) {});
   }
@@ -524,27 +536,17 @@ class _PhonePlayingState extends State<PhonePlaying> {
   void showBottomDownload(BuildContext context) {
     showModalBottomSheet(
         context: context,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        scrollControlDisabledMaxHeightRatio: 3 / 5,
+        showDragHandle: true,
+        useSafeArea: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0), // 设置圆角的大小
+        ),
+        scrollControlDisabledMaxHeightRatio: 1 / 2,
         builder: (BuildContext context) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: const BorderRadius.all(Radius.circular(16)),
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 12.0,
-                  color: Theme.of(context).shadowColor.withOpacity(0.1),
-                ),
-              ],
-            ),
-            // margin: const EdgeInsets.all(16),
-            child: AppDownloadTypePage(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-            ),
+          return AppDownloadTypePage(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
           );
         }).then((value) {});
   }

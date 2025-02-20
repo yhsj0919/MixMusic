@@ -126,33 +126,20 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
     }
     showModalBottomSheet(
         context: context,
-        elevation: 0,
-        // barrierColor: Colors.transparent,
-        backgroundColor: Colors.transparent,
+        showDragHandle: true,
+        useSafeArea: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0), // 设置圆角的大小
+        ),
         scrollControlDisabledMaxHeightRatio: 3 / 4,
         builder: (BuildContext context) {
-          double statusBarHeight = max(MediaQuery.of(context).padding.top, 16);
-          double bottom = max(MediaQuery.of(context).padding.bottom, 16);
-          return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainer,
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 12.0,
-                    color: Theme.of(context).shadowColor.withOpacity(0.3),
-                  ),
-                ],
-              ),
-              // margin: const EdgeInsets.all(16),
-              child: ListView.builder(
-                // shrinkWrap: true,
-                padding:  EdgeInsets.only(bottom: bottom),
-                itemCount: artistType.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return buildItem(artistType[index]);
-                },
-              ));
+          return ListView.builder(
+            // shrinkWrap: true,
+            itemCount: artistType.length,
+            itemBuilder: (BuildContext context, int index) {
+              return buildItem(artistType[index]);
+            },
+          );
         }).then((value) {});
   }
 

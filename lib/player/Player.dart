@@ -40,7 +40,6 @@ class Player {
     return __onPrevious ??= StreamController<void>();
   }
 
-
   static bool isPlaying() {
     return _player.playing;
   }
@@ -80,6 +79,9 @@ class Player {
   ///播放音乐
   static Future<void> playMediaItem(MediaItem mediaItem) async {
     _mediaController.add(mediaItem);
+    print('这是ID${mediaItem.extras?["id"]}');
+
+    // LockCachingAudioSource(Uri.parse(mediaItem.id), tag: mediaItem);
 
     var media = AudioSource.uri(
       Uri.parse(mediaItem.id),
@@ -112,6 +114,11 @@ class Player {
     } else {
       return Future(() => null);
     }
+  }
+
+  ///恢复播放
+  static Future<void> play() async {
+    return _player.play();
   }
 
   ///跳转

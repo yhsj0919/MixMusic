@@ -246,12 +246,13 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
   void showTypeSelectDialog(BuildContext context) {
     showModalBottomSheet(
         context: context,
-        elevation: 0,
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+        showDragHandle: true,
+        useSafeArea: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0), // 设置圆角的大小
+        ),
         scrollControlDisabledMaxHeightRatio: 3 / 4,
         builder: (BuildContext context) {
-          double statusBarHeight = max(MediaQuery.of(context).padding.top, 16);
-          double bottom = max(MediaQuery.of(context).padding.bottom, 16);
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -277,7 +278,6 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                           });
                     }).toList()),
               ),
-              Container(height: bottom + 16)
             ],
           );
         }).then((value) {});
@@ -287,7 +287,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
     return HyperCard(
       width: widget,
       height: height,
-      color: Theme.of(context).colorScheme.surface,
+      color: Theme.of(context).colorScheme.surfaceContainer,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap == null

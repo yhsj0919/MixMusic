@@ -26,6 +26,7 @@ class MixSong {
   bool? match;
   MixSong? matchSong;
   MixMv? mv;
+  int? playQuality;
 
   MixSong({
     required this.package,
@@ -37,6 +38,7 @@ class MixSong {
     this.mv,
     this.url,
     this.quality,
+    this.playQuality,
     required this.pic,
     this.lyric,
     this.listenCount,

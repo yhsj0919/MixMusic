@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader_widget.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/entity/mix_quality.dart';
 import 'package:mix_music/page/app_playlist/app_download_type_page.dart';
+import 'package:mix_music/page/app_playlist/app_play_quality_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
 import 'package:mix_music/page/timer/TimerClosePage.dart';
 import 'package:mix_music/player/Player.dart';
@@ -421,6 +423,12 @@ class _PhonePlayingState extends State<PhonePlaying> {
           children: [
             IconButton(
                 onPressed: () {
+                  showBottomQuality(context);
+                },
+                icon: Icon(Icons.high_quality_outlined)),
+            Expanded(child: Container()),
+            IconButton(
+                onPressed: () {
                   showBottomTimer(context);
                 },
                 icon: Icon(Icons.timer_outlined)),
@@ -545,6 +553,25 @@ class _PhonePlayingState extends State<PhonePlaying> {
         builder: (BuildContext context) {
           return AppDownloadTypePage(
             onTap: () {
+              Navigator.of(context).pop();
+            },
+          );
+        }).then((value) {});
+  }
+
+  void showBottomQuality(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        showDragHandle: true,
+        useSafeArea: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0), // 设置圆角的大小
+        ),
+        scrollControlDisabledMaxHeightRatio: 1 / 2,
+        builder: (BuildContext context) {
+          return AppPlayQualityPage(
+            onTap: (MixQuality quality) {
+              print('${quality.quality}');
               Navigator.of(context).pop();
             },
           );

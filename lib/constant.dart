@@ -36,4 +36,10 @@ class Constant {
 
   //调试弹窗
   static String KEY_APP_DEBUG_ALERT = "KEY_APP_DEBUG_ALERT";
+
+  //播放音质
+  static String KEY_PLAY_QUALITY = "KEY_PLAY_QUALITY";
+
+  //与其他应用一起播放
+  static String KEY_PLAY_WITH_OTHER_APP = "KEY_PLAY_WITH_OTHER_APP";
 }

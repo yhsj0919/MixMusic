@@ -1,11 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/constant.dart';
 import 'package:mix_music/page/home/home_page.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/sp.dart';
+import 'package:mix_music/widgets/hyper/hyper_background.dart';
+import 'package:mix_music/widgets/hyper/hyper_background_color.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -19,9 +22,10 @@ class _WelcomePageState extends State<WelcomePage> {
   Timer? _timer;
 
   ///记录当前的时间
-  int timeText = 1000;
-  int currentTimer = 0;
-  int totalTime = 1000;
+  RxInt time = RxInt(2 * 1000);
+
+  // RxInt currentTimer = RxInt(0);
+  RxInt totalTime = RxInt(2 * 1000);
 
   bool firstIn = true;
 
@@ -31,24 +35,23 @@ class _WelcomePageState extends State<WelcomePage> {
 
     firstIn = Sp.getBool(Constant.KEY_FIRST_IN) ?? true;
 
+    Future.delayed(Duration(milliseconds: 400)).then((v) {
+      startCountdown();
+    });
+  }
+
+  // 启动倒计时
+  void startCountdown() {
     ///循环执行
     ///间隔1秒
-    _timer = Timer.periodic(const Duration(milliseconds: 5), (timer) {
-      ///自增
-      currentTimer += 5;
-      timeText -= 5;
-
-      ///到5秒后停止
-      if (currentTimer >= totalTime) {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(milliseconds: 20), (timer) {
+      if (time.value > 0) {
+        time.value = time.value - 20;
+      } else {
         _timer?.cancel();
-        if (firstIn) {
-          Get.offAndToNamed(Routes.permission);
-          Get.off(() => const HomePage());
-        } else {
-          Get.off(() => const HomePage());
-        }
+        Get.offAndToNamed(Routes.home);
       }
-      setState(() {});
     });
   }
 
@@ -67,32 +70,77 @@ class _WelcomePageState extends State<WelcomePage> {
           // padding: const EdgeInsets.all(8),
           alignment: Alignment.topRight,
           child: SizedBox(
-            height: 30,
-            width: 30,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                CircularProgressIndicator(
-                  strokeWidth: 3,
-                  backgroundColor: Colors.black12,
-                  value: currentTimer / totalTime,
-                ),
-                Text(
-                  "${timeText ~/ 200}",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
-            ),
-          ),
+              height: 30,
+              width: 30,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Obx(() => CircularProgressIndicator(
+                        strokeWidth: 3,
+                        backgroundColor: Colors.black12,
+                        value: time.value / totalTime.value,
+                      )),
+                  Obx(() => Text(
+                        "${(time.value ~/ 1000) + 1}",
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      )),
+                ],
+              )),
         ),
       ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Center(
-              child: Text("MixMusic", style: Theme.of(context).textTheme.displayMedium),
-            ),
-          ],
+      body: HyperBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Gap(32),
+              Expanded(
+                  child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // 第一列
+                    Column(            mainAxisAlignment: MainAxisAlignment.center,
+
+                      children: [
+                        Text('个', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('性', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('，', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('定', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('制', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('', style: Theme.of(context).textTheme.headlineMedium),
+                      ],
+                    ),
+                    SizedBox(width: 40), // 列之间的间距
+                    Column(            mainAxisAlignment: MainAxisAlignment.center,
+
+                      children: [
+                        Text('', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('畅', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('享', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('音', style: Theme.of(context).textTheme.headlineMedium),
+                        Text('乐', style: Theme.of(context).textTheme.headlineMedium),
+                      ],
+                    ),
+                  ],
+                ),
+              )),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset("assets/app_logo.png", width: 50, height: 50),
+                    Text("MixMusic", style: Theme.of(context).textTheme.displaySmall),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

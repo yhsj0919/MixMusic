@@ -98,7 +98,14 @@ class _SettingPageState extends State<SettingPage> {
                   }),
             ]),
             SliverGap(12),
-            HyperGroup( title: Text("下载"), children: [
+            HyperGroup(title: Text("播放与下载"), children: [
+              HyperListTile(
+                  leading: HyperIcon(color: Colors.blue, icon: Icons.play_arrow_rounded),
+                  title: "播放设置",
+                  trailing: HyperTrailing(),
+                  onTap: () {
+                    Get.toNamed(Routes.playSetting);
+                  }),
               HyperListTile(
                   leading: HyperIcon(color: Colors.blue, icon: Icons.folder_rounded),
                   title: "下载设置",
@@ -108,7 +115,7 @@ class _SettingPageState extends State<SettingPage> {
                   }),
             ]),
             SliverGap(12),
-            HyperGroup( title: Text("电源"), children: [
+            HyperGroup(title: Text("电源"), children: [
               HyperListTile(
                   leading: HyperIcon(color: Colors.blue, icon: Icons.battery_unknown_rounded),
                   title: "电源策略",
@@ -119,7 +126,7 @@ class _SettingPageState extends State<SettingPage> {
                   }),
             ]),
             SliverGap(12),
-            HyperGroup( title: Text("调试"), children: [
+            HyperGroup(title: Text("调试"), children: [
               HyperListTile(
                   leading: HyperIcon(color: Colors.blue, icon: Icons.bug_report_rounded),
                   title: "调试弹窗",

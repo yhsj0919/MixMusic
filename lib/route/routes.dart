@@ -15,6 +15,7 @@ import 'package:mix_music/page/setting/extension_page.dart';
 import 'package:mix_music/page/setting/login/login_by_cookie.dart';
 import 'package:mix_music/page/setting/login/login_by_phone.dart';
 import 'package:mix_music/page/setting/login/login_by_web.dart';
+import 'package:mix_music/page/setting/play_setting_page.dart';
 import 'package:mix_music/page/setting/setting_page.dart';
 import 'package:mix_music/page/parse/parse_play_list.dart';
 import 'package:mix_music/page/permission/permission_page.dart';
@@ -48,6 +49,7 @@ class Routes {
   static const String download = "/download";
   static const String setting = "/setting";
   static const String downloadSetting = "/downloadSetting";
+  static const String playSetting = "/playSetting";
 
   static const String home = "/";
   static const String playList = "/playList";
@@ -97,6 +99,7 @@ class Routes {
     GetPage(name: parsePlayList, page: () => const ParsePlayList(), customTransition: MyCustomTransition()),
     GetPage(name: download, page: () => const DownloadPage(), customTransition: MyCustomTransition()),
     GetPage(name: downloadSetting, page: () => const DownloadSettingPage(), customTransition: MyCustomTransition()),
+    GetPage(name: playSetting, page: () => const PlaySettingPage(), customTransition: MyCustomTransition()),
     GetPage(name: mv, page: () => const MvPage(), customTransition: MyCustomTransition()),
     GetPage(name: mvDetail, page: () => const MvDetailPage(), customTransition: MyCustomTransition()),
   ];

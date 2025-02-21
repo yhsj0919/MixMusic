@@ -40,6 +40,7 @@ class MusicController extends GetxController {
 
   StreamSubscription<dynamic>? requestTimeOutFuture;
   StreamSubscription<dynamic>? requestFuture;
+  bool playTimeout = false;
 
   //倒计时关闭
   TimeCloseController timeClose = Get.put(TimeCloseController());
@@ -164,6 +165,9 @@ class MusicController extends GetxController {
     musicIndex.value = musicList.indexWhere((element) => element.id.toString() == music.id.toString() && element.package == music.package);
     Player.stop();
     requestFuture?.cancel();
+
+    var playQuality = Sp.getInt(Constant.KEY_PLAY_QUALITY) ?? 128;
+    music.playQuality = playQuality;
     requestFuture = ApiFactory.playUrl(package: music.package, song: music).asStream().listen((value) {
       state.value = MixPlayState.buffering;
       requestTimeOutFuture?.cancel();
@@ -174,6 +178,7 @@ class MusicController extends GetxController {
       music.match = value.match;
       music.matchSong = value.matchSong;
       music.quality = value.quality;
+      music.playQuality = value.playQuality;
 
       currentMusic.update((old) {
         old = music;
@@ -216,19 +221,23 @@ class MusicController extends GetxController {
   }
 
   void requestTimeOut() {
+    playTimeout = false;
     requestTimeOutFuture = Future.delayed(const Duration(seconds: 15)).asStream().listen((value) {
       state.value = null;
       isPlaying.value = false;
       requestTimeOutFuture?.cancel();
       requestFuture?.cancel();
       Player.stop();
+      playTimeout = true;
       showError('请求超时');
     });
   }
 
   ///播放音乐
   void playOrPause() {
-    if (isPlaying.value) {
+    if (playTimeout) {
+      play(music: currentMusic.value!);
+    } else if (isPlaying.value) {
       Player.pause();
     } else {
       if (state.value == null) {

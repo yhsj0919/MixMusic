@@ -136,10 +136,10 @@ class ApiFactory {
   }
 
   ///获取播放地址
-  static Future<MixSong> playUrl({required String package, required MixSong song}) async {
-    var resp = await api(package: package)!.playUrl(song);
+  static Future<MixSong> playUrl({required MixSong song, bool useMatch = true}) async {
+    var resp = await api(package: song.package)!.playUrl(song);
 
-    if (resp.url == null && song.vip == 1 && _matchVip && !_matchSite.contains(package) && _matchSite.isNotEmpty) {
+    if (resp.url == null && song.vip == 1 && _matchVip && !_matchSite.contains(song.package) && _matchSite.isNotEmpty && useMatch) {
       return matchMusic(packages: _matchSite.toList(), name: song.title, artist: song.artist?.first.title).then((value) {
         var matchSong = value.firstOrNull;
 
@@ -149,6 +149,8 @@ class ApiFactory {
         return song;
       });
     } else {
+      resp.match = false;
+      resp.matchSong = null;
       return resp;
     }
   }

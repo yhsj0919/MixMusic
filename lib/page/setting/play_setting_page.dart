@@ -49,25 +49,25 @@ class _PlaySettingPageState extends State<PlaySettingPage> {
             SliverAppBar.large(
               title: Text("播放设置"),
             ),
-            HyperGroup(
-              children: [
-                Obx(
-                  () => SwitchListTile(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    title: const Text("允许与其他应用同时播放"),
-                    subtitle: const Text("其他应用播放时不暂停"),
-                    value: playWithOtherApp.value,
-                    onChanged: (value) {
-                      playWithOtherApp.value = value;
-                      Sp.setBool(Constant.KEY_PLAY_WITH_OTHER_APP, value);
-
-                      ApiFactory.initMatch();
-                    },
-                  ),
-                )
-              ],
-            ),
-            SliverGap(12),
+            // HyperGroup(
+            //   children: [
+            //     Obx(
+            //       () => SwitchListTile(
+            //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            //         title: const Text("允许与其他应用同时播放"),
+            //         subtitle: const Text("其他应用播放时不暂停"),
+            //         value: playWithOtherApp.value,
+            //         onChanged: (value) {
+            //           playWithOtherApp.value = value;
+            //           Sp.setBool(Constant.KEY_PLAY_WITH_OTHER_APP, value);
+            //
+            //           ApiFactory.initMatch();
+            //         },
+            //       ),
+            //     )
+            //   ],
+            // ),
+            // SliverGap(12),
             Obx(() => HyperGroup(
                   title: Text("播放音质"),
                   trailing: Text("无法播放时会选择最低音质"),
@@ -119,12 +119,12 @@ class _PlaySettingPageState extends State<PlaySettingPage> {
                     RadioListTile<int?>(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       title: Text("母带"),
-                      subtitle: Text("大于100M/首，更饱满清晰的音质，最高192kHz/24bit"),
+                      subtitle: Text("大于100M/首，超清母带，192kHz/24bit"),
                       groupValue: playQuality.value,
-                      value: 4000,
+                      value: 3000,
                       onChanged: (int? value) {
-                        Sp.setInt(Constant.KEY_PLAY_QUALITY, value ?? 4000);
-                        playQuality.value = value ?? 4000;
+                        Sp.setInt(Constant.KEY_PLAY_QUALITY, value ?? 3000);
+                        playQuality.value = value ?? 3000;
                       },
                     ),
                   ],

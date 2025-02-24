@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader_widget.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_quality.dart';
 import 'package:mix_music/page/app_playlist/app_download_type_page.dart';
 import 'package:mix_music/page/app_playlist/app_play_quality_page.dart';
@@ -24,6 +25,7 @@ import 'package:mix_music/widgets/ext.dart';
 import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/hyper/hyper_group_big_title.dart';
 import 'package:mix_music/widgets/message.dart';
+import 'package:mix_music/widgets/mix_quality_icon.dart';
 import 'package:mix_music/widgets/mix_site_item.dart';
 
 import '../../../player/ui_mix.dart';
@@ -123,6 +125,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
                                       ],
                                     ),
                                   ),
+                                  Expanded(child: Container()),
                                   buildTitle(width),
                                   buildProgressBar(),
                                   Container(height: 4),
@@ -422,10 +425,13 @@ class _PhonePlayingState extends State<PhonePlaying> {
         child: Row(
           children: [
             IconButton(
-                onPressed: () {
-                  showBottomQuality(context);
-                },
-                icon: Icon(Icons.high_quality_outlined)),
+              onPressed: () {
+                showBottomQuality(context);
+              },
+              icon: Obx(() => MixQualityIcon(
+                    quality: music.currentMusic.value?.playQuality,
+                  )),
+            ),
             Expanded(child: Container()),
             IconButton(
                 onPressed: () {
@@ -572,6 +578,21 @@ class _PhonePlayingState extends State<PhonePlaying> {
           return AppPlayQualityPage(
             onTap: (MixQuality quality) {
               print('${quality.quality}');
+
+              var song = music.currentMusic.value;
+
+              if (song != null) {
+                if (song.playQuality == quality.quality) {
+                  showInfo("正在播放${quality.title}");
+                } else {
+                  song.playQuality = quality.quality;
+
+                  music.playWithQuality(music: song);
+                }
+              } else {
+                showError("音乐信息不存在");
+              }
+
               Navigator.of(context).pop();
             },
           );

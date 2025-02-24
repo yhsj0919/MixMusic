@@ -109,13 +109,53 @@ await md5(data)  //返回32位字符串
 //极高音质           320
 //无损音质           1000
 //Hi-Res/臻品        2000
-//高清/超清          3000
 //母带               4000
 
 //其他音质不参与播放音质选择
 //全景声             1100
+//高清/超清          1200
 //其他类似音质        1000-2000
 
+
+//切换音质规则
+//song 添加playQuality字段，请求播放链接时使用，
+//插件自行判断当前用户vip状态，
+//有vip，使用playQuality字段获取对应音质，
+//没有vip，直接获取最低音质（很多平台都是最低音质可以播放，高音质必须登录或者vip），这个vip规则自行把握
+//软件仅能对标注为vip的音乐启用匹配规则，因免费歌曲高音质无法获取链接导致的播放问题，表现为无法播放
+//对应音质不存在，则优先取低一级音质，其次高一级音质，
+//比如获取320，但是该歌曲只有128，和1000的音质，那就获取128，
+//如果获取320，但只有1000的音质，那就获取1000，以此类推，就近选择
+
+// 获取临近音质方法，制作插件需要自己放进js文件
+function findQuality(qualities, playQuality) {
+    let smaller = null;
+    let larger = null;
+
+    // 遍历数组找出比目标值小和大的值，同时检查目标值是否存在
+    for (let item of qualities) {
+        if (item.quality === playQuality) {
+            return item; // 如果找到目标值，直接返回
+        }
+        if (item.quality < playQuality) {
+            if (smaller === null || item.quality > smaller.quality) {
+                smaller = item;
+            }
+        } else if (item.quality > playQuality) {
+            if (larger === null || item.quality < larger.quality) {
+                larger = item;
+            }
+        }
+    }
+
+    // 如果比目标值小的存在，返回比它小的最近的值
+    if (smaller !== null) {
+        return smaller;
+    }
+
+    // 否则，返回比它大的最近的值
+    return larger !== null ? larger : null; // 如果没有比它大的值，也返回 null
+}
 
 ```
 

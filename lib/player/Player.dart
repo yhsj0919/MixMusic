@@ -97,6 +97,22 @@ class Player {
     return _player.play();
   }
 
+  ///播放音乐
+  static Future<void> playWithQualityChange(MediaItem mediaItem, Duration duration) async {
+    var media = AudioSource.uri(
+      Uri.parse(mediaItem.id),
+      tag: mediaItem,
+    );
+    try {
+      await _player.setAudioSource(media, initialPosition: duration);
+    } catch (e, stackTrace) {
+      print("Error loading playlist: $e");
+      print(stackTrace);
+    }
+
+    return _player.play();
+  }
+
   ///停止
   static void stop() {
     _player.stop();

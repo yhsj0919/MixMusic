@@ -168,7 +168,7 @@ class MusicController extends GetxController {
 
     var playQuality = Sp.getInt(Constant.KEY_PLAY_QUALITY) ?? 128;
     music.playQuality = playQuality;
-    requestFuture = ApiFactory.playUrl(package: music.package, song: music).asStream().listen((value) {
+    requestFuture = ApiFactory.playUrl(song: music).asStream().listen((value) {
       state.value = MixPlayState.buffering;
       requestTimeOutFuture?.cancel();
       musicIndex.value = musicList.indexWhere((element) => element.id.toString() == music.id.toString() && element.package == music.package);
@@ -184,7 +184,7 @@ class MusicController extends GetxController {
         old = music;
       });
 
-      if (media.value?.id != value.mediaItem().id && value.getUrl() != null && value.getUrl() != "") {
+      if (media.value?.id.toString() != value.mediaItem().id.toString() && value.getUrl() != null && value.getUrl() != "") {
         if ((value.getLyric()?.length ?? 0) > 50) {
           lyricModel.value = LyricsModelBuilder.create().bindLyricToMain(value.getLyric()?.replaceAll(":00]", ".00]") ?? "").getModel();
         } else {
@@ -215,6 +215,54 @@ class MusicController extends GetxController {
       state.value = null;
       isPlaying.value = false;
       Player.stop();
+      print(e);
+      showError('${music.title} 获取地址失败:$e');
+    });
+  }
+
+  ///播放音乐
+  void playWithQuality({required MixSong music}) {
+    requestTimeOutFuture?.cancel();
+
+    state.value = MixPlayState.loading;
+
+    requestTimeOut();
+
+    requestFuture?.cancel();
+
+    requestFuture = ApiFactory.playUrl(song: music, useMatch: false).asStream().listen((value) {
+      state.value = MixPlayState.buffering;
+      requestTimeOutFuture?.cancel();
+
+      music.url = value.url;
+      music.lyric = value.lyric;
+      music.quality = value.quality;
+      music.playQuality = value.playQuality;
+
+      if (value.getUrl() != null && value.getUrl() != "") {
+        currentMusic.update((old) {
+          old = music;
+        });
+
+        if ((value.getLyric()?.length ?? 0) > 50) {
+          lyricModel.value = LyricsModelBuilder.create().bindLyricToMain(value.getLyric()?.replaceAll(":00]", ".00]") ?? "").getModel();
+        } else {
+          lyric.value = "暂无歌词";
+          lyricModel.value = LyricsModelBuilder.create().bindLyricToMain("暂无歌词").getModel();
+        }
+        Player.pause();
+        Player.playWithQualityChange(music.mediaItem(), position.value).then((value) {}).catchError((e) {
+          print(e);
+          media.value = null;
+          showError("播放失败");
+        });
+      } else {
+        showError('${music.title} 异常无法播放');
+      }
+    }, onError: (e) {
+      requestTimeOutFuture?.cancel();
+      state.value = null;
+      isPlaying.value = false;
       print(e);
       showError('${music.title} 获取地址失败:$e');
     });

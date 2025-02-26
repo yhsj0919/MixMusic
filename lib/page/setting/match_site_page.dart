@@ -23,7 +23,7 @@ class MatchSitePage extends StatefulWidget {
 class _MatchSitePageState extends State<MatchSitePage> {
   RxBool matchVip = RxBool(false);
   RxList<PluginsInfo> plugins = RxList();
-  RxSet<String> matchSite = RxSet();
+  RxList<String> matchSite = RxList();
 
   @override
   void initState() {
@@ -31,6 +31,7 @@ class _MatchSitePageState extends State<MatchSitePage> {
     plugins.value = ApiFactory.getSearchPlugins();
     matchVip.value = Sp.getBool(Constant.KEY_MATCH_VIP) ?? false;
     matchSite.addAll(Sp.getStringList(Constant.KEY_MATCH_SITE) ?? []);
+    sortMatchList();
   }
 
   @override
@@ -61,11 +62,14 @@ class _MatchSitePageState extends State<MatchSitePage> {
                   )
                 ],
               ),
+              SliverGap(12),
               HyperGroup(
                 title: Text("将下列站点作为匹配站点"),
+                trailing: Text("长按可拖动排序"),
                 children: [
-                  ListView.builder(
+                  ReorderableListView.builder(
                     padding: EdgeInsets.all(0),
+                    buildDefaultDragHandles: false,
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: plugins.length,
@@ -73,26 +77,46 @@ class _MatchSitePageState extends State<MatchSitePage> {
                       var plugin = plugins[index];
 
                       return Obx(
-                        () => CheckboxListTile(
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          title: Text(plugin.name ?? ""),
-                          subtitle: Text(plugin.version ?? ""),
-                          secondary: HyperLeading(
-                            size: 40,
-                            child: AppImage(url: '${plugin.icon}', width: 40, height: 40),
-                          ),
-                          value: matchSite.contains(plugin.package),
-                          onChanged: (bool? value) {
-                            if (value == true) {
-                              matchSite.add(plugin.package ?? "");
-                            } else {
-                              matchSite.remove(plugin.package ?? "");
-                            }
-                            Sp.setStringList(Constant.KEY_MATCH_SITE, matchSite.toList());
-                            ApiFactory.initMatch();
-                          },
-                        ),
+                        key: ValueKey(index),
+                        () => ReorderableDelayedDragStartListener(
+                            enabled: matchSite.contains(plugin.package),
+                            key: ValueKey(index),
+                            index: index,
+                            child: CheckboxListTile(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              title: Text(plugin.name ?? ""),
+                              subtitle: Text(plugin.version ?? ""),
+                              secondary: HyperLeading(
+                                size: 40,
+                                child: AppImage(url: '${plugin.icon}', width: 40, height: 40),
+                              ),
+                              value: matchSite.contains(plugin.package),
+                              onChanged: (bool? value) {
+                                if (value == true) {
+                                  matchSite.add(plugin.package ?? "");
+                                } else {
+                                  matchSite.remove(plugin.package ?? "");
+                                }
+                                sortMatchList();
+                                Sp.setStringList(Constant.KEY_MATCH_SITE, matchSite.toList());
+                                ApiFactory.initMatch();
+                              },
+                            )),
                       );
+                    },
+                    onReorder: (int oldIndex, int newIndex) {
+                      if (newIndex >= matchSite.length) {
+                        newIndex = matchSite.length;
+                      }
+                      if (newIndex > oldIndex) {
+                        newIndex -= 1;
+                      }
+                      final item = matchSite.removeAt(oldIndex);
+                      matchSite.insert(newIndex, item);
+
+                      sortMatchList();
+                      Sp.setStringList(Constant.KEY_MATCH_SITE, matchSite);
+                      ApiFactory.initMatch();
                     },
                   )
                 ],
@@ -111,5 +135,13 @@ class _MatchSitePageState extends State<MatchSitePage> {
     } else {
       matchSite.remove(site);
     }
+  }
+
+  void sortMatchList() {
+    matchSite.toList().reversed.forEach((e) {
+      var item = plugins.firstWhere((i) => i.package == e);
+      plugins.remove(item);
+      plugins.insert(0, item);
+    });
   }
 }

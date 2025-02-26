@@ -1,0 +1,334 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  # 编译安卓
+  build-apk:
+    name: Build apk
+    runs-on: ubuntu-latest
+    steps:
+      # 拉取代码
+      - uses: actions/checkout@main
+      # 注入环境变量
+      - run: node scripts/env
+      - name: apply custom env
+        run: cat .env >> $GITHUB_ENV
+      # 测试是否生效
+      - run: echo ${{ env.APP_VERSION }}
+      # 安装java 如果需要编译安卓
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      # 安装Android SDK 如果需要编译安卓
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      # 安装Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.29.0'
+      # 安装 flutter_distributor
+      - name: Install flutter_distributor
+        shell: bash
+        run: dart pub global activate flutter_distributor
+      # 安装 linix 依赖
+      - name: Install Linux Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libgtk-3-dev
+      # 安装flutter依赖
+      - name: Install dependencies
+        run: flutter pub get
+      # 编译
+      - name: Build
+        shell: bash
+        # run: flutter build apk --release --split-per-abi --dart-define=INIT_ENV=prod
+        run: flutter_distributor package --platform android --targets apk --flutter-build-args=dart-define=INIT_ENV=prod --flutter-build-args=release
+      # 上传文件
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-apk # dist/0.0.5+1/MixMusic-0.0.5+1-android.apk
+          path: dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-android.apk
+  # 编译linux
+  build-linux:
+    name: Build Linux Amd64
+    runs-on: ubuntu-latest
+    steps:
+      # 拉取代码
+      - uses: actions/checkout@main
+      # 注入环境变量
+      - run: node scripts/env
+      - name: apply custom env
+        run: cat .env >> $GITHUB_ENV
+      # 测试是否生效
+      - run: echo ${{ env.APP_VERSION }}
+      # 安装Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.29.0'
+      # 安装 flutter_distributor
+      - name: Install flutter_distributor
+        shell: bash
+        run: dart pub global activate flutter_distributor
+      # 安装 linix 依赖 locate wget
+      - name: Install Linux Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libgtk-3-dev
+      # 安装flutter依赖
+      - name: Install dependencies
+        run: flutter pub get
+      # 编译ded
+      - name: Build ded
+        shell: bash
+        run: flutter_distributor package --platform linux --targets deb --flutter-build-args=dart-define=INIT_ENV=prod
+      # 打包文件
+      - name: Packageing Files
+        shell: bash
+        run: |
+          mv build/linux/x64/release/bundle/ build/linux/x64/release/MixMusic/
+          tar -czf dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-linux-amd64.tar.gz -C build/linux/x64/release MixMusic/
+          mv dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-linux.deb dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-linux-amd64.deb
+      # 上传文件
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-linux
+          path: |
+            dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-linux-amd64.tar.gz
+            dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-linux-amd64.deb
+  # 编译Web
+  build-web:
+    name: Build Web
+    runs-on: ubuntu-latest
+    steps:
+      # 拉取代码
+      - uses: actions/checkout@main
+      # 注入环境变量
+      - run: node scripts/env
+      - name: apply custom env
+        run: cat .env >> $GITHUB_ENV
+      # 测试是否生效
+      - run: echo ${{ env.APP_VERSION }}
+      # 安装Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.29.0'
+      # 安装 linix 依赖
+      - name: Install Linux Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libgtk-3-dev
+      # 安装flutter依赖
+      - name: Install dependencies
+        run: flutter pub get
+      # 编译
+      - name: Build
+        shell: bash
+        run: flutter build web --release --dart-define=INIT_ENV=prod --dart-define=FLUTTER_WEB_CANVASKIT_URL=canvaskit --flutter-build-args=dart-define=INIT_ENV=prod
+      # 打包文件
+      - name: Packageing Files
+        shell: bash
+        run: |
+          mv build/web MixMusic
+          mkdir dist && mkdir dist/${{ env.APP_VERSION }}
+          zip -r dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-web.zip MixMusic
+          rm -rf MixMusic
+      # 上传文件
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-web
+          path: dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-web.zip
+  # 编译Windows
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      # 拉取代码
+      - uses: actions/checkout@main
+      # 注入环境变量
+      - run: node scripts/env
+      - name: apply custom env
+        run: type .env >> $env:GITHUB_ENV
+      # 测试是否生效
+      - run: echo ${{ env.APP_VERSION }}
+      # 安装Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.29.0'
+      # 安装 flutter_distributor
+      - name: Install flutter_distributor
+        run: |
+          dart pub global activate flutter_distributor
+          # 设置环境变量
+      # 安装flutter依赖
+      - name: Install dependencies
+        run: flutter pub get
+      # 编译 exe
+      - name: Build EXE
+        run: flutter_distributor package --platform windows --targets exe --flutter-build-args=dart-define=INIT_ENV=prod
+      # 打包文件
+      - name: Packageing Files
+        shell: bash
+        run: |
+          mv build/windows/x64/runner/Release MixMusic
+          7z a dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-windows.zip "MixMusic/*"
+          rm -rf MixMusic
+      # 上传文件
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-windows
+          path: |
+            dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-windows.zip
+            dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-windows-setup.exe
+  # 编译macos x86
+  build-macos-amd64:
+    name: Build Macos Amd64
+    runs-on: macos-13
+    steps:
+      # 拉取代码
+      - uses: actions/checkout@main
+      # 注入环境变量
+      - run: node scripts/env
+      - name: apply custom env
+        run: cat .env >> $GITHUB_ENV
+      # 测试是否生效
+      - run: echo ${{ env.APP_VERSION }}
+      # 安装Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.29.0'
+      # 安装flutter依赖
+      - name: Install dependencies
+        run: flutter pub get
+      # 安装nodejs
+      - name: Install Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      # 安装 flutter_distributor
+      - name: Install flutter_distributor
+        shell: bash
+        run: |
+          dart pub global activate flutter_distributor
+          npm install -g appdmg
+      # 编译
+      - name: Build
+        shell: bash
+        run: flutter_distributor package --platform macos --targets dmg --flutter-build-args=dart-define=INIT_ENV=prod
+      # 打包文件
+      - name: Packageing Files
+        shell: bash
+        run: mv dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-macos.dmg dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-macos-amd64.dmg
+      # 上传文件
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-macos-amd64
+          path: dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-macos-amd64.dmg
+  # 编译macos arm64
+  build-macos-arm64:
+    name: Build Macos Arm64
+    runs-on: macos-latest
+    steps:
+      # 拉取代码
+      - uses: actions/checkout@main
+      # 注入环境变量
+      - run: node scripts/env
+      - name: apply custom env
+        run: cat .env >> $GITHUB_ENV
+      # 测试是否生效
+      - run: echo ${{ env.APP_VERSION }}
+      # 安装Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.29.0'
+      # 安装flutter依赖
+      - name: Install dependencies
+        run: flutter pub get
+      # 安装nodejs
+      - name: Install Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      # 安装 flutter_distributor
+      - name: Install flutter_distributor
+        shell: bash
+        run: |
+          dart pub global activate flutter_distributor
+          npm install -g appdmg
+      # 编译
+      - name: Build
+        shell: bash
+        run: flutter_distributor package --platform macos --targets dmg --flutter-build-args=dart-define=INIT_ENV=prod
+      # 打包文件
+      - name: Packageing Files
+        shell: bash
+        run: mv dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-macos.dmg dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-macos-arm64.dmg
+      # 上传文件
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-macos-arm64
+          path: dist/${{ env.APP_VERSION }}/MixMusic-${{ env.APP_VERSION }}-macos-arm64.dmg
+  release:
+    name: Release
+    needs: [build-apk, build-linux, build-web, build-windows, build-macos-amd64, build-macos-arm64]
+    runs-on: ubuntu-latest
+    steps:
+      # 拉取代码
+      - uses: actions/checkout@main
+      # 注入环境变量
+      - run: node scripts/env
+      - name: apply custom env
+        run: cat .env >> $GITHUB_ENV
+      # 下载各平台的编译文件
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: dist-*
+          merge-multiple: true
+      # 整理文件
+      - name: Organize files
+        run: |
+          mkdir -p dist/${{ env.APP_VERSION }}
+          cp -r artifacts/* dist/${{ env.APP_VERSION }}/
+      # 发布release
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+        with:
+          name: v${{ env.APP_VERSION }}
+          tag_name: v${{ env.APP_VERSION }}
+          draft: false
+          prerelease: false
+          files: |
+            dist/${{ env.APP_VERSION }}/*.apk
+            dist/${{ env.APP_VERSION }}/*.deb
+            dist/${{ env.APP_VERSION }}/*.tar.gz
+            dist/${{ env.APP_VERSION }}/*.zip
+            dist/${{ env.APP_VERSION }}/*.exe
+            dist/${{ env.APP_VERSION }}/*.dmg

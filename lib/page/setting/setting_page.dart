@@ -102,6 +102,7 @@ class _SettingPageState extends State<SettingPage> {
               HyperListTile(
                   leading: HyperIcon(color: Colors.blue, icon: Icons.play_arrow_rounded),
                   title: "播放设置",
+                  subtitle: "音质选择，缓存设置",
                   trailing: HyperTrailing(),
                   onTap: () {
                     Get.toNamed(Routes.playSetting);
@@ -109,6 +110,7 @@ class _SettingPageState extends State<SettingPage> {
               HyperListTile(
                   leading: HyperIcon(color: Colors.blue, icon: Icons.folder_rounded),
                   title: "下载设置",
+                  subtitle: "保存路径，命名方式",
                   trailing: HyperTrailing(),
                   onTap: () {
                     Get.toNamed(Routes.downloadSetting);

@@ -1,0 +1,21 @@
+output: dist/
+releases:
+  - name: dev
+    jobs:
+      # Build and publish your apk pkg to pgyer
+      - name: release-windows-exe
+        package:
+          platform: windows
+          target: exe
+          build_args:
+            dart-define:
+              APP_ENV: production
+
+      - name: release-android-apk
+        package:
+          platform: android
+          target: apk
+          build_args:
+            target-platform: android-arm64
+            dart-define:
+              APP_ENV: production

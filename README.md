@@ -2,7 +2,21 @@
 
 一个插件化的音乐播放器
 
-修改 Model 之后 运行 ```flutter pub run build_runner build --delete-conflicting-outputs```
+修改 Model 之后 运行
+
+```flutter pub run build_runner build --delete-conflicting-outputs```
+
+## 打包工具
+
+```https://distributor.leanflutter.dev```
+
+### 工具安装
+
+```dart pub global activate flutter_distributor```
+
+### Windows单纯打包
+
+```flutter_distributor package --platform windows --targets exe  --skip-clean```
 
 ## 说明
 
@@ -26,17 +40,18 @@
 - [x] 首页自定义数据
 - [x] 登录(设置cookie)
 - [x] 登录(手机验证码)
+- [x] 登录(网页)
 - [x] 登录后刷新cookie
 - [x] 登录后获取用户信息
 - [x] 登录后如果有VIP禁用匹配
 - [x] 下载
 - [x] MV
 - [x] 手机UI
+- [x] 播放音质选择
 
 ## 待实现功能
 
-- [ ] 登录：密码，网页，扫码等
-- [ ] 播放音质选择
+- [ ] 登录：密码，扫码等
 - [ ] 歌词相关重制
 - [ ] 桌面，平板，车机UI
 - [ ] 评论(暂时的优先比较低)

@@ -40,87 +40,93 @@ class _ParsePlayListState extends State<ParsePlayList> {
     return Scaffold(
       floatingActionButton: PlayBar(),
       body: ExtendedNestedScrollView(
-        headerSliverBuilder: (BuildContext c, bool f) {
-          return [
-            SliverSearchAppBar(
-              hintText: "请输入歌单链接",
-              forceElevated: f,
-              pinned: true,
-              onSubmitted: (value) {
-                keyWord.value = value;
-                parsePlayList(url: value);
-              },
-              textEditingController: controller,
-            )
-          ];
-        },
-        pinnedHeaderSliverHeightBuilder: () {
-          return pinnedHeaderHeight;
-        },
-        onlyOneScrollInBody: true,
-        body: HyperGroup(
-          inSliver: false,
-          title: Row(
-            children: [
-              Text("支持:"),
-              Container(width: 8),
-              ListView.separated(
-                shrinkWrap: true,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (BuildContext context, int index) {
-                  var item = plugins[index];
-                  return Container(
-                    alignment: Alignment.center,
-                    child: Text(item.name ?? ""),
-                  );
+          headerSliverBuilder: (BuildContext c, bool f) {
+            return [
+              SliverSearchAppBar(
+                hintText: "请输入歌单链接",
+                forceElevated: f,
+                pinned: true,
+                onSubmitted: (value) {
+                  keyWord.value = value;
+                  parsePlayList(url: value);
                 },
-                separatorBuilder: (BuildContext context, int index) {
-                  return Container(width: 8);
-                },
-                itemCount: plugins.length,
+                textEditingController: controller,
               )
-            ],
-          ),
-          children: <Widget>[
-            Obx(() => playlist.isEmpty
-                ? Container(
-                    height: 200,
-                    child: Center(
-                      child: Text("暂无数据"),
-                    ),
-                  )
-                : ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: playlist.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      var item = playlist[index];
+            ];
+          },
+          pinnedHeaderSliverHeightBuilder: () {
+            return pinnedHeaderHeight;
+          },
+          onlyOneScrollInBody: true,
+          body: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+            return HyperGroup(
+              inSliver: false,
+              title: SizedBox(
+                width: constraints.maxWidth - 64,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text("支持:"),
+                    Container(width: 8),
+                    Expanded(
+                        child: ListView.separated(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (BuildContext context, int index) {
+                        var item = plugins[index];
+                        return Container(
+                          alignment: Alignment.center,
+                          child: Text(item.name ?? ""),
+                        );
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return Container(width: 8);
+                      },
+                      itemCount: plugins.length,
+                    ))
+                  ],
+                ),
+              ),
+              children: <Widget>[
+                Obx(() => playlist.isEmpty
+                    ? Container(
+                        height: 200,
+                        child: Center(
+                          child: Text("暂无数据"),
+                        ),
+                      )
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: playlist.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          var item = playlist[index];
 
-                      var plugin = ApiFactory.getPlugin(item.package);
-                      return ListTile(
-                        leading: Stack(alignment: Alignment.bottomRight, children: [
-                          AppImage(url: item.pic ?? ""),
-                          ClipRRect(
-                              borderRadius: BorderRadius.all(Radius.circular(8)),
-                              child: Container(
-                                color: Colors.white,
-                                child: AppImage(
-                                  url: plugin?.icon ?? "",
-                                  width: 20,
-                                  height: 20,
-                                ),
-                              ))
-                        ]),
-                        title: Text("${item.title}", maxLines: 1),
-                        subtitle: Text("${item.subTitle}", maxLines: 1),
-                        onTap: () {
-                          Get.toNamed(Routes.playListDetail, arguments: item);
+                          var plugin = ApiFactory.getPlugin(item.package);
+                          return ListTile(
+                            leading: Stack(alignment: Alignment.bottomRight, children: [
+                              AppImage(url: item.pic ?? ""),
+                              ClipRRect(
+                                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  child: Container(
+                                    color: Colors.white,
+                                    child: AppImage(
+                                      url: plugin?.icon ?? "",
+                                      width: 20,
+                                      height: 20,
+                                    ),
+                                  ))
+                            ]),
+                            title: Text("${item.title}", maxLines: 1),
+                            subtitle: Text("${item.subTitle}", maxLines: 1),
+                            onTap: () {
+                              Get.toNamed(Routes.playListDetail, arguments: item);
+                            },
+                          );
                         },
-                      );
-                    },
-                  )),
-          ],
-        ),
-      ),
+                      )),
+              ],
+            );
+          })),
     );
   }
 

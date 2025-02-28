@@ -89,12 +89,14 @@ class Player {
     );
     try {
       await _player.setAudioSource(media);
+      return _player.play();
     } catch (e, stackTrace) {
+      print('${mediaItem.id}');
+      print("报错了？？？？");
       print("Error loading playlist: $e");
       print(stackTrace);
+      return Future.error(e);
     }
-
-    return _player.play();
   }
 
   ///播放音乐
@@ -105,12 +107,14 @@ class Player {
     );
     try {
       await _player.setAudioSource(media, initialPosition: duration);
+      return _player.play();
     } catch (e, stackTrace) {
+      print('${mediaItem.id}');
+      print("报错了？？？？");
       print("Error loading playlist: $e");
       print(stackTrace);
+      return Future.error(e);
     }
-
-    return _player.play();
   }
 
   ///停止

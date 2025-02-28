@@ -11,6 +11,7 @@ import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/hyper/hyper_loading.dart';
+import 'package:mix_music/widgets/hyper/hyper_song_item.dart';
 import 'package:mix_music/widgets/message.dart';
 
 import '../../widgets/page_list_view.dart';
@@ -65,38 +66,12 @@ class _SearchMusicPageState extends SearchTabPageState<SearchMusicPage> with Aut
                 itemCount: songList.length,
                 itemBuilder: (BuildContext context, int index) {
                   var song = songList[index];
-                  return Obx(() => ListTile(
-                        selected: music.currentMusic.value?.id == song.id,
-                        leading: AppImage(url: song.pic ?? ""),
-                        title: Row(
-                          children: [
-                            Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
-                            song.vip == 1
-                                ? Container(
-                                    alignment: Alignment.center,
-                                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-                                      border: Border.all(width: 1, color: Colors.green),
-                                    ),
-                                    child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
-                                  )
-                                : Container(),
-                          ],
-                        ),
-                        subtitle: Text(song.subTitle ?? "", overflow: TextOverflow.ellipsis, maxLines: 1),
-                        trailing: song.mv != null
-                            ? IconButton(
-                                onPressed: () {
-                                  Get.toNamed(Routes.mvDetail, arguments: song.mv);
-                                },
-                                icon: Icon(Icons.music_video))
-                            : null,
-                        onTap: () {
-                          music.playList(list: songList, index: index);
-                        },
-                      ));
+                  return HyperSongItem(
+                    song: song,
+                    onTap: () {
+                      music.playList(list: songList, index: index);
+                    },
+                  );
                 },
               ),
       ),

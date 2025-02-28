@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/entity/mix_quality.dart';
+import 'package:mix_music/entity/mix_song.dart';
 import 'package:mix_music/page/app_playlist/app_download_type_page.dart';
 import 'package:mix_music/page/app_playlist/app_play_quality_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
@@ -441,7 +442,11 @@ class _PhonePlayingState extends State<PhonePlaying> {
             Expanded(child: Container()),
             IconButton(
                 onPressed: () {
-                  showBottomDownload(context);
+                  if (music.currentMusic.value == null) {
+                    showInfo("暂无可下载内容");
+                  } else {
+                    showBottomDownload(context, music.currentMusic.value!);
+                  }
                 },
                 icon: Icon(Icons.download_rounded)),
             Expanded(child: Container()),
@@ -547,7 +552,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
         }).then((value) {});
   }
 
-  void showBottomDownload(BuildContext context) {
+  void showBottomDownload(BuildContext context, MixSong song) {
     showModalBottomSheet(
         context: context,
         showDragHandle: true,
@@ -558,6 +563,7 @@ class _PhonePlayingState extends State<PhonePlaying> {
         scrollControlDisabledMaxHeightRatio: 1 / 2,
         builder: (BuildContext context) {
           return AppDownloadTypePage(
+            song: song,
             onTap: () {
               Navigator.of(context).pop();
             },

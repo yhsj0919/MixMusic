@@ -200,7 +200,12 @@ class MusicController extends GetxController {
           showError("播放失败");
         });
       } else {
-        showError('${music.title} 异常无法播放');
+        showError('${music.title} 播放异常，可能无版权');
+        Player.stop();
+        requestFuture?.cancel();
+        requestTimeOutFuture?.cancel();
+        state.value = null;
+        isPlaying.value = false;
         // showError('${music.title} 异常无法播放,尝试下一首');
         // if (musicIndex.value < musicList.length - 1) {
         //   if (isNext) {
@@ -251,8 +256,12 @@ class MusicController extends GetxController {
           lyricModel.value = LyricsModelBuilder.create().bindLyricToMain("暂无歌词").getModel();
         }
         Player.pause();
-        Player.playWithQualityChange(music.mediaItem(), position.value).then((value) {}).catchError((e) {
-          print(e);
+        Player.playWithQualityChange(music.mediaItem(), position.value).then((value) {
+          print('>>>>>>>>>这里失败>>>>>>>>>');
+        }).catchError((e) {
+          requestTimeOutFuture?.cancel();
+          state.value = null;
+          isPlaying.value = false;
           media.value = null;
           showError("播放失败");
         });

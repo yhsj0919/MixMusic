@@ -37,6 +37,9 @@ abstract class MusicApi {
   ///搜索MV
   Future<AppRespEntity<List<MixMv>>> searchMv({required String keyword, required int page, required int size});
 
+  ///搜索建议
+  Future<AppRespEntity<List<String>>> searchSuggest({required String keyword});
+
   ///=====================================搜索=====================================================
   ///
   ///

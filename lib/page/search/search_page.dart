@@ -1,5 +1,4 @@
-import 'dart:math';
-
+import 'package:async/async.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -126,6 +125,13 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                   _focusNode.unfocus();
                   showHistory.value = false;
                   searchController.search(keyword: value);
+                },
+                optionsBuilder: (v) async {
+                  if (v.text.isNotEmpty) {
+                    return getSuggest(v.text);
+                  } else {
+                    return [];
+                  }
                 },
                 // onChanged: (v) {
                 //   showHistory.value = controller.text.isEmpty;
@@ -310,5 +316,21 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  Future<List<String>> getSuggest(String key) async {
+    var plugin = plugins[tabController.index];
+    try {
+      var resp = await ApiFactory.api(package: plugin.package!)?.searchSuggest(keyword: key);
+      return Future.value(resp?.data ?? []);
+    } catch (e) {
+      print("搜索建议异常：${e}");
+      return Future.value([]);
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

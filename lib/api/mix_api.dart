@@ -163,6 +163,18 @@ class MixApi extends MusicApi {
     });
   }
 
+  @override
+  Future<AppRespEntity<List<String>>> searchSuggest({required String keyword}) {
+    return invokeMethod(method: "music.search.suggest", params: [keyword]).then((value) {
+      AppRespEntity<List<String>> data = AppRespEntity.fromJson(value);
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
+
   ///=====================================热门，推荐=====================================================
 
   @override

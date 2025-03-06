@@ -51,6 +51,9 @@ class _ParsePlayListState extends State<ParsePlayList> {
                   parsePlayList(url: value);
                 },
                 textEditingController: controller,
+                optionsBuilder: (v) {
+                  return [];
+                },
               )
             ];
           },

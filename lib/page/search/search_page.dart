@@ -1,4 +1,3 @@
-import 'package:async/async.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,6 +8,7 @@ import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/page/search/search_album_page.dart';
 import 'package:mix_music/page/search/search_artist_page.dart';
 import 'package:mix_music/page/search/search_music_page.dart';
+import 'package:mix_music/utils/debounce.dart';
 import 'package:mix_music/utils/sp.dart';
 import 'package:mix_music/widgets/hyper/hyper_card.dart';
 import 'package:mix_music/widgets/hyper/hyper_trailing.dart';

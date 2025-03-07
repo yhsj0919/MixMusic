@@ -1,5 +1,3 @@
-
-
 class PageEntity {
   bool? first;
   bool? last;
@@ -10,6 +8,10 @@ class PageEntity {
   int? totalSize;
 
   PageEntity(this.first, this.last, this.page, this.size, this.number, this.totalPages, this.totalSize);
+
+  static PageEntity zero() {
+    return PageEntity(true, true, 0, 0, 0, 0, 0);
+  }
 
   PageEntity.fromJson(json) {
     if (json['first'] != null) {

@@ -1,6 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:mix_music/utils/debounce.dart';
 
 class SliverSearchAppBar extends StatelessWidget implements PreferredSizeWidget {
   SliverSearchAppBar({
@@ -31,8 +31,9 @@ class SliverSearchAppBar extends StatelessWidget implements PreferredSizeWidget 
   final bool pinned;
   final Color? backgroundColor;
   final FocusNode? focusNode;
-  Timer? timer;
   final AutocompleteOptionsBuilder<String> optionsBuilder;
+  final debounce = Debounce<Iterable<String>>(delay: Duration(milliseconds: 800));
+  final RxBool showProgress = RxBool(false);
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +45,14 @@ class SliverSearchAppBar extends StatelessWidget implements PreferredSizeWidget 
           return RawAutocomplete<String>(
             focusNode: focusNode,
             textEditingController: textEditingController,
-            optionsBuilder: optionsBuilder,
+            optionsBuilder: (v) {
+              showProgress.value = true;
+              return debounce.run(() => optionsBuilder.call(v)).then((v) {
+                showProgress.value = false;
+
+                return v;
+              });
+            },
             onSelected: (String selection) {
               onSubmitted?.call(selection);
             },
@@ -55,6 +63,16 @@ class SliverSearchAppBar extends StatelessWidget implements PreferredSizeWidget 
                 decoration: InputDecoration(
                   hintText: hintText,
                   border: InputBorder.none,
+                  suffixIcon: Obx(() => showProgress.value
+                      ? Container(
+                          width: 10,
+                          height: 10,
+                          padding: EdgeInsets.all(10),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : SizedBox(width: 0, height: 0)), // 右侧图标
                 ),
                 autofocus: false,
                 onChanged: (value) {

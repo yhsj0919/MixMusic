@@ -202,6 +202,7 @@ class MusicController extends GetxController {
       } else {
         showError('${music.title} 播放异常，可能无版权');
         Player.stop();
+        media.value = null;
         requestFuture?.cancel();
         requestTimeOutFuture?.cancel();
         state.value = null;
@@ -266,7 +267,7 @@ class MusicController extends GetxController {
           showError("播放失败");
         });
       } else {
-        showError('${music.title} 异常无法播放');
+        showError('${music.title} 播放异常，可能无版权');
       }
     }, onError: (e) {
       requestTimeOutFuture?.cancel();

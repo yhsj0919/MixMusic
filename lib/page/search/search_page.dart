@@ -1,5 +1,6 @@
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/api/api_factory.dart';
 import 'package:mix_music/constant.dart';
@@ -284,6 +285,7 @@ class _SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                           });
                     }).toList()),
               ),
+              Gap(16),
             ],
           );
         }).then((value) {});

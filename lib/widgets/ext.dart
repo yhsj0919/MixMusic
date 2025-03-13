@@ -17,6 +17,15 @@ extension WidgetExtension on Widget {
     );
   }
 
+  Widget flexible({bool enable = true, int flex = 1}) {
+    return enable
+        ? Flexible(
+            flex: flex,
+            child: this,
+          )
+        : this;
+  }
+
   Widget endWith(List<Widget> widgets) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -52,15 +61,6 @@ extension WidgetExtension on Widget {
       flex: flex,
       child: this,
     );
-  }
-
-  Widget flexible({bool enable = true, int flex = 1}) {
-    return enable
-        ? Flexible(
-            flex: flex,
-            child: this,
-          )
-        : this;
   }
 
   Widget keyListener({ValueChanged<RawKeyEvent>? onkey}) {

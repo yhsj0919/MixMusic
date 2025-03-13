@@ -22,10 +22,10 @@ class _WelcomePageState extends State<WelcomePage> {
   Timer? _timer;
 
   ///记录当前的时间
-  RxInt time = RxInt(2 * 1000);
+  RxInt time = RxInt(1 * 600);
 
   // RxInt currentTimer = RxInt(0);
-  RxInt totalTime = RxInt(2 * 1000);
+  RxInt totalTime = RxInt(1 * 600);
 
   bool firstIn = true;
 
@@ -70,8 +70,10 @@ class _WelcomePageState extends State<WelcomePage> {
           // padding: const EdgeInsets.all(8),
           alignment: Alignment.topRight,
           child: SizedBox(
-              height: 30,
-              width: 30,
+            height: 30,
+            width: 30,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(30),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -80,12 +82,18 @@ class _WelcomePageState extends State<WelcomePage> {
                         backgroundColor: Colors.black12,
                         value: time.value / totalTime.value,
                       )),
-                  Obx(() => Text(
-                        "${(time.value ~/ 1000) + 1}",
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      )),
+                  Text(
+                    "跳过",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ],
-              )),
+              ),
+              onTap: () {
+                _timer?.cancel();
+                Get.offAndToNamed(Routes.home);
+              },
+            ),
+          ),
         ),
       ),
       body: HyperBackground(
@@ -99,8 +107,8 @@ class _WelcomePageState extends State<WelcomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // 第一列
-                    Column(            mainAxisAlignment: MainAxisAlignment.center,
-
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text('个', style: Theme.of(context).textTheme.headlineMedium),
                         Text('性', style: Theme.of(context).textTheme.headlineMedium),
@@ -113,8 +121,8 @@ class _WelcomePageState extends State<WelcomePage> {
                       ],
                     ),
                     SizedBox(width: 40), // 列之间的间距
-                    Column(            mainAxisAlignment: MainAxisAlignment.center,
-
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text('', style: Theme.of(context).textTheme.headlineMedium),
                         Text('', style: Theme.of(context).textTheme.headlineMedium),

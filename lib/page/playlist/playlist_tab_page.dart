@@ -35,6 +35,8 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
   MixPlaylistType? currentType;
   RxBool firstLoad = RxBool(true);
 
+  bool typeEmpty = false;
+
   @override
   void initState() {
     super.initState();
@@ -111,15 +113,23 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
     ApiFactory.api(package: widget.plugin.package!)?.playListType().then((value) {
       playlistType.clear();
       playlistType.addAll(value.data ?? []);
+
+      typeEmpty = playlist.isEmpty;
     }).catchError((e) {
       showError(e);
     });
   }
 
   void open() {
-    if (playlistType.isEmpty) {
+    if (playlistType.isEmpty && !typeEmpty) {
       getPlayListType();
     }
+
+    if (typeEmpty) {
+      showInfo("暂无分类");
+      return;
+    }
+
     showModalBottomSheet(
         context: context,
         showDragHandle: true,

@@ -109,6 +109,34 @@ class _HomePageState extends State<HomePage> {
                               header: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                                 alignment: Alignment.topLeft,
+                                child: const Icon(Icons.recommend_sharp),
+                              ),
+                              footer: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                alignment: Alignment.bottomRight,
+                                child: const Text("每日推荐"),
+                              ),
+                              child: Container(),
+                            ),
+                          ),
+                          onTap: () {
+                            Get.toNamed(Routes.recommend);
+                          },
+                        ),
+                      ),
+                      Gap(16),
+                      HyperCard(
+                        width: 90,
+                        height: 90,
+                        alpha: 0.7,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            padding: EdgeInsets.all(4),
+                            child: GridTile(
+                              header: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                alignment: Alignment.topLeft,
                                 child: const Icon(Icons.align_vertical_top_rounded),
                               ),
                               footer: Container(

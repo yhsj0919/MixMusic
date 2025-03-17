@@ -58,6 +58,11 @@ class ApiFactory {
     return getPlugins(key: "playList");
   }
 
+  /// 每日推荐
+  static List<PluginsInfo> getRecommendPlugins() {
+    return getPlugins(key: "recommend");
+  }
+
   static List<PluginsInfo> getUrlPlugins() {
     return getPlugins(key: "url");
   }

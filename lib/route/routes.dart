@@ -9,6 +9,7 @@ import 'package:mix_music/page/download/download_page.dart';
 import 'package:mix_music/page/home/home_page.dart';
 import 'package:mix_music/page/mv/mv_detail_page.dart';
 import 'package:mix_music/page/mv/mv_page.dart';
+import 'package:mix_music/page/recommend/recommend_page.dart';
 import 'package:mix_music/page/setting/download_setting_page.dart';
 import 'package:mix_music/page/setting/extension_net_page.dart';
 import 'package:mix_music/page/setting/extension_page.dart';
@@ -51,6 +52,9 @@ class Routes {
   static const String downloadSetting = "/downloadSetting";
   static const String playSetting = "/playSetting";
 
+  //每日推荐
+  static const String recommend = "/recommend";
+
   static const String home = "/";
   static const String playList = "/playList";
   static const String playListDetail = "/playlistDetail";
@@ -87,6 +91,7 @@ class Routes {
     GetPage(name: setting, page: () => const SettingPage(), customTransition: MyCustomTransition()),
     GetPage(name: search, page: () => const SearchPage(), customTransition: MyCustomTransition()),
     GetPage(name: appPlayList, page: () => AppPlayListPage(), customTransition: MyCustomTransition()),
+    GetPage(name: recommend, page: () => RecommendPage(), customTransition: MyCustomTransition()),
     GetPage(name: appHistoryMusicList, page: () => AppHistoryMusicList(), customTransition: MyCustomTransition()),
     GetPage(name: playList, page: () => const PlayListPage(), customTransition: MyCustomTransition()),
     GetPage(name: playListDetail, page: () => PlayListDetailPage(), customTransition: MyCustomTransition()),

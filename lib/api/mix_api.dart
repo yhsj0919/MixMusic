@@ -595,4 +595,17 @@ class MixApi extends MusicApi {
       return Future(() => value.toString());
     });
   }
+
+  @override
+  Future<AppRespEntity<MixPlaylist>> recommendInfo({required int page, required int size}) {
+    return invokeMethod(method: "music.recommend.info", params: [page, size]).then((value) {
+      AppRespEntity<MixPlaylist> data = AppRespEntity.fromJson(value);
+
+      if (data.code == 200) {
+        return Future(() => data);
+      } else {
+        return Future.error(data.msg ?? "操作失败");
+      }
+    });
+  }
 }

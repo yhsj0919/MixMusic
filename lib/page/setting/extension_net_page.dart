@@ -39,7 +39,7 @@ class _ExtensionNetPageState extends State<ExtensionNetPage> {
       body: HyperBackground(
         child: CustomScrollView(
           slivers: [
-            SliverAppBar.large(
+            SliverAppBar.medium(
               surfaceTintColor: Colors.transparent,
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               title: const Text("网络导入"),

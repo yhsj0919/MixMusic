@@ -128,7 +128,7 @@ final darkTheme = ThemeData(
     dividerHeight: 0,
     tabAlignment: TabAlignment.start,
     indicator: BoxDecoration(
-      color: Colors.black, // 指示器的背景颜色
+      color: Color(0xff242424), // 指示器的背景颜色
       borderRadius: BorderRadius.circular(8),
     ),
     indicatorSize: TabBarIndicatorSize.tab,

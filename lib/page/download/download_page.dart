@@ -28,7 +28,7 @@ class _DownloadPageState extends State<DownloadPage> {
       body: HyperBackground(
         child: CustomScrollView(
           slivers: [
-            const SliverAppBar.large(
+            const SliverAppBar.medium(
               title: Text("下载管理"),
             ),
             HyperGroup(

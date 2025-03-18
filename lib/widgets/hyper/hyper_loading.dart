@@ -34,6 +34,7 @@ class _HyperLoadingState extends State<HyperLoading> {
       child: Center(
         child: CircularProgressIndicator(
           color: theme.mainColor.value ?? Theme.of(context).colorScheme.primary,
+          year2023: false,
         ),
         // child: SpinKitFadingCube(
         //   color: color ?? Theme.of(context).colorScheme.primary,

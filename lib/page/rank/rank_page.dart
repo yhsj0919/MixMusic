@@ -33,16 +33,18 @@ class _RankPageState extends State<RankPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight + bottomBarHeight + 8;
+    final double pinnedHeaderHeight = 62 + bottomBarHeight;
 
     return Scaffold(
       floatingActionButton: PlayBar(),
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [
-          SliverAppBar.large(
+          SliverAppBar.medium(
               title: Text( '榜单'),
                 forceElevated: f,
+              expandedHeight: 144,
+              toolbarHeight: 62,
                 bottom: PreferredSize(
                   preferredSize: Size.fromHeight(bottomBarHeight),
                   child: Container(

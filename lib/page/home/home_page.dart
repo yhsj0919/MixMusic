@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> {
             });
           },
           slivers: [
-            SliverAppBar.large(
+            SliverAppBar.medium(
               surfaceTintColor: Colors.transparent,
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               title: const Text("MixMusic"),

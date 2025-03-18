@@ -51,7 +51,7 @@ class _LoginByCookiePageState extends State<LoginByCookiePage> {
         color: theme.getColorByPackage(plugin?.package),
         child: CustomScrollView(
           slivers: [
-            SliverAppBar.large(
+            SliverAppBar.medium(
               title: Text("Cookie设置"),
             ),
             HyperGroup(

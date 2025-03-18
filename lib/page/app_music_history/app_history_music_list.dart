@@ -39,7 +39,7 @@ class _AppHistoryMusicListState extends State<AppHistoryMusicList> {
           return controller.getHistory(controller.dataPage.page ?? 0);
         },
         slivers: [
-          SliverAppBar.large(
+          SliverAppBar.medium(
             title: Text("播放历史"),
           ),
           HyperGroup(

@@ -137,7 +137,7 @@ class _LoginByPhonePageState extends State<LoginByPhonePage> {
         color: theme.getColorByPackage(plugin?.package),
         child: CustomScrollView(
           slivers: [
-            SliverAppBar.large(
+            SliverAppBar.medium(
               title: Text("验证码登录"),
             ),
             SliverGap(100),

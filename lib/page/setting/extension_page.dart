@@ -127,7 +127,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
       body: HyperBackground(
         child: CustomScrollView(
           slivers: [
-            SliverAppBar.large(title: Text("插件")),
+            SliverAppBar.medium(title: Text("插件")),
             HyperGroup(
               title: Text("已安装"),
               trailing: Text("长按可拖动排序"),

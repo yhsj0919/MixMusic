@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:disable_battery_optimization/disable_battery_optimization.dart';
+import 'package:disable_battery_optimizations_latest/disable_battery_optimizations_latest.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -38,7 +38,7 @@ class _SettingPageState extends State<SettingPage> {
       body: HyperBackground(
         child: CustomScrollView(
           slivers: [
-            SliverAppBar.large(
+            SliverAppBar.medium(
               title: Text("设置"),
             ),
             HyperGroup(
@@ -151,9 +151,9 @@ class _SettingPageState extends State<SettingPage> {
 
   openBattery() async {
     if (Platform.isAndroid) {
-      bool? isBatteryOptimizationDisabled = await DisableBatteryOptimization.isBatteryOptimizationDisabled;
+      bool? isBatteryOptimizationDisabled = await DisableBatteryOptimizationLatest.isBatteryOptimizationDisabled;
       if (isBatteryOptimizationDisabled != true) {
-        await DisableBatteryOptimization.showDisableBatteryOptimizationSettings();
+        await DisableBatteryOptimizationLatest.showDisableBatteryOptimizationSettings();
       } else {
         showInfo('已关闭电池优化');
       }

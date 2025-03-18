@@ -34,16 +34,18 @@ class _RecommendPageState extends State<RecommendPage> with TickerProviderStateM
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
 
-    final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight + bottomBarHeight;
+    final double pinnedHeaderHeight = 62 + bottomBarHeight;
 
     return Scaffold(
       floatingActionButton: PlayBar(),
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [
-            SliverAppBar.large(
+            SliverAppBar.medium(
               title: Text('每日推荐'),
               forceElevated: f,
+              expandedHeight: 144,
+              toolbarHeight: 62,
               bottom: PreferredSize(
                   preferredSize: Size.fromHeight(bottomBarHeight),
                   child: Container(

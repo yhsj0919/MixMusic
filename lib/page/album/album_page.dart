@@ -33,16 +33,18 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final double pinnedHeaderHeight = statusBarHeight + kToolbarHeight + bottomBarHeight;
+    final double pinnedHeaderHeight = 62 + bottomBarHeight;
 
     return Scaffold(
       floatingActionButton: PlayBar(),
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [
-          SliverAppBar.large(
-              title: Text( '专辑'),
+            SliverAppBar.medium(
+              title: Text('专辑'),
               forceElevated: f,
+              expandedHeight: 144,
+              toolbarHeight: 62,
               bottom: PreferredSize(
                 preferredSize: Size.fromHeight(bottomBarHeight),
                 child: Container(

@@ -46,7 +46,7 @@ class _PlaySettingPageState extends State<PlaySettingPage> {
       body: HyperBackground(
         child: CustomScrollView(
           slivers: [
-            SliverAppBar.large(
+            SliverAppBar.medium(
               title: Text("播放设置"),
             ),
             // HyperGroup(

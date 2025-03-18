@@ -6,6 +6,7 @@ import 'package:mix_music/entity/plugins_info.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/page/playlist/playlist_tab_page.dart';
 import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 import 'recommend_tab_page.dart';
 
@@ -44,26 +45,27 @@ class _RecommendPageState extends State<RecommendPage> with TickerProviderStateM
             SliverAppBar.large(
               title: Text('每日推荐'),
               forceElevated: f,
-              
-              toolbarHeight: 62,
-              bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(bottomBarHeight),
-                  child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: TabBar(
-                      indicatorPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                      isScrollable: true,
-                      controller: tabController,
-                      tabs: plugins
-                          .map((item) => Tab(
-                                text: item.name,
-                                // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
-                              ))
-                          .toList(),
-                    ),
-                  )),
+              // toolbarHeight: 62,
             ),
+            PinnedHeaderSliver(
+              child: Container(
+                width: double.infinity,
+                height: 46,
+                color: Theme.of(context).colorScheme.surface,
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: TabBar(
+                  indicatorPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                  isScrollable: true,
+                  controller: tabController,
+                  tabs: plugins
+                      .map((item) => Tab(
+                            text: item.name,
+                            // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
+                          ))
+                      .toList(),
+                ),
+              ),
+            )
           ];
         },
         pinnedHeaderSliverHeightBuilder: () {

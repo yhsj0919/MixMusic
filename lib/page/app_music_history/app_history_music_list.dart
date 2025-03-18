@@ -133,7 +133,7 @@ class _AppHistoryMusicListState extends State<AppHistoryMusicList> {
               ),
             ],
           ),
-          SliverGap(80)
+
         ],
       ),
     );

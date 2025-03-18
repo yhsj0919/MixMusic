@@ -43,45 +43,45 @@ class _AlbumPageState extends State<AlbumPage> with TickerProviderStateMixin {
             SliverAppBar.large(
               title: Text('专辑'),
               forceElevated: f,
-              
-              toolbarHeight: 62,
-              bottom: PreferredSize(
-                preferredSize: Size.fromHeight(bottomBarHeight),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TabBar(
-                          indicatorPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                          isScrollable: true,
-                          controller: tabController,
-                          overlayColor: WidgetStateProperty.resolveWith<Color>((states) {
-                            // 当标签被点击时，显示半透明的蓝色背景
-                            if (states.contains(WidgetState.selected)) {
-                              return Colors.transparent; // 设置选中时的覆盖颜色
-                            }
-                            return Colors.transparent; // 未选中时，覆盖层是透明的
-                          }),
-                          tabs: plugins
-                              .map((item) => Tab(
-                                    text: item.name,
-                                    // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
-                                  ))
-                              .toList(),
-                        ),
+              // toolbarHeight: 62,
+            ),
+            PinnedHeaderSliver(
+              child: Container(
+                width: double.infinity,
+                height: bottomBarHeight,
+                color: Theme.of(context).colorScheme.surface,
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TabBar(
+                        indicatorPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                        isScrollable: true,
+                        controller: tabController,
+                        overlayColor: WidgetStateProperty.resolveWith<Color>((states) {
+                          // 当标签被点击时，显示半透明的蓝色背景
+                          if (states.contains(WidgetState.selected)) {
+                            return Colors.transparent; // 设置选中时的覆盖颜色
+                          }
+                          return Colors.transparent; // 未选中时，覆盖层是透明的
+                        }),
+                        tabs: plugins
+                            .map((item) => Tab(
+                                  text: item.name,
+                                  // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
+                                ))
+                            .toList(),
                       ),
-                      IconButton(
-                          onPressed: () {
-                            controller.open(plugins[tabController.index].package);
-                          },
-                          icon: const Icon(Icons.filter_list))
-                    ],
-                  ),
+                    ),
+                    IconButton(
+                        onPressed: () {
+                          controller.open(plugins[tabController.index].package);
+                        },
+                        icon: const Icon(Icons.filter_list))
+                  ],
                 ),
               ),
-            )
+            ),
           ];
         },
         pinnedHeaderSliverHeightBuilder: () {

@@ -44,38 +44,40 @@ class _PlayListPageState extends State<PlayListPage> with TickerProviderStateMix
             SliverAppBar.large(
               title: Text('歌单'),
               forceElevated: f,
-              
-              toolbarHeight: 62,
-              bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(bottomBarHeight),
-                  child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              child: TabBar(
-                            indicatorPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                            isScrollable: true,
-                            controller: tabController,
-                            tabs: plugins
-                                .map((item) => Tab(
-                                      text: item.name,
-                                      // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
-                                    ))
-                                .toList(),
-                          )),
-                          IconButton(
-                              onPressed: () {
-                                controller.open(plugins[tabController.index].package);
-                              },
-                              icon: const Icon(Icons.filter_list))
-                        ],
-                      ))),
+              // toolbarHeight: 62,
             ),
             // PinnedHeaderSliver(
             //   child: Container(height: 1, color: Theme.of(context).dividerColor.withOpacity(0.2)),
             // ),
+            PinnedHeaderSliver(
+              child: Container(
+                width: double.infinity,
+                height: bottomBarHeight,
+                color: Theme.of(context).colorScheme.surface,
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                        child: TabBar(
+                      indicatorPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                      isScrollable: true,
+                      controller: tabController,
+                      tabs: plugins
+                          .map((item) => Tab(
+                                text: item.name,
+                                // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
+                              ))
+                          .toList(),
+                    )),
+                    IconButton(
+                        onPressed: () {
+                          controller.open(plugins[tabController.index].package);
+                        },
+                        icon: const Icon(Icons.filter_list))
+                  ],
+                ),
+              ),
+            )
           ];
         },
         pinnedHeaderSliverHeightBuilder: () {

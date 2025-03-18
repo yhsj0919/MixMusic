@@ -50,7 +50,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialBinding: AppBinding(),
       theme: lightTheme,
-
       darkTheme: darkTheme,
       // builder: appRootWidget,
       //2.注册路由观察者

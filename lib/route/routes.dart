@@ -123,7 +123,8 @@ class Routes {
 
 class MyCustomTransition extends CustomTransition {
   @override
-  Widget buildTransition(BuildContext context, Curve? curve, Alignment? alignment, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+  Widget buildTransition(BuildContext context, Curve? curve, Alignment? alignment, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
     return Opacity(opacity: animation.value, child: child);
   }
 }

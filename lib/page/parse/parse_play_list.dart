@@ -71,7 +71,7 @@ class _ParsePlayListState extends State<ParsePlayList> {
                     Container(width: 8),
                     Expanded(
                         child: ListView.separated(
-                      padding: EdgeInsets.zero,
+                      // padding: EdgeInsets.zero,
                       shrinkWrap: true,
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (BuildContext context, int index) {
@@ -109,20 +109,23 @@ class _ParsePlayListState extends State<ParsePlayList> {
                     },
                   ),
                 ),
-                FilledButton(
-                    style: ButtonStyle(
-                      shape: WidgetStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0), // 设置圆角
+                SizedBox(
+                  height: 40,
+                  child: FilledButton(
+                      style: ButtonStyle(
+                        shape: WidgetStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0), // 设置圆角
+                          ),
                         ),
+                        padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 20)),
                       ),
-                      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 20, vertical: 16)),
-                    ),
-                    onPressed: () {
-                      keyWord.value = controller.text;
-                      parsePlayList(url: controller.text);
-                    },
-                    child: Text("解析")),
+                      onPressed: () {
+                        keyWord.value = controller.text;
+                        parsePlayList(url: controller.text);
+                      },
+                      child: Text("解析")),
+                ),
                 Gap(8),
               ],
             ),
@@ -207,6 +210,7 @@ class _ParsePlayListState extends State<ParsePlayList> {
                     : ListView.builder(
                         shrinkWrap: true,
                         itemCount: historyList.length,
+                        padding: EdgeInsets.zero,
                         itemBuilder: (BuildContext context, int index) {
                           var item = historyList[index];
 

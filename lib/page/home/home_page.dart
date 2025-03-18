@@ -89,7 +89,7 @@ class _HomePageState extends State<HomePage> {
               child: Container(
                 alignment: Alignment.centerLeft,
                 height: 90,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: ScrollConfiguration(
                   behavior: ScrollConfiguration.of(context).copyWith(scrollbars: true, overscroll: true),
                   child: ListView(
@@ -124,7 +124,7 @@ class _HomePageState extends State<HomePage> {
                           },
                         ),
                       ),
-                      Gap(16),
+                      Gap(12),
                       HyperCard(
                         width: 90,
                         height: 90,
@@ -152,7 +152,7 @@ class _HomePageState extends State<HomePage> {
                           },
                         ),
                       ),
-                      Gap(16),
+                      Gap(12),
                       HyperCard(
                         width: 90,
                         height: 90,
@@ -179,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                           },
                         ),
                       ),
-                      Gap(16),
+                      Gap(12),
                       HyperCard(
                         width: 90,
                         height: 90,
@@ -206,7 +206,7 @@ class _HomePageState extends State<HomePage> {
                           },
                         ),
                       ),
-                      Gap(16),
+                      Gap(12),
                       HyperCard(
                         width: 90,
                         height: 90,

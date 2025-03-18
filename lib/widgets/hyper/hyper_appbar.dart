@@ -10,7 +10,7 @@ class HyperAppbar1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverAppBar.medium(
+    return SliverAppBar.large(
       title: Text(title ?? "", style: Theme.of(context).appBarTheme.titleTextStyle),
       pinned: true,
       actions: actions,

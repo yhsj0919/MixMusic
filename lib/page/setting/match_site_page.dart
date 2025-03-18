@@ -43,7 +43,7 @@ class _MatchSitePageState extends State<MatchSitePage> {
         () => HyperBackground(
           child: CustomScrollView(
             slivers: [
-              SliverAppBar.medium(title: Text("音源匹配")),
+              SliverAppBar.large(title: Text("音源匹配")),
               HyperGroup(
                 children: [
                   Obx(

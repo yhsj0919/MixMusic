@@ -48,7 +48,7 @@ class _DownloadSettingPageState extends State<DownloadSettingPage> {
       body: HyperBackground(
         child: CustomScrollView(
           slivers: [
-            SliverAppBar.medium(
+            SliverAppBar.large(
               title: Text("下载设置"),
             ),
             HyperGroup(

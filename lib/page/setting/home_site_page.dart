@@ -46,7 +46,7 @@ class _HomeSitePageState extends State<HomeSitePage> {
         () => HyperBackground(
           child: CustomScrollView(
             slivers: [
-              SliverAppBar.medium(
+              SliverAppBar.large(
                 title: Text("首页数据"),
               ),
               HyperGroup(

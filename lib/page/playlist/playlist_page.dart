@@ -41,10 +41,10 @@ class _PlayListPageState extends State<PlayListPage> with TickerProviderStateMix
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [
-            SliverAppBar.medium(
+            SliverAppBar.large(
               title: Text('歌单'),
               forceElevated: f,
-              expandedHeight: 144,
+              
               toolbarHeight: 62,
               bottom: PreferredSize(
                   preferredSize: Size.fromHeight(bottomBarHeight),

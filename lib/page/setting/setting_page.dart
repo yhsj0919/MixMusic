@@ -38,7 +38,7 @@ class _SettingPageState extends State<SettingPage> {
       body: HyperBackground(
         child: CustomScrollView(
           slivers: [
-            SliverAppBar.medium(
+            SliverAppBar.large(
               title: Text("设置"),
             ),
             HyperGroup(

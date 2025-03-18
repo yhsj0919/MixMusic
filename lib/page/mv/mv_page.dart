@@ -42,10 +42,10 @@ class _MvPageState extends State<MvPage> with TickerProviderStateMixin {
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [
-            SliverAppBar.medium(
+            SliverAppBar.large(
               title: Text('MV'),
               forceElevated: f,
-              expandedHeight: 144,
+              
               toolbarHeight: 62,
               bottom: PreferredSize(
                   preferredSize: Size.fromHeight(bottomBarHeight),

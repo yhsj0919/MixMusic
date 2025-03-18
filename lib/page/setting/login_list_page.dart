@@ -49,7 +49,7 @@ class _LoginListPageState extends State<LoginListPage> {
       body: HyperBackground(
           child: CustomScrollView(
         slivers: [
-          SliverAppBar.medium(title: Text("站点登录")),
+          SliverAppBar.large(title: Text("站点登录")),
           Obx(
             () => SliverList.separated(
               itemCount: plugins.length,

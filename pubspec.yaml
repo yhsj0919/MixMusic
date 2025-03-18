@@ -91,7 +91,6 @@ dependencies:
   dynamic_color: ^1.7.0
   get: ^4.7.2
   extended_nested_scroll_view: ^6.2.1
-  squiggly_slider: ^1.0.5
   gap: ^3.0.1
   cached_network_image: ^3.4.1
   flutter_speed_dial: ^7.0.0

@@ -71,6 +71,7 @@ class _ParsePlayListState extends State<ParsePlayList> {
                     Container(width: 8),
                     Expanded(
                         child: ListView.separated(
+                      padding: EdgeInsets.zero,
                       shrinkWrap: true,
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (BuildContext context, int index) {
@@ -137,6 +138,7 @@ class _ParsePlayListState extends State<ParsePlayList> {
                       )
                     : ListView.builder(
                         shrinkWrap: true,
+                        padding: EdgeInsets.zero,
                         itemCount: playlist.length,
                         itemBuilder: (BuildContext context, int index) {
                           var item = playlist[index];

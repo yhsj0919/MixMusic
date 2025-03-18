@@ -41,10 +41,10 @@ class _RecommendPageState extends State<RecommendPage> with TickerProviderStateM
       body: ExtendedNestedScrollView(
         headerSliverBuilder: (BuildContext c, bool f) {
           return [
-            SliverAppBar.medium(
+            SliverAppBar.large(
               title: Text('每日推荐'),
               forceElevated: f,
-              expandedHeight: 144,
+              
               toolbarHeight: 62,
               bottom: PreferredSize(
                   preferredSize: Size.fromHeight(bottomBarHeight),

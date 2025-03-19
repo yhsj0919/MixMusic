@@ -43,11 +43,13 @@ class _SettingPageState extends State<SettingPage> {
             ),
             HyperGroup(
               children: [
-                const HyperListTile(
-                  leading: HyperIcon(color: Colors.blue, icon: Icons.group),
-                  title: "插件化音乐播放器",
-                  subtitle: "加企鹅群催更:89220779",
-                ),
+                HyperListTile(
+                    leading: HyperIcon(color: Colors.blue, icon: Icons.auto_awesome),
+                    title: "关于",
+                    subtitle: "插件化音乐播放器",
+                    onTap: () {
+                      Get.toNamed(Routes.about);
+                    }),
                 HyperListTile(
                     leading: HyperIcon(color: Colors.blue, icon: Icons.light_mode),
                     title: "主题",

@@ -10,6 +10,7 @@ import 'package:mix_music/page/home/home_page.dart';
 import 'package:mix_music/page/mv/mv_detail_page.dart';
 import 'package:mix_music/page/mv/mv_page.dart';
 import 'package:mix_music/page/recommend/recommend_page.dart';
+import 'package:mix_music/page/setting/about/about_page.dart';
 import 'package:mix_music/page/setting/download_setting_page.dart';
 import 'package:mix_music/page/setting/extension_net_page.dart';
 import 'package:mix_music/page/setting/extension_page.dart';
@@ -75,6 +76,7 @@ class Routes {
   static const String artist = "/artist";
   static const String artistDetail = "/artistDetail";
   static const String parsePlayList = "/parsePlayList";
+  static const String about = "/about";
 
   static List<GetPage> routes = [
     GetPage(name: welcome, page: () => const WelcomePage(), customTransition: MyCustomTransition()),
@@ -89,6 +91,7 @@ class Routes {
     GetPage(name: loginByWeb, page: () => const LoginByWebPage(), customTransition: MyCustomTransition()),
     GetPage(name: home, page: () => const HomePage(), customTransition: MyCustomTransition()),
     GetPage(name: setting, page: () => const SettingPage(), customTransition: MyCustomTransition()),
+    GetPage(name: about, page: () => const AboutPage(), customTransition: MyCustomTransition()),
     GetPage(name: search, page: () => const SearchPage(), customTransition: MyCustomTransition()),
     GetPage(name: appPlayList, page: () => AppPlayListPage(), customTransition: MyCustomTransition()),
     GetPage(name: recommend, page: () => RecommendPage(), customTransition: MyCustomTransition()),

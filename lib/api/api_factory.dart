@@ -144,8 +144,13 @@ class ApiFactory {
   static Future<MixSong> playUrl({required MixSong song, bool useMatch = true}) async {
     var resp = await api(package: song.package)!.playUrl(song);
 
-    if (resp.url == null && song.vip == 1 && _matchVip && !_matchSite.contains(song.package) && _matchSite.isNotEmpty && useMatch) {
-      return matchMusic(packages: _matchSite.toList(), name: song.title, artist: song.artist?.first.title).then((value) {
+    if (resp.url == null && song.vip == 1 && _matchVip && _matchSite.isNotEmpty && useMatch) {
+      return matchMusic(
+              //过滤掉当前
+              packages: _matchSite.where((n) => n != song.package).toList(),
+              name: song.title,
+              artist: song.artist?.first.title)
+          .then((value) {
         var matchSong = value.firstOrNull;
 
         song.match = matchSong != null;
@@ -160,7 +165,8 @@ class ApiFactory {
     }
   }
 
-  static Future<List<MixSong>> _searchMusic({required String package, required String? name, required String? artist}) async {
+  static Future<List<MixSong>> _searchMusic(
+      {required String package, required String? name, required String? artist}) async {
     var keyWord = "$name $artist";
     try {
       var value = await ApiFactory.api(package: package)?.searchMusic(keyword: keyWord, page: 0, size: 20);
@@ -179,7 +185,8 @@ class ApiFactory {
     }
   }
 
-  static Future<List<MixSong>> matchMusic({required List<String> packages, required String? name, required String? artist}) async {
+  static Future<List<MixSong>> matchMusic(
+      {required List<String> packages, required String? name, required String? artist}) async {
     var value = await Future.wait(packages.map((e) => _searchMusic(package: e, name: name, artist: artist)));
 
     var datas = value
@@ -190,10 +197,26 @@ class ApiFactory {
             }
           }
           var data = e.firstWhereOrNull((element) =>
-              (element.title.toString().replaceAll(" ", "").toLowerCase().startsWith(name.toString().replaceAll(" ", "").toLowerCase()) ||
-                  name.toString().replaceAll(" ", "").toLowerCase().startsWith(element.title.toString().replaceAll(" ", "").toLowerCase())) &&
-              ((element.subTitle.toString().replaceAll(" ", "").toLowerCase().contains(artist?.replaceAll(" ", "").toLowerCase() ?? "")) ||
-                  (artist ?? "").toString().replaceAll(" ", "").toLowerCase().contains(element.subTitle.replaceAll(" ", "").toLowerCase() ?? "")));
+              (element.title
+                      .toString()
+                      .replaceAll(" ", "")
+                      .toLowerCase()
+                      .startsWith(name.toString().replaceAll(" ", "").toLowerCase()) ||
+                  name
+                      .toString()
+                      .replaceAll(" ", "")
+                      .toLowerCase()
+                      .startsWith(element.title.toString().replaceAll(" ", "").toLowerCase())) &&
+              ((element.subTitle
+                      .toString()
+                      .replaceAll(" ", "")
+                      .toLowerCase()
+                      .contains(artist?.replaceAll(" ", "").toLowerCase() ?? "")) ||
+                  (artist ?? "")
+                      .toString()
+                      .replaceAll(" ", "")
+                      .toLowerCase()
+                      .contains(element.subTitle.replaceAll(" ", "").toLowerCase() ?? "")));
           return data;
         })
         .where((element) => element != null)

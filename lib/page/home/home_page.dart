@@ -47,7 +47,9 @@ class _HomePageState extends State<HomePage> {
     double statusBarHeight = max(MediaQuery.of(context).padding.top, 16);
     double bottom = max(MediaQuery.of(context).padding.bottom, 16);
     return HyperBackground(
-        child: HyperScaffold(
+        child: SafeArea(
+            child: HyperScaffold(
+      backgroundColor: Colors.transparent,
       floatingActionButton: Hidable(
         controller: scrollController,
         enableOpacityAnimation: true, // optional, defaults to `true`.
@@ -68,13 +70,15 @@ class _HomePageState extends State<HomePage> {
               });
             },
             slivers: [
-              PinnedHeaderSliver(
-                child: Container(
-                  height: kToolbarHeight,
-                  color: Theme.of(context).colorScheme.surface,
-                ),
-              ),
-              SliverGap(96),
+              context.isPhone
+                  ? SliverGap(kToolbarHeight)
+                  : PinnedHeaderSliver(
+                      child: Container(
+                        height: kToolbarHeight,
+                        color: Theme.of(context).colorScheme.surface,
+                      ),
+                    ),
+              context.isPhone ? SliverGap(0) : SliverGap(96),
               buildPlayList(),
               SliverGap(12),
               buildAlbum(),
@@ -82,6 +86,9 @@ class _HomePageState extends State<HomePage> {
               buildMv(),
               SliverGap(12),
               buildSong(),
+              SliverGap(12),
+              buildTip(),
+              SliverGap(12),
               SliverGap(bottom),
             ],
           )),
@@ -131,10 +138,12 @@ class _HomePageState extends State<HomePage> {
                     buildMenuList(),
                     SliverGap(12),
                     buildTip(),
+                    SliverGap(12),
+                    SliverGap(bottom),
                   ],
                 )),
       ),
-    ));
+    )));
   }
 
   Widget buildAppBar() {
@@ -163,11 +172,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildAppBar2() {
-    return SliverAppBar.large(
-      surfaceTintColor: Colors.transparent,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      title: const Text("MixMusic"),
-    );
+    return context.isPhone
+        ? SliverAppBar(
+            surfaceTintColor: Colors.transparent,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            title: const Text("MixMusic"),
+          )
+        : SliverAppBar.large(
+            surfaceTintColor: Colors.transparent,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            title: const Text("MixMusic"),
+          );
   }
 
   Widget buildMenu() {
@@ -488,6 +503,7 @@ class _HomePageState extends State<HomePage> {
             () => ScrollConfiguration(
                 behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
                 child: ListView.separated(
+                  padding: EdgeInsets.zero,
                   physics: const BouncingScrollPhysics(),
                   itemCount: controller.playlist.length,
                   scrollDirection: Axis.horizontal,
@@ -550,6 +566,7 @@ class _HomePageState extends State<HomePage> {
                 () => ScrollConfiguration(
                   behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
                   child: ListView.separated(
+                    padding: EdgeInsets.zero,
                     physics: const BouncingScrollPhysics(),
                     itemCount: controller.albumList.length,
                     scrollDirection: Axis.horizontal,
@@ -626,6 +643,7 @@ class _HomePageState extends State<HomePage> {
               () => ScrollConfiguration(
                   behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
                   child: ListView.separated(
+                    padding: EdgeInsets.zero,
                     physics: const BouncingScrollPhysics(),
                     itemCount: controller.mvList.length,
                     scrollDirection: Axis.horizontal,
@@ -681,7 +699,7 @@ class _HomePageState extends State<HomePage> {
         alpha: 0.7,
         children: [
           ListView.builder(
-            padding: EdgeInsets.all(0),
+            padding: EdgeInsets.zero,
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
             itemCount: controller.songList.length,

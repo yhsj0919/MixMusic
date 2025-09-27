@@ -28,6 +28,12 @@ class Constant {
   //播放列表
   static String KEY_APP_MUSIC_LIST = "KEY_APP_MUSIC_LIST";
 
+  //下载列表
+  // static String KEY_APP_DOWNLOAD_LIST = "KEY_APP_DOWNLOAD_LIST";
+
+  //下载历史
+  // static String KEY_APP_DOWNLOAD_HISTORY = "KEY_APP_DOWNLOAD_HISTORY";
+
   //播放历史
   static String KEY_APP_HISTORY_MUSIC_LIST = "KEY_APP_HISTORY_MUSIC_LIST";
 

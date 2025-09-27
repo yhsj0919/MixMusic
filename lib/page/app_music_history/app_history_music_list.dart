@@ -2,7 +2,7 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
+import 'package:mix_music/common/api/api_factory.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/widgets/app_image.dart';
@@ -33,15 +33,11 @@ class _AppHistoryMusicListState extends State<AppHistoryMusicList> {
       body: PageCustomScrollView(
         controller: controller.refreshController,
         onRefresh: () {
-          return controller.getHistory(0);
+          return controller.getHistory();
         },
-        onLoad: () {
-          return controller.getHistory(controller.dataPage.page ?? 0);
-        },
+
         slivers: [
-          SliverAppBar.large(
-            title: Text("播放历史"),
-          ),
+          SliverAppBar.large(title: Text("播放历史")),
           HyperGroup(
             title: Text("最近播放"),
             trailing: InkWell(
@@ -53,9 +49,7 @@ class _AppHistoryMusicListState extends State<AppHistoryMusicList> {
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: Text('提示'),
-                      content: SingleChildScrollView(
-                        child: Text('确定清空列表？'),
-                      ),
+                      content: SingleChildScrollView(child: Text('确定清空列表？')),
                       actions: <Widget>[
                         TextButton(
                           child: Text('确定'),
@@ -80,60 +74,58 @@ class _AppHistoryMusicListState extends State<AppHistoryMusicList> {
                   itemBuilder: (BuildContext context, int index) {
                     var song = controller.musicList[index];
                     var plugin = ApiFactory.getPlugin(song.package);
-                    return Obx(() => ListTile(
-                          selected: music.currentMusic.value?.id.toString() == song.id.toString(),
-                          leading: Stack(alignment: Alignment.bottomRight, children: [
+                    return Obx(
+                      () => ListTile(
+                        selected: music.currentMusic.value?.id.toString() == song.id.toString(),
+                        leading: Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
                             AppImage(url: song.pic ?? ""),
                             ClipRRect(
-                                borderRadius: BorderRadius.all(Radius.circular(8)),
-                                child: Container(
-                                  color: Colors.white,
-                                  child: AppImage(
-                                    url: plugin?.icon ?? "",
-                                    width: 20,
-                                    height: 20,
-                                  ),
-                                ))
-                          ]),
-                          title: Row(
-                            children: [
-                              Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
-                              song.vip == 1
-                                  ? Container(
-                                      alignment: Alignment.center,
-                                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                                      decoration: BoxDecoration(
-                                        borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-                                        border: Border.all(width: 1, color: Colors.green),
-                                      ),
-                                      child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
-                                    )
-                                  : Container(),
-                            ],
-                          ),
-                          subtitle: Text(
-                            song.subTitle ?? "",
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                          trailing: song.mv != null
-                              ? IconButton(
-                                  onPressed: () {
-                                    Get.toNamed(Routes.mvDetail, arguments: song.mv);
-                                  },
-                                  icon: Icon(Icons.music_video))
-                              : null,
-                          onTap: () {
-                            music.playList(list: controller.musicList, index: index);
-                          },
-                        ));
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                              child: Container(
+                                color: Colors.white,
+                                child: AppImage(url: plugin?.icon ?? "", width: 20, height: 20),
+                              ),
+                            ),
+                          ],
+                        ),
+                        title: Row(
+                          children: [
+                            Flexible(child: Text(song.title ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            song.vip == 1
+                                ? Container(
+                                    alignment: Alignment.center,
+                                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+                                      border: Border.all(width: 1, color: Colors.green),
+                                    ),
+                                    child: const Text("VIP", maxLines: 1, style: TextStyle(fontSize: 10, color: Colors.green)),
+                                  )
+                                : Container(),
+                          ],
+                        ),
+                        subtitle: Text(song.subTitle ?? "", overflow: TextOverflow.ellipsis, maxLines: 1),
+                        trailing: song.mv != null
+                            ? IconButton(
+                                onPressed: () {
+                                   Get.toNamed(Routes.mvDetail, arguments: song.mv);
+                                },
+                                icon: Icon(Icons.music_video),
+                              )
+                            : null,
+                        onTap: () {
+                          music.playList(list: controller.musicList, index: index);
+                        },
+                      ),
+                    );
                   },
                 ),
               ),
             ],
           ),
-
         ],
       ),
     );

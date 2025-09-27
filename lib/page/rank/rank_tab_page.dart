@@ -1,22 +1,17 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/entity/mix_rank_type.dart';
-import 'package:mix_music/entity/page_entity.dart';
-import 'package:mix_music/entity/plugins_info.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/mix_rank_type.dart';
+import 'package:mix_music/common/entity/page_entity.dart';
+import 'package:mix_music/common/entity/plugins_info.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
-import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/hyper/hyper_loading.dart';
 import 'package:mix_music/widgets/message.dart';
 import 'package:mix_music/widgets/page_custom_scroll_view.dart';
-import 'package:mix_music/widgets/page_nested_scroll_view.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
-import '../../entity/mix_rank.dart';
 import '../../route/routes.dart';
 import '../../widgets/app_image.dart';
 
@@ -114,7 +109,7 @@ class _RankTabPageState extends State<RankTabPage> with AutomaticKeepAliveClient
                           child: Hero(tag: "${e.package}${e.id}${e.pic}", child: AppImage(url: e.pic ?? "", radius: 16)),
                         )),
                     onTap: () {
-                      Get.toNamed(Routes.rankDetail, arguments: e);
+                       Get.toNamed(id: Routes.key,Routes.rankDetail, arguments: e);
                     },
                   ),
                 )

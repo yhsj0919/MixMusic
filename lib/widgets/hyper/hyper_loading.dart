@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/theme/new_surface_theme.dart';
-import 'package:mix_music/theme/surface_color_enum.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 
 class HyperLoading extends StatefulWidget {
@@ -36,10 +33,6 @@ class _HyperLoadingState extends State<HyperLoading> {
           color: theme.mainColor.value ?? Theme.of(context).colorScheme.primary,
           year2023: false,
         ),
-        // child: SpinKitFadingCube(
-        //   color: color ?? Theme.of(context).colorScheme.primary,
-        //   size: size ?? 25,
-        // ),
       ),
     );
   }

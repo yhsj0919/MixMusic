@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/constant.dart';
-import 'package:mix_music/page/home/home_page.dart';
+import 'package:mix_music/page/home/mobile_home_page.dart';
 import 'package:mix_music/route/routes.dart';
-import 'package:mix_music/utils/sp.dart';
+import 'package:mix_music/utils/db.dart';
 import 'package:mix_music/widgets/hyper/hyper_background.dart';
 import 'package:mix_music/widgets/hyper/hyper_background_color.dart';
 
@@ -33,7 +33,7 @@ class _WelcomePageState extends State<WelcomePage> {
   void initState() {
     super.initState();
 
-    firstIn = Sp.getBool(Constant.KEY_FIRST_IN) ?? true;
+    firstIn = AppDB.getBool(Constant.KEY_FIRST_IN) ?? true;
 
     Future.delayed(Duration(milliseconds: 400)).then((v) {
       startCountdown();
@@ -77,15 +77,8 @@ class _WelcomePageState extends State<WelcomePage> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  Obx(() => CircularProgressIndicator(
-                        strokeWidth: 3,
-                        backgroundColor: Colors.black12,
-                        value: time.value / totalTime.value,
-                      )),
-                  Text(
-                    "跳过",
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  Obx(() => CircularProgressIndicator(strokeWidth: 3, backgroundColor: Colors.black12, value: time.value / totalTime.value)),
+                  Text("跳过", style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
               onTap: () {
@@ -102,41 +95,42 @@ class _WelcomePageState extends State<WelcomePage> {
             children: [
               Gap(32),
               Expanded(
-                  child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // 第一列
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('个', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('性', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('，', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('定', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('制', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('', style: Theme.of(context).textTheme.headlineMedium),
-                      ],
-                    ),
-                    SizedBox(width: 40), // 列之间的间距
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('畅', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('享', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('音', style: Theme.of(context).textTheme.headlineMedium),
-                        Text('乐', style: Theme.of(context).textTheme.headlineMedium),
-                      ],
-                    ),
-                  ],
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // 第一列
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('个', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('性', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('，', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('定', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('制', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('', style: Theme.of(context).textTheme.headlineMedium),
+                        ],
+                      ),
+                      SizedBox(width: 40), // 列之间的间距
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('畅', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('享', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('音', style: Theme.of(context).textTheme.headlineMedium),
+                          Text('乐', style: Theme.of(context).textTheme.headlineMedium),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              )),
+              ),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 32),
                 child: Row(

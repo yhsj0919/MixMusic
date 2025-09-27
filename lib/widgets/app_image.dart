@@ -38,6 +38,7 @@ class _AppImageState extends State<AppImage> with SingleTickerProviderStateMixin
               width: widget.width,
               height: widget.height,
               border: widget.border,
+
               borderRadius: BorderRadius.all(Radius.circular(widget.radius ?? 8)),
               loadStateChanged: (ExtendedImageState state) {
                 switch (state.extendedImageLoadState) {

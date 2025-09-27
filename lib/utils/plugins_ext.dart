@@ -7,7 +7,7 @@ import 'package:encrypt/encrypt_io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_js/flutter_js.dart';
-import 'package:mix_music/entity/plugins_info.dart';
+import 'package:mix_music/common/entity/plugins_info.dart';
 import 'package:path/path.dart';
 
 import 'kwDES.dart';

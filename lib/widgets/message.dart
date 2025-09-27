@@ -1,27 +1,34 @@
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 //延时是为了防止在弹窗关闭时调用back,导致消息无法显示,弹窗无法关闭
 showInfo(dynamic message) {
   Future.delayed(const Duration(milliseconds: 350)).then(
-    (value) => Get.snackbar("提示", "$message",
-        maxWidth: 500,
-        margin: const EdgeInsets.all(16),
-        backgroundColor: const Color(0xccb2e7f5),
-        animationDuration: const Duration(milliseconds: 300),
-        icon: const Icon(Icons.info_outline, size: 30)),
+    (value) => Get.snackbar(
+      "提示",
+      "$message",
+      maxWidth: 500,
+      margin: const EdgeInsets.all(16),
+      backgroundColor: const Color(0xccb2e7f5),
+      animationDuration: const Duration(milliseconds: 300),
+      icon: const Icon(Icons.info_outline, size: 30),
+    ),
   );
 }
 
 showError(dynamic message) {
   print(message);
   Future.delayed(const Duration(milliseconds: 350)).then(
-    (value) => Get.snackbar("错误", "$message",
-        maxWidth: 500,
-        margin: const EdgeInsets.all(16),
-        backgroundColor: const Color(0xccfeb8ba),
-        animationDuration: const Duration(milliseconds: 300),
-        icon: const Icon(Icons.cancel_outlined, size: 30)),
+    (value) => Get.snackbar(
+      "错误",
+      "$message",
+      maxWidth: 500,
+      margin: const EdgeInsets.all(16),
+      backgroundColor: const Color(0xccfeb8ba),
+      animationDuration: const Duration(milliseconds: 300),
+      icon: const Icon(Icons.cancel_outlined, size: 30),
+    ),
   );
 }
 
@@ -50,5 +57,96 @@ showComplete(dynamic message) {
       animationDuration: const Duration(milliseconds: 300),
       icon: const Icon(Icons.done, size: 30),
     ),
+  );
+}
+
+showFluentInfo(BuildContext context, dynamic message) async {
+  await fluent.displayInfoBar(
+    context,
+    builder: (context, close) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(4), // 圆角半径
+        ),
+        child: fluent.InfoBar(
+          title: const Text('提示'),
+          content: Text(message),
+          action: IconButton(
+            icon: const fluent.WindowsIcon(fluent.WindowsIcons.clear),
+            onPressed: close,
+          ),
+        ),
+      );
+    },
+  );
+}
+
+showFluentError(BuildContext context, dynamic message) async {
+  await fluent.displayInfoBar(
+    context,
+    builder: (context, close) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(4), // 圆角半径
+        ),
+        child: fluent.InfoBar(
+          title: const Text('错误'),
+          content: Text(message),
+          action: IconButton(
+            icon: const fluent.WindowsIcon(fluent.WindowsIcons.clear),
+            onPressed: close,
+          ),
+          severity: fluent.InfoBarSeverity.error,
+        ),
+      );
+    },
+  );
+}
+
+showFluentWarn(BuildContext context, dynamic message) async {
+  await fluent.displayInfoBar(
+    context,
+    builder: (context, close) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(4), // 圆角半径
+        ),
+        child: fluent.InfoBar(
+          title: const Text('警告'),
+          content: Text(message),
+          action: IconButton(
+            icon: const fluent.WindowsIcon(fluent.WindowsIcons.clear),
+            onPressed: close,
+          ),
+          severity: fluent.InfoBarSeverity.warning,
+        ),
+      );
+    },
+  );
+}
+
+showFluentComplete(BuildContext context, dynamic message) async {
+  await fluent.displayInfoBar(
+    context,
+    builder: (context, close) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(4), // 圆角半径
+        ),
+        child: fluent.InfoBar(
+          title: const Text('提示'),
+          content: Text(message),
+          action: IconButton(
+            icon: const fluent.WindowsIcon(fluent.WindowsIcons.clear),
+            onPressed: close,
+          ),
+          severity: fluent.InfoBarSeverity.success,
+        ),
+      );
+    },
   );
 }

@@ -1,8 +1,8 @@
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/entity/plugins_info.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/plugins_info.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
 import 'package:sliver_tools/sliver_tools.dart';

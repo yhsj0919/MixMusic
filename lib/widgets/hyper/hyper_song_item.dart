@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/entity/mix_song.dart';
+import 'package:mix_music/common/entity/mix_song.dart';
 import 'package:mix_music/page/app_playlist/app_download_type_page.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/route/routes.dart';
@@ -43,7 +43,7 @@ class HyperSongItem extends StatelessWidget {
               song.mv != null
                   ? IconButton(
                       onPressed: () {
-                        Get.toNamed(Routes.mvDetail, arguments: song.mv);
+                         Get.toNamed(id: Routes.key,Routes.mvDetail, arguments: song.mv);
                       },
                       icon: Icon(Icons.music_video))
                   : Container(),

@@ -1,10 +1,9 @@
-import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:get/get.dart';
+import 'package:mix_music/common/entity/mix_song.dart';
+import 'package:mix_music/common/entity/page_entity.dart';
 import 'package:mix_music/constant.dart';
-import 'package:mix_music/entity/mix_song.dart';
-import 'package:mix_music/entity/page_entity.dart';
-import 'package:mix_music/utils/sp.dart';
+import 'package:mix_music/utils/db.dart';
 
 class AppHistoryMusicController extends GetxController {
   RxList<MixSong> musicList = RxList();
@@ -14,44 +13,35 @@ class AppHistoryMusicController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
+    refreshController = EasyRefreshController(controlFinishLoad: false, controlFinishRefresh: true);
 
-    getHistory(0);
+    getHistory();
   }
 
-  Future getHistory(int page, {int size = 20}) {
-    var list = Sp.getStringList(Constant.KEY_APP_HISTORY_MUSIC_LIST) ?? <String>[];
+  Future addHistory(MixSong music) async {
+    await AppDB.insertOrUpdateWithIndex(
+      Constant.KEY_APP_HISTORY_MUSIC_LIST,
+      music,
+      index: 0,
+      check: (oldValue, newValue) {
+        return oldValue.package == newValue.package && oldValue.id.toString() == newValue.id.toString();
+      },
+    );
+    return getHistory();
+  }
 
-    int startIndex = page * size;
-    int endIndex = startIndex + size;
+  Future getHistory() async {
+    var list = await AppDB.getList<MixSong>(Constant.KEY_APP_HISTORY_MUSIC_LIST);
 
-    if (page == 0) {
-      musicList.clear();
-      refreshController.finishRefresh();
-    }
+    musicList.clear();
 
-    if (startIndex < list.length) {
-      var ss = list.sublist(startIndex, endIndex.clamp(0, list.length));
-
-      musicList.addAll(ss.map((e) => JsonMapper.fromJson<MixSong>(e)!));
-    }
-
-    // 检查是否还有更多数据
-    var more = musicList.length < list.length;
-
-    dataPage.first = page == 0;
-    dataPage.last = !more;
-    dataPage.page = page + 1;
-    dataPage.size = size;
-
-    Future.delayed(Duration(milliseconds: 200)).then((v) {
-      refreshController.finishLoad(dataPage.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
-    });
+    musicList.addAll(list);
+    refreshController.finishRefresh();
     return Future.value();
   }
 
-  void cleanHistory() {
-    Sp.remove(Constant.KEY_APP_HISTORY_MUSIC_LIST);
-    getHistory(0);
+  Future<void> cleanHistory() async {
+    await AppDB.removeAll(table: Constant.KEY_APP_HISTORY_MUSIC_LIST);
+    getHistory();
   }
 }

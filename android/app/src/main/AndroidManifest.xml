@@ -83,6 +83,12 @@
                 android:value="2"/>
         <meta-data
                 android:name="io.flutter.embedding.android.EnableImpeller"
-                android:value="false"/>
+                android:value="true"/>
     </application>
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
 </manifest>

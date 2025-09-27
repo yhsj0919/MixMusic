@@ -3,17 +3,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/api/music_api.dart';
-import 'package:mix_music/entity/plugins_info.dart';
-import 'package:mix_music/page/setting/user_controller.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/api/music_api.dart';
+import 'package:mix_music/common/entity/plugins_info.dart';
+import 'package:mix_music/page/setting/login/user_controller.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/widgets/hyper/hyper_background.dart';
 import 'package:mix_music/widgets/hyper/hyper_background_color.dart';
 import 'package:mix_music/widgets/hyper/hyper_group.dart';
 
 class LoginByCookiePage extends StatefulWidget {
-  const LoginByCookiePage({super.key});
+  const LoginByCookiePage({super.key, required this.plugins});
+
+  final PluginsInfo plugins;
 
   @override
   State<LoginByCookiePage> createState() => _LoginByCookiePageState();
@@ -30,7 +32,7 @@ class _LoginByCookiePageState extends State<LoginByCookiePage> {
   @override
   void initState() {
     super.initState();
-    plugin = Get.arguments;
+    plugin =widget.plugins;
 
     api = ApiFactory.api(package: plugin?.package ?? "");
     getCookie();
@@ -44,8 +46,14 @@ class _LoginByCookiePageState extends State<LoginByCookiePage> {
   @override
   Widget build(BuildContext context) {
     // 获取状态栏的高度
-    double statusBarHeight = max(MediaQuery.of(context).padding.top, 16);
-    double bottom = max(MediaQuery.of(context).padding.bottom, 16);
+    double statusBarHeight = max(MediaQuery
+        .of(context)
+        .padding
+        .top, 16);
+    double bottom = max(MediaQuery
+        .of(context)
+        .padding
+        .bottom, 16);
     return Scaffold(
       body: HyperBackgroundColor(
         color: theme.getColorByPackage(plugin?.package),
@@ -73,7 +81,7 @@ class _LoginByCookiePageState extends State<LoginByCookiePage> {
             ),
             SliverToBoxAdapter(
               child: Container(
-                  // height: 45,
+                // height: 45,
                   margin: EdgeInsets.all(12),
                   child: FilledButton(
                       style: ButtonStyle(

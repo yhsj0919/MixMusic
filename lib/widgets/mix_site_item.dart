@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/entity/mix_song.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/mix_song.dart';
 import 'package:mix_music/widgets/app_image.dart';
 
 class MixSiteItem extends StatelessWidget {

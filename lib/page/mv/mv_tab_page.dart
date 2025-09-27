@@ -2,13 +2,13 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/entity/mix_artist.dart';
-import 'package:mix_music/entity/mix_artist_type.dart';
-import 'package:mix_music/entity/mix_mv.dart';
-import 'package:mix_music/entity/mix_mv_type.dart';
-import 'package:mix_music/entity/page_entity.dart';
-import 'package:mix_music/entity/plugins_info.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/mix_artist.dart';
+import 'package:mix_music/common/entity/mix_artist_type.dart';
+import 'package:mix_music/common/entity/mix_mv.dart';
+import 'package:mix_music/common/entity/mix_mv_type.dart';
+import 'package:mix_music/common/entity/page_entity.dart';
+import 'package:mix_music/common/entity/plugins_info.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
@@ -22,7 +22,7 @@ class MvTabPage extends StatefulWidget {
   const MvTabPage({super.key, required this.plugin, required this.controller});
 
   final PluginsInfo plugin;
-  final ArtistController controller;
+  final MvController controller;
 
   @override
   State<MvTabPage> createState() => _MvTabPageState();
@@ -104,7 +104,7 @@ class _MvTabPageState extends State<MvTabPage> with AutomaticKeepAliveClientMixi
                       ],
                     ),
                     onTap: () {
-                      Get.toNamed(Routes.mvDetail, arguments: item);
+                       Get.toNamed(Routes.mvDetail, arguments: item);
                     },
                   );
                 },
@@ -211,7 +211,7 @@ class _MvTabPageState extends State<MvTabPage> with AutomaticKeepAliveClientMixi
   bool get wantKeepAlive => true;
 }
 
-class ArtistController {
+class MvController {
   var pages = <String, _MvTabPageState?>{};
 
   void _addState(String name, _MvTabPageState _tabState) {

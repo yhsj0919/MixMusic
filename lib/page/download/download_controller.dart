@@ -1,23 +1,34 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:mix_music/api/common_api.dart';
-import 'package:mix_music/api/download_manager/download_status.dart';
-import 'package:mix_music/api/download_manager/download_task.dart';
-import 'package:mix_music/api/download_manager/downloader.dart';
+import 'package:mix_music/common/api/common_api.dart';
+import 'package:mix_music/common/api/download_manager/download_status.dart';
+import 'package:mix_music/common/api/download_manager/download_task.dart';
+import 'package:mix_music/common/api/download_manager/downloader.dart';
 import 'package:mix_music/constant.dart';
-import 'package:mix_music/entity/mix_download.dart';
-import 'package:mix_music/utils/sp.dart';
+import 'package:mix_music/common/entity/mix_download.dart';
+import 'package:mix_music/utils/db.dart';
 
 import '../../widgets/message.dart';
 
 class DownloadController extends GetxController {
   RxList<MixDownload> mixDownload = RxList();
+  RxList<MixDownload> oldDownload = RxList();
   String? fileRoot;
-  var downloadManager = DownloadManager();
+  var downloadManager = DownloadManager(maxConcurrentTasks: 1);
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    // mixDownload.addAll(AppDB.getList<MixDownload>(Constant.KEY_APP_DOWNLOAD_LIST) ?? []);
+    // mixDownload.forEach((a) {
+    //   addTask(a);
+    // });
+  }
 
   Future<bool> initDir() async {
-    fileRoot = Sp.getString(Constant.KEY_DOWNLOAD_FOLDER);
+    fileRoot = AppDB.getString(Constant.KEY_DOWNLOAD_FOLDER);
     if (fileRoot != null) {
       Directory myFolder = Directory(fileRoot!);
       if ((await myFolder.exists())) {
@@ -38,7 +49,7 @@ class DownloadController extends GetxController {
     }
     showInfo("已加入下载列表");
 
-    var nameType = Sp.getInt(Constant.KEY_DOWNLOAD_NAME) ?? 0;
+    var nameType = AppDB.getInt(Constant.KEY_DOWNLOAD_NAME) ?? 0;
 
     String downloadName;
     if (nameType == 1) {
@@ -63,8 +74,14 @@ class DownloadController extends GetxController {
       if (download.url?.isNotEmpty == true) {
         //未添加的
         mixDownload.insert(0, download);
+        // AppDB.insertList(Constant.KEY_APP_DOWNLOAD_LIST, download, index: 0, check: (oldValue, newValue) {
+        //   return oldValue.package == newValue.package && oldValue.id.toString() == newValue.id.toString();
+        // });
 
-        addDownload(download.url ?? "", fileName: downloadName);
+        var task = await addDownload(download.url ?? "", fileName: downloadName);
+        task?.status.addListener(() {
+          statusChange(task);
+        });
 
         print('>>>>>>>>>第一次下载>>>>>>>>>>>>>>');
       } else {
@@ -76,12 +93,21 @@ class DownloadController extends GetxController {
       //已添加的
       var task = downloadManager.getDownload(old.url ?? "");
 
-      if (task?.status.value == DownloadStatus.failed) {
+      print(task?.request.path);
+
+      if (task?.status.value == DownloadStatus.failed || task == null) {
         downloadManager.removeDownload(old.url ?? "");
 
         mixDownload.remove(old);
         mixDownload.insert(0, download);
-        addDownload(download.url ?? "", fileName: downloadName);
+        // AppDB.insertList(Constant.KEY_APP_DOWNLOAD_LIST, download, index: 0, check: (oldValue, newValue) {
+        //   return oldValue.package == newValue.package && oldValue.id.toString() == newValue.id.toString();
+        // });
+
+        var task2 = await addDownload(download.url ?? "", fileName: downloadName);
+        task2?.status.addListener(() {
+          statusChange(task2);
+        });
 
         print('>>>>>>>>>下载失败的替换掉>>>>>>>>>>>>>>');
       } else {
@@ -90,9 +116,13 @@ class DownloadController extends GetxController {
     }
   }
 
-  Future<void> addDownload(String url, {String? fileName}) async {
+  void statusChange(DownloadTask? task) {
+    print("下载完成:${task?.request.fileName} ${task?.request} ${task?.status.value.name} ${task?.request.url}");
+  }
+
+  Future<DownloadTask?> addDownload(String url, {String? fileName}) async {
     if (downloadManager.getDownload(url) == null) {
-      downloadManager.addDownload(url, fileRoot!, fileName: fileName);
+      return downloadManager.addDownload(url, fileRoot!, fileName: fileName);
     }
   }
 

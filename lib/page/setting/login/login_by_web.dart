@@ -4,16 +4,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/api/music_api.dart';
-import 'package:mix_music/entity/plugins_info.dart';
-import 'package:mix_music/page/setting/user_controller.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/api/music_api.dart';
+import 'package:mix_music/common/entity/plugins_info.dart';
+import 'package:mix_music/page/setting/login/user_controller.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/widgets/message.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginByWebPage extends StatefulWidget {
-  const LoginByWebPage({super.key});
+  const LoginByWebPage({super.key, required this.plugins});
+
+  final PluginsInfo plugins;
 
   @override
   State<LoginByWebPage> createState() => _LoginByWebPageState();
@@ -33,12 +35,13 @@ class _LoginByWebPageState extends State<LoginByWebPage> {
 
   InAppWebViewController? webViewController;
   InAppWebViewSettings settings = InAppWebViewSettings(
-      isInspectable: kDebugMode,
-      mediaPlaybackRequiresUserGesture: false,
-      allowsInlineMediaPlayback: true,
-      iframeAllow: "camera; microphone",
-      iframeAllowFullscreen: true,
-      userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0");
+    isInspectable: kDebugMode,
+    mediaPlaybackRequiresUserGesture: false,
+    allowsInlineMediaPlayback: true,
+    iframeAllow: "camera; microphone",
+    iframeAllowFullscreen: true,
+    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0",
+  );
 
   late ContextMenu contextMenu;
   String url = "";
@@ -52,37 +55,39 @@ class _LoginByWebPageState extends State<LoginByWebPage> {
   void initState() {
     super.initState();
 
-    plugin = Get.arguments;
+    plugin = widget.plugins;
 
     api = ApiFactory.api(package: plugin?.package ?? "");
 
     contextMenu = ContextMenu(
-        menuItems: [
-          ContextMenuItem(
-              id: 1,
-              title: "Special",
-              action: () async {
-                // print("Menu item Special clicked!");
-                // print(await webViewController?.getSelectedText());
-                await webViewController?.clearFocus();
-              })
-        ],
-        settings: ContextMenuSettings(hideDefaultSystemContextMenuItems: false),
-        onCreateContextMenu: (hitTestResult) async {
-          // print("onCreateContextMenu");
-          // print(hitTestResult.extra);
-          // print(await webViewController?.getSelectedText());
-        },
-        onHideContextMenu: () {
-          // print("onHideContextMenu");
-        },
-        onContextMenuActionItemClicked: (contextMenuItemClicked) async {
-          var id = contextMenuItemClicked.id;
-          // print("onContextMenuActionItemClicked: " +
-          //     id.toString() +
-          //     " " +
-          //     contextMenuItemClicked.title);
-        });
+      menuItems: [
+        ContextMenuItem(
+          id: 1,
+          title: "Special",
+          action: () async {
+            // print("Menu item Special clicked!");
+            // print(await webViewController?.getSelectedText());
+            await webViewController?.clearFocus();
+          },
+        ),
+      ],
+      settings: ContextMenuSettings(hideDefaultSystemContextMenuItems: false),
+      onCreateContextMenu: (hitTestResult) async {
+        // print("onCreateContextMenu");
+        // print(hitTestResult.extra);
+        // print(await webViewController?.getSelectedText());
+      },
+      onHideContextMenu: () {
+        // print("onHideContextMenu");
+      },
+      onContextMenuActionItemClicked: (contextMenuItemClicked) async {
+        var id = contextMenuItemClicked.id;
+        // print("onContextMenuActionItemClicked: " +
+        //     id.toString() +
+        //     " " +
+        //     contextMenuItemClicked.title);
+      },
+    );
     webInit.stream.listen((v) {
       api?.getWebLoginUrl().then((v) {
         myUrl.value = v;
@@ -125,46 +130,47 @@ class _LoginByWebPageState extends State<LoginByWebPage> {
               webViewController?.reload();
             },
           ),
-          Obx(() => Badge(
-                // label: Text("5"),
-                isLabelVisible: myCookie.value?.isNotEmpty == true,
-                child: IconButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          var temp = myCookie.value ?? "";
+          Obx(
+            () => Badge(
+              // label: Text("5"),
+              isLabelVisible: myCookie.value?.isNotEmpty == true,
+              child: IconButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      var temp = myCookie.value ?? "";
 
-                          return AlertDialog(
-                            title: const Text('当前Cookie'),
-                            content: SingleChildScrollView(
-                              child: Text(temp),
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                child: const Text('保存校验'),
-                                onPressed: () {
-                                  api?.setCookie(cookie: temp);
-                                  userController.getAllUser();
-                                  api?.userInfo().then((v) {
-                                    var user = v.data;
-                                    showInfo("${user?.name ?? ""} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "非VIP"}");
-                                  });
-                                },
-                              ),
-                              TextButton(
-                                child: const Text('关闭'),
-                                onPressed: () {
-                                  Navigator.of(context).pop(); // 关闭对话框
-                                },
-                              ),
-                            ],
-                          );
-                        },
+                      return AlertDialog(
+                        title: const Text('当前Cookie'),
+                        content: SingleChildScrollView(child: Text(temp)),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text('保存校验'),
+                            onPressed: () {
+                              api?.setCookie(cookie: temp);
+                              userController.getAllUser();
+                              api?.userInfo().then((v) {
+                                var user = v.data;
+                                showInfo("${user?.name ?? ""} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "非VIP"}");
+                              });
+                            },
+                          ),
+                          TextButton(
+                            child: const Text('关闭'),
+                            onPressed: () {
+                              Navigator.of(context).pop(); // 关闭对话框
+                            },
+                          ),
+                        ],
                       );
                     },
-                    icon: Icon(Icons.cookie)),
-              )),
+                  );
+                },
+                icon: Icon(Icons.cookie),
+              ),
+            ),
+          ),
         ],
       ),
       body: SafeArea(
@@ -200,9 +206,7 @@ class _LoginByWebPageState extends State<LoginByWebPage> {
                 if (!["http", "https", "file", "chrome", "data", "javascript", "about"].contains(uri.scheme)) {
                   if (await canLaunchUrl(uri)) {
                     // Launch the App
-                    await launchUrl(
-                      uri,
-                    );
+                    await launchUrl(uri);
                     // and cancel the request
                     return NavigationActionPolicy.CANCEL;
                   }

@@ -55,7 +55,7 @@ final lightTheme = ThemeData(
       fontSize: 20,
     ),
   ),
-  tabBarTheme: TabBarTheme(
+  tabBarTheme: TabBarThemeData(
     dividerHeight: 0,
     tabAlignment: TabAlignment.start,
     indicator: BoxDecoration(
@@ -124,7 +124,7 @@ final darkTheme = ThemeData(
       fontSize: 20,
     ),
   ),
-  tabBarTheme: TabBarTheme(
+  tabBarTheme: TabBarThemeData(
     dividerHeight: 0,
     tabAlignment: TabAlignment.start,
     indicator: BoxDecoration(

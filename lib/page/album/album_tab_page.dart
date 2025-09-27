@@ -4,11 +4,11 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/entity/mix_album.dart';
-import 'package:mix_music/entity/mix_album_type.dart';
-import 'package:mix_music/entity/page_entity.dart';
-import 'package:mix_music/entity/plugins_info.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/mix_album.dart';
+import 'package:mix_music/common/entity/mix_album_type.dart';
+import 'package:mix_music/common/entity/page_entity.dart';
+import 'package:mix_music/common/entity/plugins_info.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
@@ -73,7 +73,7 @@ class _AlbumTabPageState extends State<AlbumTabPage> with AutomaticKeepAliveClie
                       title: Text("${item.title}", maxLines: 1),
                       subtitle: Text("${item.subTitle}", maxLines: 1),
                       onTap: () {
-                        Get.toNamed(Routes.albumDetail, arguments: item);
+                         Get.toNamed(id: Routes.key,Routes.albumDetail, arguments: item);
                       },
                     );
                   },

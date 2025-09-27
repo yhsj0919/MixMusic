@@ -3,14 +3,21 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  audioplayers_windows
-  dynamic_color
+  audio_service_win
+  flutter_acrylic
+  flutter_inappwebview_windows
   flutter_js
+  media_kit_libs_windows_video
+  media_kit_video
   permission_handler_windows
+  screen_retriever_windows
+  url_launcher_windows
+  vclibs
+  volume_controller
+  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
-  smtc_windows
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

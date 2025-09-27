@@ -10,13 +10,15 @@
 
 ```https://distributor.leanflutter.dev```
 
+```flutter build apk --release --split-per-abi```
+
 ### 工具安装
 
-```dart pub global activate flutter_distributor```
+```dart pub global activate fastforge```
 
 ### Windows单纯打包
 
-```flutter_distributor package --platform windows --targets exe  --skip-clean```
+```fastforge package --platform windows --targets exe  --skip-clean```
 
 ## 说明
 
@@ -129,6 +131,7 @@ await md5(data)  //返回32位字符串
 //其他音质不参与播放音质选择
 //全景声             1100
 //高清/超清          1200
+//杜比               1300
 //其他类似音质        1000-2000
 
 

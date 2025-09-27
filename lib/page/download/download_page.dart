@@ -4,10 +4,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/download_manager/download_status.dart';
-import 'package:mix_music/api/download_manager/download_task.dart';
+import 'package:mix_music/common/api/download_manager/download_status.dart';
+import 'package:mix_music/common/api/download_manager/download_task.dart';
 import 'package:mix_music/page/download/download_controller.dart';
 import 'package:mix_music/widgets/app_image.dart';
+import 'package:mix_music/widgets/ext.dart';
 import 'package:mix_music/widgets/hyper/hyper_background.dart';
 import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/hyper/hyper_leading.dart';
@@ -105,13 +106,32 @@ class ListItem extends StatelessWidget {
   String? title;
   Widget? leading;
 
-  ListItem({Key? key, required this.onDownloadPlayPausedPressed, required this.onDelete, this.downloadTask, this.title, this.leading}) : super(key: key);
+  ListItem(
+      {Key? key,
+      required this.onDownloadPlayPausedPressed,
+      required this.onDelete,
+      this.downloadTask,
+      this.title,
+      this.leading})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    print(downloadTask?.status);
+
     return ListTile(
       leading: leading,
-      title: Text(title ?? "N/A", overflow: TextOverflow.ellipsis),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(title ?? "N/A", overflow: TextOverflow.ellipsis),
+          Gap(8),
+          downloadTask?.status.value == DownloadStatus.failed
+              ? Icon(Icons.error_outline, size: 20, color: Colors.red)
+              : Container()
+        ],
+      ),
       subtitle: downloadTask != null && !downloadTask!.status.value.isCompleted
           ? ValueListenableBuilder(
               valueListenable: downloadTask!.progress,
@@ -151,6 +171,11 @@ class ListItem extends StatelessWidget {
                         },
                         icon: const Icon(Icons.delete));
                   case DownloadStatus.failed:
+                    return IconButton(
+                        onPressed: () {
+                          onDelete(downloadTask?.request.url ?? "");
+                        },
+                        icon: const Icon(Icons.delete));
                   case DownloadStatus.canceled:
                     return IconButton(
                         onPressed: () {

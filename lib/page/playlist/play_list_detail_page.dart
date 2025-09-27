@@ -2,27 +2,24 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/entity/mix_play_list.dart';
-import 'package:mix_music/entity/mix_song.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/mix_play_list.dart';
+import 'package:mix_music/common/entity/mix_song.dart';
+import 'package:mix_music/common/entity/page_entity.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
-import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/widgets/app_image.dart';
-import 'package:mix_music/widgets/hidable/hidable_widget.dart';
 import 'package:mix_music/widgets/hyper/hyper_loading.dart';
 import 'package:mix_music/widgets/hyper/hyper_song_item.dart';
 import 'package:mix_music/widgets/page_custom_scroll_view.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
-import '../../entity/page_entity.dart';
 import '../../player/music_controller.dart';
 import '../../widgets/message.dart';
 
 class PlayListDetailPage extends StatefulWidget {
-  const PlayListDetailPage({super.key, this.playlist});
+  const PlayListDetailPage({super.key, required this.playlist});
 
-  final MixPlaylist? playlist;
+  final MixPlaylist playlist;
 
   @override
   State<PlayListDetailPage> createState() => _PlayListDetailPageState();
@@ -45,7 +42,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     Future.delayed(const Duration(milliseconds: 100)).then((value) {
       _isVisible.value = true;
     });
-    playlist.value = widget.playlist ?? Get.arguments;
+    playlist.value = widget.playlist;
     refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
 
     Future.delayed(const Duration(milliseconds: 300)).then((value) {
@@ -55,8 +52,6 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final double width = MediaQuery.of(context).size.width;
     return Scaffold(
       floatingActionButton: PlayBar(),
       body: PageCustomScrollView(
@@ -72,37 +67,38 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
             title: Text(playlist.value?.title ?? ""),
             actions: [
               IconButton(
-                  onPressed: () {
-                    showDialog(
-                      useRootNavigator: false,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('关于'),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              AppImage(url: playlist.value?.pic ?? "", width: 260, height: 260),
-                              Gap(16),
-                              Text(playlist.value?.desc ?? ""),
-                            ],
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0), // 设置圆角的大小
-                          ),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop(); // 关闭对话框
-                              },
-                              child: const Text('关闭'),
-                            ),
+                onPressed: () {
+                  showDialog(
+                    useRootNavigator: false,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('关于'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AppImage(url: playlist.value?.pic ?? "", width: 260, height: 260),
+                            Gap(16),
+                            Text(playlist.value?.desc ?? ""),
                           ],
-                        );
-                      },
-                    );
-                  },
-                  icon: const Icon(Icons.info_outline_rounded))
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0), // 设置圆角的大小
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // 关闭对话框
+                            },
+                            child: const Text('关闭'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                icon: const Icon(Icons.info_outline_rounded),
+              ),
             ],
           ),
           PinnedHeaderSliver(
@@ -124,26 +120,25 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
           ),
           Obx(
             () => SliverAnimatedSwitcher(
-                duration: const Duration(milliseconds: 600),
-                child: firstLoad.value
-                    ? const SliverToBoxAdapter(
-                        child: HyperLoading(height: 400),
-                      )
-                    : SliverList.builder(
-                        // physics: const NeverScrollableScrollPhysics(),
-                        // shrinkWrap: true,
-                        // padding: const EdgeInsets.only(top: 0),
-                        itemCount: songList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          var song = songList[index];
-                          return HyperSongItem(
-                            song: song,
-                            onTap: () {
-                              music.playList(list: songList, index: index);
-                            },
-                          );
-                        },
-                      )),
+              duration: const Duration(milliseconds: 600),
+              child: firstLoad.value
+                  ? const SliverToBoxAdapter(child: HyperLoading(height: 400))
+                  : SliverList.builder(
+                      // physics: const NeverScrollableScrollPhysics(),
+                      // shrinkWrap: true,
+                      // padding: const EdgeInsets.only(top: 0),
+                      itemCount: songList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        var song = songList[index];
+                        return HyperSongItem(
+                          song: song,
+                          onTap: () {
+                            music.playList(list: songList, index: index);
+                          },
+                        );
+                      },
+                    ),
+            ),
           ),
         ],
       ),
@@ -152,28 +147,31 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
 
   ///获取歌单
   void getPlayListInfo({int page = 0}) {
-    ApiFactory.api(package: playlist.value?.package ?? "")?.playListInfo(playlist: playlist.value!, page: page, size: 20).then((value) {
-      _showData.value = true;
-      firstLoad.value = false;
-      pageEntity.value = value.page;
-      if (page == 0) {
-        songList.clear();
-        refreshController.finishRefresh();
-      }
-      Future.delayed(Duration(milliseconds: 200)).then((v) {
-        refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
-      });
-      songList.addAll(value.data?.songs ?? []);
+    ApiFactory.api(package: playlist.value?.package ?? "")
+        ?.playListInfo(playlist: playlist.value!, page: page, size: 20)
+        .then((value) {
+          _showData.value = true;
+          firstLoad.value = false;
+          pageEntity.value = value.page;
+          if (page == 0) {
+            songList.clear();
+            refreshController.finishRefresh();
+          }
+          Future.delayed(Duration(milliseconds: 200)).then((v) {
+            refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
+          });
+          songList.addAll(value.data?.songs ?? []);
 
-      // showComplete("操作成功");
-    }).catchError((e) {
-      firstLoad.value = false;
-      if (page == 0) {
-        refreshController.finishRefresh(IndicatorResult.fail, true);
-      } else {
-        refreshController.finishLoad(IndicatorResult.fail, true);
-      }
-      showError(e);
-    });
+          // showComplete("操作成功");
+        })
+        .catchError((e) {
+          firstLoad.value = false;
+          if (page == 0) {
+            refreshController.finishRefresh(IndicatorResult.fail, true);
+          } else {
+            refreshController.finishLoad(IndicatorResult.fail, true);
+          }
+          showError(e);
+        });
   }
 }

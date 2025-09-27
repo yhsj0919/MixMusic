@@ -4,11 +4,11 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/entity/mix_play_list.dart';
-import 'package:mix_music/entity/mix_play_list_type.dart';
-import 'package:mix_music/entity/page_entity.dart';
-import 'package:mix_music/entity/plugins_info.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/mix_play_list.dart';
+import 'package:mix_music/common/entity/mix_play_list_type.dart';
+import 'package:mix_music/common/entity/page_entity.dart';
+import 'package:mix_music/common/entity/plugins_info.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
@@ -42,8 +42,10 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
     super.initState();
     widget.controller._addState(widget.plugin.package ?? "", this);
     refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
-    Future.delayed(const Duration(milliseconds: 300)).then((v) {
+    Future.delayed(const Duration(milliseconds: 100)).then((v) {
       getPlayList();
+    });
+    Future.delayed(const Duration(milliseconds: 300)).then((v) {
       getPlayListType();
     });
   }
@@ -73,7 +75,7 @@ class _PlayListTabPageState extends State<PlayListTabPage> with AutomaticKeepAli
                       title: Text("${item.title}", maxLines: 1),
                       subtitle: Text("${item.subTitle}", maxLines: 1),
                       onTap: () {
-                        Get.toNamed(Routes.playListDetail, arguments: item);
+                         Get.toNamed(id: Routes.key,Routes.playListDetail, arguments: item);
                       },
                     );
                   },

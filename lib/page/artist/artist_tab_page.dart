@@ -4,11 +4,11 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/entity/mix_artist.dart';
-import 'package:mix_music/entity/mix_artist_type.dart';
-import 'package:mix_music/entity/page_entity.dart';
-import 'package:mix_music/entity/plugins_info.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/mix_artist.dart';
+import 'package:mix_music/common/entity/mix_artist_type.dart';
+import 'package:mix_music/common/entity/page_entity.dart';
+import 'package:mix_music/common/entity/plugins_info.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
 import 'package:mix_music/widgets/app_image.dart';
@@ -71,11 +71,14 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
                   var item = artistList[index];
                   return ListTile(
                     minTileHeight: 64,
-                    leading: Hero(tag: "${item.package}${item.id}${item.pic}", child: AppImage(url: item.pic ?? "")),
+                    leading: Hero(
+                      tag: "${item.package}${item.id}${item.pic}",
+                      child: AppImage(url: item.pic ?? ""),
+                    ),
                     title: Text("${item.title}", maxLines: 1),
                     // subtitle: const Text("", maxLines: 1),
                     onTap: () {
-                      Get.toNamed(Routes.artistDetail, arguments: item);
+                      Get.toNamed(id: Routes.key, Routes.artistDetail, arguments: item);
                     },
                   );
                 },
@@ -86,38 +89,44 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
 
   ///获取歌单
   void getPlayList({Map<String, dynamic>? type, int page = 0}) {
-    ApiFactory.api(package: widget.plugin.package!)?.artistList(type: type, page: page, size: 20).then((value) {
-      firstLoad.value = false;
-      pageEntity.value = value.page;
-      if (page == 0) {
-        artistList.clear();
-        refreshController.finishRefresh();
-      }
-      Future.delayed(Duration(milliseconds: 200)).then((v) {
-        refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
-      });
+    ApiFactory.api(package: widget.plugin.package!)
+        ?.artistList(type: type, page: page, size: 20)
+        .then((value) {
+          firstLoad.value = false;
+          pageEntity.value = value.page;
+          if (page == 0) {
+            artistList.clear();
+            refreshController.finishRefresh();
+          }
+          Future.delayed(Duration(milliseconds: 200)).then((v) {
+            refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
+          });
 
-      artistList.addAll(value.data ?? []);
-      // showComplete("操作成功");
-    }).catchError((e) {
-      firstLoad.value = false;
-      if (page == 0) {
-        refreshController.finishRefresh(IndicatorResult.fail, true);
-      } else {
-        refreshController.finishLoad(IndicatorResult.fail, true);
-      }
-      showError(e);
-    });
+          artistList.addAll(value.data ?? []);
+          // showComplete("操作成功");
+        })
+        .catchError((e) {
+          firstLoad.value = false;
+          if (page == 0) {
+            refreshController.finishRefresh(IndicatorResult.fail, true);
+          } else {
+            refreshController.finishLoad(IndicatorResult.fail, true);
+          }
+          showError(e);
+        });
   }
 
   ///获取歌单类型
   void getPlayListType() {
-    ApiFactory.api(package: widget.plugin.package!)?.artistType().then((value) {
-      artistType.clear();
-      artistType.addAll(value.data ?? []);
-    }).catchError((e) {
-      showError(e);
-    });
+    ApiFactory.api(package: widget.plugin.package!)
+        ?.artistType()
+        .then((value) {
+          artistType.clear();
+          artistType.addAll(value.data ?? []);
+        })
+        .catchError((e) {
+          showError(e);
+        });
   }
 
   void open() {
@@ -125,22 +134,23 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
       getPlayListType();
     }
     showModalBottomSheet(
-        context: context,
-        showDragHandle: true,
-        useSafeArea: true,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0), // 设置圆角的大小
-        ),
-        scrollControlDisabledMaxHeightRatio: 3 / 4,
-        builder: (BuildContext context) {
-          return ListView.builder(
-            // shrinkWrap: true,
-            itemCount: artistType.length,
-            itemBuilder: (BuildContext context, int index) {
-              return buildItem(artistType[index]);
-            },
-          );
-        }).then((value) {});
+      context: context,
+      showDragHandle: true,
+      useSafeArea: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.0), // 设置圆角的大小
+      ),
+      scrollControlDisabledMaxHeightRatio: 3 / 4,
+      builder: (BuildContext context) {
+        return ListView.builder(
+          // shrinkWrap: true,
+          itemCount: artistType.length,
+          itemBuilder: (BuildContext context, int index) {
+            return buildItem(artistType[index]);
+          },
+        );
+      },
+    ).then((value) {});
   }
 
   Widget buildItem(MixArtistType type) {
@@ -155,18 +165,21 @@ class _ArtistTabPageState extends State<ArtistTabPage> with AutomaticKeepAliveCl
             alignment: WrapAlignment.start,
             spacing: 8,
             runSpacing: 8,
-            children: type.subType
-                    ?.map((e) => ActionChip(
-                          backgroundColor: currentType[type.id] == e.id ? Theme.of(context).colorScheme.primary.withOpacity(0.5) : null,
-                          label: Text(e.title ?? ""),
-                          onPressed: () {
-                            currentType[type.id] = e.id;
+            children:
+                type.subType
+                    ?.map(
+                      (e) => ActionChip(
+                        backgroundColor: currentType[type.id] == e.id ? Theme.of(context).colorScheme.primary.withOpacity(0.5) : null,
+                        label: Text(e.title ?? ""),
+                        onPressed: () {
+                          currentType[type.id] = e.id;
 
-                            getPlayList(type: currentType);
+                          getPlayList(type: currentType);
 
-                            Navigator.of(context).pop();
-                          },
-                        ))
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    )
                     .toList() ??
                 [],
           ),

@@ -1,9 +1,9 @@
 import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/entity/mix_download.dart';
-import 'package:mix_music/entity/mix_quality.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/mix_download.dart';
+import 'package:mix_music/common/entity/mix_quality.dart';
 import 'package:mix_music/page/download/download_controller.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/widgets/message.dart';

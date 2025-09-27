@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:smtc_windows/smtc_windows.dart';
 
 import 'just_audio_background.dart';
 

@@ -5,9 +5,9 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:mix_music/api/api_factory.dart';
+import 'package:mix_music/common/api/api_factory.dart';
 import 'package:mix_music/constant.dart';
-import 'package:mix_music/utils/sp.dart';
+import 'package:mix_music/utils/db.dart';
 import 'package:mix_music/widgets/message.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -190,7 +190,7 @@ class _PermissionPageState extends State<PermissionPage> {
                 onPressed: storageStatus.value && manageStatus.value && dirExists.value
                     ? () {
                         ApiFactory.init();
-                        Sp.setBool(Constant.KEY_FIRST_IN, false);
+                        AppDB.setBool(Constant.KEY_FIRST_IN, false);
                         Get.offAndToNamed(Routes.main);
                       }
                     : null,

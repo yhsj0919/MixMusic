@@ -2,12 +2,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/constant.dart';
-import 'package:mix_music/entity/plugins_info.dart';
-import 'package:mix_music/utils/sp.dart';
+import 'package:mix_music/common/entity/plugins_info.dart';
+import 'package:mix_music/utils/db.dart';
+import 'package:mix_music/utils/db.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class ThemeController extends GetxController {
   Rxn<Color> customerColor = Rxn();
   Rxn<Brightness> themeBrightness = Rxn();
+  Rx<fluent.ThemeMode> themeMode = Rx(fluent.ThemeMode.system);
   Rxn<Color> playingColor = Rxn();
   Rxn<Color> mainColor = Rxn();
   final RxMap<String, Color> _pluginColors = RxMap();
@@ -30,8 +33,8 @@ class ThemeController extends GetxController {
   }
 
   Future<void> refreshMainColor() async {
-    List<PluginsInfo> plugins = Sp.getList(Constant.KEY_EXTENSION) ?? [];
-    var package = Sp.getString(Constant.KEY_HOME_SITE) ?? plugins.firstOrNull?.package;
+    List<PluginsInfo> plugins = await AppDB.getList(Constant.KEY_EXTENSION);
+    var package = AppDB.getString(Constant.KEY_HOME_SITE) ?? plugins.firstOrNull?.package;
 
     plugins.forEach((item) async {
       if (item.icon != null) {

@@ -2,11 +2,11 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/entity/mix_play_list_type.dart';
-import 'package:mix_music/entity/mix_song.dart';
-import 'package:mix_music/entity/page_entity.dart';
-import 'package:mix_music/entity/plugins_info.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/mix_play_list_type.dart';
+import 'package:mix_music/common/entity/mix_song.dart';
+import 'package:mix_music/common/entity/page_entity.dart';
+import 'package:mix_music/common/entity/plugins_info.dart';
 import 'package:mix_music/player/music_controller.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/SubordinateScrollController.dart';
@@ -53,56 +53,60 @@ class _RecommendTabPageState extends State<RecommendTabPage> with AutomaticKeepA
     super.build(context);
     return Obx(
       () => AnimatedSwitcher(
-          duration: const Duration(milliseconds: 600),
-          child: firstLoad.value
-              ? const HyperLoading()
-              : PageListView(
-                  controller: refreshController,
-                  onRefresh: () {
-                    return getPlayList();
-                  },
-                  onLoad: () {
-                    return getPlayList(page: pageEntity.value?.page ?? 0);
-                  },
-                  scrollController: SubordinateScrollController(context.findAncestorStateOfType<ExtendedNestedScrollViewState>()!.innerController),
-                  itemCount: songList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    var item = songList[index];
-                    return HyperSongItem(
-                      song: item,
-                      onTap: () {
-                        music.playList(list: songList, index: index);
-                      },
-                    );
-                  },
-                )),
+        duration: const Duration(milliseconds: 600),
+        child: firstLoad.value
+            ? const HyperLoading()
+            : PageListView(
+                controller: refreshController,
+                onRefresh: () {
+                  return getPlayList();
+                },
+                onLoad: () {
+                  return getPlayList(page: pageEntity.value?.page ?? 0);
+                },
+                scrollController: SubordinateScrollController(context.findAncestorStateOfType<ExtendedNestedScrollViewState>()!.innerController),
+                itemCount: songList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  var item = songList[index];
+                  return HyperSongItem(
+                    song: item,
+                    onTap: () {
+                      music.playList(list: songList, index: index);
+                    },
+                  );
+                },
+              ),
+      ),
     );
   }
 
   ///获取歌单
   void getPlayList({int page = 0}) {
-    ApiFactory.api(package: widget.plugin.package!)?.recommendInfo(page: page, size: 20).then((value) {
-      firstLoad.value = false;
-      pageEntity.value = value.page;
-      if (page == 0) {
-        songList.clear();
-        refreshController.finishRefresh();
-      }
-      Future.delayed(Duration(milliseconds: 200)).then((v) {
-        refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
-      });
-      songList.addAll(value.data?.songs ?? []);
+    ApiFactory.api(package: widget.plugin.package!)
+        ?.recommendInfo(page: page, size: 20)
+        .then((value) {
+          firstLoad.value = false;
+          pageEntity.value = value.page;
+          if (page == 0) {
+            songList.clear();
+            refreshController.finishRefresh();
+          }
+          Future.delayed(Duration(milliseconds: 200)).then((v) {
+            refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
+          });
+          songList.addAll(value.data?.songs ?? []);
 
-      // showComplete("操作成功");
-    }).catchError((e) {
-      firstLoad.value = false;
-      if (page == 0) {
-        refreshController.finishRefresh(IndicatorResult.fail, true);
-      } else {
-        refreshController.finishLoad(IndicatorResult.fail, true);
-      }
-      showError(e);
-    });
+          // showComplete("操作成功");
+        })
+        .catchError((e) {
+          firstLoad.value = false;
+          if (page == 0) {
+            refreshController.finishRefresh(IndicatorResult.fail, true);
+          } else {
+            refreshController.finishLoad(IndicatorResult.fail, true);
+          }
+          showError("可能没有登录");
+        });
   }
 
   @override

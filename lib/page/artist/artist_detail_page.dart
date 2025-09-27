@@ -4,9 +4,9 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/entity/mix_artist.dart';
-import 'package:mix_music/entity/mix_song.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/mix_artist.dart';
+import 'package:mix_music/common/entity/mix_song.dart';
 import 'package:mix_music/page/app_playing/play_bar.dart';
 import 'package:mix_music/page/artist/artist_detail_album.dart';
 import 'package:mix_music/page/artist/artist_detail_song.dart';
@@ -14,11 +14,13 @@ import 'package:mix_music/widgets/BlurRectWidget.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
 
-import '../../entity/page_entity.dart';
+import 'package:mix_music/common/entity/page_entity.dart';
 import '../../player/music_controller.dart';
 
 class ArtistDetailPage extends StatefulWidget {
-  const ArtistDetailPage({super.key});
+  const ArtistDetailPage({super.key, required this.artist});
+
+  final MixArtist artist;
 
   @override
   State<ArtistDetailPage> createState() => _ArtistDetailPageState();
@@ -43,7 +45,7 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
       _isVisible.value = true;
     });
 
-    artist.value = Get.arguments;
+    artist.value = widget.artist;
 
     detailMethod.addAll(ApiFactory.getArtistMethod(artist.value?.package));
 
@@ -68,30 +70,31 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
               title: Text(artist.value?.title ?? ""),
               actions: [
                 IconButton(
-                    onPressed: () {
-                      showDialog(
-                        useRootNavigator: false,
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('关于'),
-                            content: Text(artist.value?.desc ?? ""),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0), // 设置圆角的大小
+                  onPressed: () {
+                    showDialog(
+                      useRootNavigator: false,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('关于'),
+                          content: Text(artist.value?.desc ?? ""),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0), // 设置圆角的大小
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // 关闭对话框
+                              },
+                              child: const Text('关闭'),
                             ),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(); // 关闭对话框
-                                },
-                                child: const Text('关闭'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    icon: const Icon(Icons.info_outline_rounded))
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.info_outline_rounded),
+                ),
               ],
             ),
             PinnedHeaderSliver(
@@ -126,9 +129,7 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
         },
         onlyOneScrollInBody: true,
         // physics: NeverScrollableScrollPhysics(),
-        body: Column(
-          children: <Widget>[Expanded(child: _buildTabBarView())],
-        ),
+        body: Column(children: <Widget>[Expanded(child: _buildTabBarView())]),
       ),
     );
   }
@@ -177,11 +178,7 @@ class _ArtistDetailPageState extends State<ArtistDetailPage> with TickerProvider
 }
 
 class _SliverDelegate extends SliverPersistentHeaderDelegate {
-  _SliverDelegate({
-    required this.minHeight,
-    required this.maxHeight,
-    required this.child,
-  });
+  _SliverDelegate({required this.minHeight, required this.maxHeight, required this.child});
 
   final double minHeight; //最小高度
   final double maxHeight; //最大高度

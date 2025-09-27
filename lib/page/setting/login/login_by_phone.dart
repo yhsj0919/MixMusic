@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/api/api_factory.dart';
-import 'package:mix_music/api/music_api.dart';
-import 'package:mix_music/entity/plugins_info.dart';
-import 'package:mix_music/page/setting/user_controller.dart';
+import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/api/music_api.dart';
+import 'package:mix_music/common/entity/plugins_info.dart';
+import 'package:mix_music/page/setting/login/user_controller.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
 import 'package:mix_music/widgets/hyper/hyper_background_color.dart';
@@ -14,8 +14,9 @@ import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/message.dart';
 
 class LoginByPhonePage extends StatefulWidget {
-  const LoginByPhonePage({super.key});
+  const LoginByPhonePage({super.key, required this.plugins});
 
+  final PluginsInfo plugins;
   @override
   State<LoginByPhonePage> createState() => _LoginByPhonePageState();
 }
@@ -37,7 +38,7 @@ class _LoginByPhonePageState extends State<LoginByPhonePage> {
   @override
   void initState() {
     super.initState();
-    plugin = Get.arguments;
+    plugin = widget.plugins;
 
     api = ApiFactory.api(package: plugin?.package ?? "");
   }

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/page/app_playing/phone_home_playing.dart';
 import 'package:mix_music/route/routes.dart';
-import 'package:mix_music/widgets/message.dart';
 
 class MobileHomeMain extends StatefulWidget {
   const MobileHomeMain({super.key});

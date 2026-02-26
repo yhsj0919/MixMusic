@@ -107,8 +107,13 @@ class _DesktopSearchPageState extends State<DesktopSearchPage> with TickerProvid
             var type = currentType.value["type"];
             return Tab(
               text: Text(plugin.name ?? ""),
-              selectedBackgroundColor: WidgetStateProperty.all((FluentTheme.of(context).brightness == Brightness.light ? Colors.black : Colors.white).withValues(alpha: 0.1)),
-              icon: AppImage(url: plugin.icon ?? "", width: 16, height: 16),
+     // selectedBackgroundColor: WidgetStateColor.resolveWith(
+     //          (a) =>
+     //              (FluentTheme.of(context).brightness == Brightness.light
+     //                      ? Colors.black
+     //                      : Colors.white)
+     //                  .withValues(alpha: 0.1),
+     //        ),              icon: AppImage(url: plugin.icon ?? "", width: 16, height: 16),
               body: type == "music"
                   ? DesktopSearchMusicPage(plugin: plugin, controller: searchController)
                   : type == "album"
@@ -129,7 +134,7 @@ class _DesktopSearchPageState extends State<DesktopSearchPage> with TickerProvid
           showScrollButtons: true,
           footer: Container(
             padding: EdgeInsets.symmetric(horizontal: 24),
-            child: material.ToggleButtons(
+            child: supportType.isEmpty?Container():material.ToggleButtons(
               isSelected: isSelected,
               constraints: BoxConstraints(minWidth: 30, minHeight: 30),
               borderRadius: BorderRadius.all(Radius.circular(6)),

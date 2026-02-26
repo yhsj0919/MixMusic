@@ -34,8 +34,13 @@ class _DesktopRankPageState extends State<DesktopRankPage> with TickerProviderSt
         tabs: plugins.map((plugin) {
           return Tab(
             text: Text(plugin.name ?? ""),
-            selectedBackgroundColor: WidgetStateProperty.all((FluentTheme.of(context).brightness == Brightness.light ? Colors.black : Colors.white).withValues(alpha: 0.1)),
-            icon: AppImage(url: plugin.icon ?? "", width: 16, height: 16),
+   selectedBackgroundColor: WidgetStateColor.resolveWith(
+              (a) =>
+                  (FluentTheme.of(context).brightness == Brightness.light
+                          ? Colors.black
+                          : Colors.white)
+                      .withValues(alpha: 0.1),
+            ),            icon: AppImage(url: plugin.icon ?? "", width: 16, height: 16),
             body: DesktopRankTabPage(plugin: plugin, controller: controller),
           );
         }).toList(),

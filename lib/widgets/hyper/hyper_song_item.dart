@@ -43,7 +43,7 @@ class HyperSongItem extends StatelessWidget {
               song.mv != null
                   ? IconButton(
                       onPressed: () {
-                         Get.toNamed(id: Routes.key,Routes.mvDetail, arguments: song.mv);
+                         Get.toNamed(Routes.mvDetail, arguments: song.mv);
                       },
                       icon: Icon(Icons.music_video))
                   : Container(),

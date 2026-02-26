@@ -47,86 +47,84 @@ class _LoginListPageState extends State<LoginListPage> {
 
     return Scaffold(
       body: HyperBackground(
-          child: CustomScrollView(
-        slivers: [
-          SliverAppBar.large(title: Text("站点登录")),
-          Obx(
-            () => SliverList.separated(
-              itemCount: plugins.length,
-              itemBuilder: (BuildContext context, int index) {
-                var plugin = plugins[index];
-                var user = userController.userInfos[plugin.package ?? ""];
-                var detailMethod = ApiFactory.getLoginMethod(plugin.package ?? "") ?? [];
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar.large(title: Text("站点登录")),
+            Obx(
+              () => SliverList.separated(
+                itemCount: plugins.length,
+                itemBuilder: (BuildContext context, int index) {
+                  var plugin = plugins[index];
+                  var user = userController.userInfos[plugin.package ?? ""];
+                  var detailMethod = ApiFactory.getLoginMethod(plugin.package ?? "") ?? [];
 
-                return HyperGroup(
-                  inSliver: false,
-                  children: [
-                    ListTile(
-                      leading: HyperLeading(
-                        size: 40,
-                        child: AppImage(url: "${plugin.icon}"),
+                  return HyperGroup(
+                    inSliver: false,
+                    children: [
+                      ListTile(
+                        leading: HyperLeading(size: 40, child: AppImage(url: "${plugin.icon}")),
+                        title: Text("${plugin.name}"),
+                        subtitle: Text("${user?.name ?? "未知"} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "普通用户"} ${user?.vipEndTime??""}", maxLines: 1),
                       ),
-                      title: Text("${plugin.name}"),
-                      subtitle: Text(
-                        user?.login == 1 ? "${user?.name ?? "未知"} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "普通用户"} ${user?.vipEndTime}" : "未登录",
-                        maxLines: 1,
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Row(
-                        children: [
-                          ...detailMethod.map((element) {
-                            if (element == "cookie") {
-                              return IconButton(
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Row(
+                          children: [
+                            ...detailMethod.map((element) {
+                              if (element == "cookie") {
+                                return IconButton(
                                   onPressed: () {
-                                     Get.toNamed(id: Routes.key,Routes.loginByCookie, arguments: plugin)?.then((v) {
+                                    Get.toNamed(id: Routes.key, Routes.loginByCookie, arguments: plugin)?.then((v) {
                                       setState(() {});
                                     });
                                   },
-                                  icon: Icon(Icons.cookie));
-                            }
-                            if (element == "phone") {
-                              return IconButton(
+                                  icon: Icon(Icons.cookie),
+                                );
+                              }
+                              if (element == "phone") {
+                                return IconButton(
                                   onPressed: () {
-                                     Get.toNamed(id: Routes.key,Routes.loginByPhone, arguments: plugin)?.then((v) {
+                                    Get.toNamed(id: Routes.key, Routes.loginByPhone, arguments: plugin)?.then((v) {
                                       setState(() {});
                                     });
                                   },
-                                  icon: Icon(Icons.phone_android));
-                            }
-                            if (element == "user") {
-                              return IconButton(onPressed: () {}, icon: Icon(Icons.person));
-                            }
-                            if (element == "web") {
-                              return IconButton(
+                                  icon: Icon(Icons.phone_android),
+                                );
+                              }
+                              if (element == "user") {
+                                return IconButton(onPressed: () {}, icon: Icon(Icons.person));
+                              }
+                              if (element == "web") {
+                                return IconButton(
                                   onPressed: () {
-                                     Get.toNamed(id: Routes.key,Routes.loginByWeb, arguments: plugin)?.then((v) {
+                                    Get.toNamed(id: Routes.key, Routes.loginByWeb, arguments: plugin)?.then((v) {
                                       setState(() {});
                                     });
                                   },
-                                  icon: Icon(Icons.language_rounded));
-                            }
-                            if (element == "qr") {
-                              return IconButton(onPressed: () {}, icon: Icon(Icons.qr_code));
-                            }
+                                  icon: Icon(Icons.language_rounded),
+                                );
+                              }
+                              if (element == "qr") {
+                                return IconButton(onPressed: () {}, icon: Icon(Icons.qr_code));
+                              }
 
-                            return IconButton(onPressed: () {}, icon: Icon(Icons.error));
-                          }).toList()
-                        ],
+                              return IconButton(onPressed: () {}, icon: Icon(Icons.error));
+                            }).toList(),
+                          ],
+                        ),
                       ),
-                    )
-                  ],
-                );
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return Gap(12);
-              },
+                    ],
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return Gap(12);
+                },
+              ),
             ),
-          ),
-          SliverGap(bottom + 16)
-        ],
-      )),
+            SliverGap(bottom + 16),
+          ],
+        ),
+      ),
     );
   }
 }

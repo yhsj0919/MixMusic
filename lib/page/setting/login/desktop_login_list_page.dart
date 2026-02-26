@@ -73,7 +73,7 @@ class _DesktopLoginListPageState extends State<DesktopLoginListPage> {
                     return FluentListTile(
                       leading: AppImage(url: "${plugin.icon}", width: 30, height: 30),
                       title: "${plugin.name}",
-                      subtitle: user?.login == 1 ? "${user?.name ?? "未知"} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "普通用户"} ${user?.vipEndTime}" : "未登录",
+                      subtitle: "${user?.name ?? "未知"} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "普通用户"} ${user?.vipEndTime ?? ""}",
                       trailing: Row(
                         spacing: 8,
                         children: [

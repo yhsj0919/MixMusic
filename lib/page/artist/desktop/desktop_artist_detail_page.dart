@@ -124,8 +124,13 @@ class _DesktopArtistDetailPageState extends State<DesktopArtistDetailPage> with 
                   ? "MV"
                   : "未知",
             ),
-            selectedBackgroundColor: WidgetStateProperty.all((FluentTheme.of(context).brightness == Brightness.light ? Colors.black : Colors.white).withValues(alpha: 0.1)),
-            icon: Icon(
+            selectedBackgroundColor: WidgetStateColor.resolveWith(
+                  (a) =>
+                  (FluentTheme.of(context).brightness == Brightness.light
+                      ? Colors.black
+                      : Colors.white)
+                      .withValues(alpha: 0.1),
+            ),            icon: Icon(
               element == "song"
                   ? FluentIcons.music_note
                   : element == "album"

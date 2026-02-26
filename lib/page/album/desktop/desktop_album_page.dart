@@ -11,7 +11,8 @@ class DesktopAlbumPage extends StatefulWidget {
   _DesktopAlbumPageState createState() => _DesktopAlbumPageState();
 }
 
-class _DesktopAlbumPageState extends State<DesktopAlbumPage> with TickerProviderStateMixin {
+class _DesktopAlbumPageState extends State<DesktopAlbumPage>
+    with TickerProviderStateMixin {
   AlbumPageController controller = AlbumPageController();
   FlyoutController typeController = FlyoutController();
 
@@ -33,7 +34,13 @@ class _DesktopAlbumPageState extends State<DesktopAlbumPage> with TickerProvider
         tabs: plugins.map((plugin) {
           return Tab(
             text: Text(plugin.name ?? ""),
-            selectedBackgroundColor: WidgetStateProperty.all((FluentTheme.of(context).brightness == Brightness.light ? Colors.black : Colors.white).withValues(alpha: 0.1)),
+            selectedBackgroundColor: WidgetStateColor.resolveWith(
+              (a) =>
+                  (FluentTheme.of(context).brightness == Brightness.light
+                          ? Colors.black
+                          : Colors.white)
+                      .withValues(alpha: 0.1),
+            ),
             icon: AppImage(url: plugin.icon ?? "", width: 16, height: 16),
             body: DesktopAlbumTabPage(plugin: plugin, controller: controller),
           );

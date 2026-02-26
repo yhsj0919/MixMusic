@@ -7,6 +7,7 @@ import 'package:mix_music/common/api/api_factory.dart';
 import 'package:mix_music/common/api/music_api.dart';
 import 'package:mix_music/common/entity/plugins_info.dart';
 import 'package:mix_music/page/setting/login/user_controller.dart';
+import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/widgets/hyper/hyper_background.dart';
 import 'package:mix_music/widgets/hyper/hyper_background_color.dart';
@@ -96,7 +97,7 @@ class _LoginByCookiePageState extends State<LoginByCookiePage> {
                         print(controller.text);
                         api?.setCookie(cookie: controller.text);
                         userController.getAllUser().then((v) {
-                          Get.back();
+                          Get.back(id: Routes.key);
                         });
                       },
                       child: Text("保存"))),

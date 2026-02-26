@@ -25,7 +25,7 @@ class _DesktopPlayingState extends State<DesktopPlaying> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.transparent),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.brightnessOf(context)==Brightness.light?Colors.white:Colors.black,
       body: Stack(
         alignment: Alignment.bottomLeft,
         children: [
@@ -39,8 +39,8 @@ class _DesktopPlayingState extends State<DesktopPlaying> {
                   otherMainSize: 20,
                   defaultExtSize: 22,
                   highlight: false,
-                  // playingMainTextColor: Theme.of(context).colorScheme.onSurface,
-                  // playingOtherMainTextColor: Theme.of(context).colorScheme.onSecondary,
+                  playingMainTextColor: Theme.brightnessOf(context)==Brightness.light?Colors.black:Colors.white,
+                  playingOtherMainTextColor: Theme.brightnessOf(context)==Brightness.light?Colors.black38:Colors.white54,
                 ),
                 model: music.lyricModel.value,
                 playing: true,

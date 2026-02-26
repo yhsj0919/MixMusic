@@ -68,6 +68,7 @@ import 'package:mix_music/page/setting/setting_page.dart';
 
 import '../page/app_music_history/desktop_app_history_music_list.dart';
 import '../page/artist/artist_detail_page.dart';
+import '../page/parse/desktop_parse_play_list.dart';
 import '../page/setting/login/login_list_page.dart';
 import '../page/setting/match/match_site_page.dart';
 import '../page/welcome/welcome_page.dart';
@@ -382,6 +383,10 @@ class Routes {
           GoRoute(
             path: playSetting,
             pageBuilder: (context, state) => FluentTransitionPage(key: state.pageKey, child: DesktopPlaySettingPage()),
+          ),
+          GoRoute(
+            path: parsePlayList,
+            pageBuilder: (context, state) => FluentTransitionPage(key: state.pageKey, child: DesktopParsePlayList()),
           ),
         ],
       ),

@@ -203,13 +203,16 @@ class MusicController extends GetxController {
           // if (music.match == true) {
           //   showComplete('音频来自:${ApiFactory.getPlugin(value.matchSong?.package)?.name ?? "未知"}');
           // }
-          AppDB.setObject(Constant.KEY_APP_CURRENT_MUSIC, music);
-          history.addHistory(music);
-          Player.playMediaItem(music.mediaItem()).catchError((e) {
-            print(e);
-            media.value = null;
-            showError("播放失败");
-          });
+          Player.playMediaItem(music.mediaItem())
+              .then((v) {
+                AppDB.setObject(Constant.KEY_APP_CURRENT_MUSIC, music);
+                history.addHistory(music);
+              })
+              .catchError((e) {
+                print(e);
+                media.value = null;
+                showError("播放失败");
+              });
         } else {
           showError('${music.title} 播放异常，可能无版权');
           Player.stop();

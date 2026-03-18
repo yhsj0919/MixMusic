@@ -1,4 +1,5 @@
 import 'package:dart_json_mapper/dart_json_mapper.dart';
+import 'package:mix_music/common/entity/mix_mv.dart';
 import 'package:mix_music/common/entity/mix_song.dart';
 
 import 'mix_quality.dart';
@@ -35,6 +36,18 @@ class MixDownload {
       pic: song.pic,
       artist: song.artist?.map((e) => e.title).join("、") ?? "",
       album: song.album?.title,
+      quality: quality,
+    );
+  }
+
+  static MixDownload fromMv(MixMv mv, MixQuality? quality) {
+    return MixDownload(
+      package: mv.package,
+      id: mv.id,
+      title: mv.title,
+      pic: mv.pic,
+      artist: mv.artist?.map((e) => e.title).join("、") ?? "",
+      album: null,
       quality: quality,
     );
   }

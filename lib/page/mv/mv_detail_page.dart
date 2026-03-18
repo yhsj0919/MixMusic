@@ -4,8 +4,10 @@ import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/mix_download.dart';
 import 'package:mix_music/common/entity/mix_mv.dart';
 import 'package:mix_music/common/entity/mix_quality.dart';
+import 'package:mix_music/page/download/download_controller.dart';
 
 import '../../player/music_controller.dart';
 import '../../widgets/message.dart';
@@ -21,6 +23,8 @@ class MvDetailPage extends StatefulWidget {
 
 class _MvDetailPageState extends State<MvDetailPage> {
   MusicController music = Get.put(MusicController());
+  final DownloadController download = Get.put(DownloadController());
+
   Rxn<MixMv> mv = Rxn();
 
   RxBool firstLoad = RxBool(true);
@@ -95,7 +99,10 @@ class _MvDetailPageState extends State<MvDetailPage> {
     );
   }
 
-  Widget desktopTheme({required Widget child, required List<MixQuality> quality}) {
+  Widget desktopTheme({
+    required Widget child,
+    required List<MixQuality> quality,
+  }) {
     return MaterialDesktopVideoControlsTheme(
       normal: MaterialDesktopVideoControlsThemeData(
         buttonBarButtonSize: 24.0,
@@ -108,6 +115,30 @@ class _MvDetailPageState extends State<MvDetailPage> {
           MaterialDesktopPositionIndicator(),
           Spacer(),
           PopupMenuButton<MixQuality>(
+            tooltip: "下载",
+            padding: const EdgeInsets.all(0),
+            // elevation: 2,
+            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
+            itemBuilder: (BuildContext context) {
+              return quality
+                  .map(
+                    (e) => PopupMenuItem(
+                      value: e,
+                      child: Text(e.title ?? "未知"),
+                      onTap: () {
+
+                        var dl = MixDownload.fromMv(mv.value!, e);
+                        dl.url = e.url;
+                        download.addTask(dl);
+                      },
+                    ),
+                  )
+                  .toList();
+            },
+            child: Text("下载", style: TextStyle(color: Colors.white)),
+          ),
+          Gap(8),
+          PopupMenuButton<MixQuality>(
             tooltip: "清晰度",
             padding: const EdgeInsets.all(0),
             // elevation: 2,
@@ -126,9 +157,15 @@ class _MvDetailPageState extends State<MvDetailPage> {
                   )
                   .toList();
             },
-            child: Obx(() => Text(selectQuality.value?.title ?? "清晰度", style: TextStyle(color: Colors.white))),
+            child: Obx(
+              () => Text(
+                selectQuality.value?.title ?? "清晰度",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           ),
           Gap(8),
+
           MaterialDesktopFullscreenButton(),
         ],
       ),
@@ -141,7 +178,7 @@ class _MvDetailPageState extends State<MvDetailPage> {
           MaterialDesktopPositionIndicator(),
           Spacer(),
           PopupMenuButton<MixQuality>(
-            tooltip: "清晰度",
+            tooltip: "下载",
             padding: const EdgeInsets.all(0),
             // elevation: 2,
             // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
@@ -149,34 +186,22 @@ class _MvDetailPageState extends State<MvDetailPage> {
               return quality
                   .map(
                     (e) => PopupMenuItem(
-                      value: e,
-                      child: Text(e.title ?? "未知"),
-                      onTap: () {
-                        selectQuality.value = e;
-                        _initializeVideoPlayer(e.url ?? "", position: position);
-                      },
-                    ),
-                  )
+                  value: e,
+                  child: Text(e.title ?? "未知"),
+                  onTap: () {
+
+                    var dl = MixDownload.fromMv(mv.value!, e);
+                    dl.url = e.url;
+                    download.addTask(dl);
+                  },
+                ),
+              )
                   .toList();
             },
-            child: Obx(() => Text(selectQuality.value?.title ?? "清晰度", style: TextStyle(color: Colors.white))),
+            child: Text("下载", style: TextStyle(color: Colors.white)),
           ),
           Gap(8),
-          MaterialDesktopFullscreenButton(),
-        ],
-      ),
-      child: child,
-    );
-  }
 
-  Widget phoneTheme({required Widget child, required List<MixQuality> quality}) {
-    return MaterialVideoControlsTheme(
-      normal: MaterialVideoControlsThemeData(
-        buttonBarButtonSize: 24.0,
-        buttonBarButtonColor: Colors.white,
-        bottomButtonBar: [
-          MaterialPositionIndicator(),
-          Spacer(),
           PopupMenuButton<MixQuality>(
             tooltip: "清晰度",
             padding: const EdgeInsets.all(0),
@@ -196,7 +221,81 @@ class _MvDetailPageState extends State<MvDetailPage> {
                   )
                   .toList();
             },
-            child: Obx(() => Text(selectQuality.value?.title ?? "清晰度", style: TextStyle(color: Colors.white))),
+            child: Obx(
+              () => Text(
+                selectQuality.value?.title ?? "清晰度",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+          Gap(8),
+          MaterialDesktopFullscreenButton(),
+        ],
+      ),
+      child: child,
+    );
+  }
+
+  Widget phoneTheme({
+    required Widget child,
+    required List<MixQuality> quality,
+  }) {
+    return MaterialVideoControlsTheme(
+      normal: MaterialVideoControlsThemeData(
+        buttonBarButtonSize: 24.0,
+        buttonBarButtonColor: Colors.white,
+        bottomButtonBar: [
+          MaterialPositionIndicator(),
+          Spacer(),
+          PopupMenuButton<MixQuality>(
+            tooltip: "下载",
+            padding: const EdgeInsets.all(0),
+            // elevation: 2,
+            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
+            itemBuilder: (BuildContext context) {
+              return quality
+                  .map(
+                    (e) => PopupMenuItem(
+                  value: e,
+                  child: Text(e.title ?? "未知"),
+                  onTap: () {
+
+                    var dl = MixDownload.fromMv(mv.value!, e);
+                    dl.url = e.url;
+                    download.addTask(dl);
+                  },
+                ),
+              )
+                  .toList();
+            },
+            child: Text("下载", style: TextStyle(color: Colors.white)),
+          ),
+          Gap(8),
+          PopupMenuButton<MixQuality>(
+            tooltip: "清晰度",
+            padding: const EdgeInsets.all(0),
+            // elevation: 2,
+            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
+            itemBuilder: (BuildContext context) {
+              return quality
+                  .map(
+                    (e) => PopupMenuItem(
+                      value: e,
+                      child: Text(e.title ?? "未知"),
+                      onTap: () {
+                        selectQuality.value = e;
+                        _initializeVideoPlayer(e.url ?? "", position: position);
+                      },
+                    ),
+                  )
+                  .toList();
+            },
+            child: Obx(
+              () => Text(
+                selectQuality.value?.title ?? "清晰度",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           ),
           Gap(8),
           MaterialDesktopFullscreenButton(),
@@ -207,6 +306,31 @@ class _MvDetailPageState extends State<MvDetailPage> {
           MaterialPositionIndicator(),
           Spacer(),
           PopupMenuButton<MixQuality>(
+            tooltip: "下载",
+            padding: const EdgeInsets.all(0),
+            // elevation: 2,
+            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
+            itemBuilder: (BuildContext context) {
+              return quality
+                  .map(
+                    (e) => PopupMenuItem(
+                  value: e,
+                  child: Text(e.title ?? "未知"),
+                  onTap: () {
+
+                    var dl = MixDownload.fromMv(mv.value!, e);
+                    dl.url = e.url;
+                    download.addTask(dl);
+                  },
+                ),
+              )
+                  .toList();
+            },
+            child: Text("下载", style: TextStyle(color: Colors.white)),
+          ),
+          Gap(8),
+
+          PopupMenuButton<MixQuality>(
             tooltip: "清晰度",
             padding: const EdgeInsets.all(0),
             // elevation: 2,
@@ -225,7 +349,12 @@ class _MvDetailPageState extends State<MvDetailPage> {
                   )
                   .toList();
             },
-            child: Obx(() => Text(selectQuality.value?.title ?? "清晰度", style: TextStyle(color: Colors.white))),
+            child: Obx(
+              () => Text(
+                selectQuality.value?.title ?? "清晰度",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           ),
           Gap(8),
           MaterialDesktopFullscreenButton(),
@@ -252,7 +381,9 @@ class _MvDetailPageState extends State<MvDetailPage> {
           quality.clear();
           quality.addAll(mv.value?.quality ?? []);
           if (quality.isNotEmpty) {
-            var ss = quality.reduce((a, b) => (a.quality ?? 0) < (b.quality ?? 0) ? a : b);
+            var ss = quality.reduce(
+              (a, b) => (a.quality ?? 0) < (b.quality ?? 0) ? a : b,
+            );
             selectQuality.value = ss;
 
             _initializeVideoPlayer(ss.url ?? "");

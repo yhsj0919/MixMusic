@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:mix_music/common/api/api_factory.dart';
+import 'package:mix_music/common/entity/mix_download.dart';
 import 'package:mix_music/common/entity/mix_mv.dart';
 import 'package:mix_music/common/entity/mix_quality.dart';
+import 'package:mix_music/page/download/download_controller.dart';
 
 import '../../../player/music_controller.dart';
 import '../../../widgets/message.dart';
@@ -23,6 +25,9 @@ class DesktopMvDetailPage extends StatefulWidget {
 
 class _DesktopMvDetailPageState extends State<DesktopMvDetailPage> {
   MusicController music = Get.put(MusicController());
+
+  final DownloadController download = Get.put(DownloadController());
+
   Rxn<MixMv> mv = Rxn();
 
   RxBool firstLoad = RxBool(true);
@@ -80,7 +85,6 @@ class _DesktopMvDetailPageState extends State<DesktopMvDetailPage> {
                     ),
             ),
           ),
-
         ],
       ),
     );
@@ -94,26 +98,28 @@ class _DesktopMvDetailPageState extends State<DesktopMvDetailPage> {
       normal: MaterialDesktopVideoControlsThemeData(
         buttonBarButtonSize: 24.0,
         buttonBarButtonColor: Colors.white,
-        topButtonBar: [Container(
-          padding: EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-          child: Row(
-            children: [
-              IconButton(
-                icon: Icon(FluentIcons.back, color: Colors.white),
-                onPressed: () {
-                  context.pop();
-                },
-              ),
-              Gap(8),
-              Text(
-                mv.value?.title ?? "",
-                style: FluentTheme.of(
-                  context,
-                ).typography.bodyLarge?.copyWith(color: Colors.white),
-              ),
-            ],
+        topButtonBar: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(FluentIcons.back, color: Colors.white),
+                  onPressed: () {
+                    context.pop();
+                  },
+                ),
+                Gap(8),
+                Text(
+                  mv.value?.title ?? "",
+                  style: FluentTheme.of(
+                    context,
+                  ).typography.bodyLarge?.copyWith(color: Colors.white),
+                ),
+              ],
+            ),
           ),
-        ),],
+        ],
         bottomButtonBar: [
           MaterialDesktopSkipPreviousButton(),
           MaterialDesktopPlayOrPauseButton(),
@@ -121,6 +127,30 @@ class _DesktopMvDetailPageState extends State<DesktopMvDetailPage> {
           MaterialDesktopVolumeButton(),
           MaterialDesktopPositionIndicator(),
           Spacer(),
+          material.PopupMenuButton<MixQuality>(
+            tooltip: "下载",
+            padding: const EdgeInsets.all(0),
+            // elevation: 2,
+            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
+            itemBuilder: (BuildContext context) {
+              return quality
+                  .map(
+                    (e) => material.PopupMenuItem(
+                      value: e,
+                      child: Text(e.title ?? "未知"),
+                      onTap: () {
+
+                        var dl = MixDownload.fromMv(mv.value!, e);
+                        dl.url = e.url;
+                        download.addTask(dl);
+                      },
+                    ),
+                  )
+                  .toList();
+            },
+            child: Text("下载", style: TextStyle(color: Colors.white)),
+          ),
+          Gap(8),
           material.PopupMenuButton<MixQuality>(
             tooltip: "清晰度",
             padding: const EdgeInsets.all(0),

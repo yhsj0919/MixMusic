@@ -139,10 +139,10 @@ class _DesktopLoginByWebPageState extends State<DesktopLoginByWebPage> {
                                     ?.userInfo()
                                     .then((v) {
                                       var user = v.data;
-                                      showFluentInfo(context, "${user?.name ?? ""} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "非VIP"}");
+                                      showInfo( "${user?.name ?? ""} ${user?.login == 1 ? "已登录" : "未登录"} ${user?.vip == 1 ? "VIP" : "非VIP"}");
                                     })
                                     .catchError((e) {
-                                      showFluentInfo(context, "${e ?? ""} ");
+                                      showInfo( "${e ?? ""} ");
                                     });
                               },
                             ),

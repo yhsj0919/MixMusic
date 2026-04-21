@@ -202,7 +202,7 @@ class _DesktopPlayBarState extends State<DesktopPlayBar> {
                                   icon: Obx(() => MixQualityIcon(borderWidth: 1, size: 18, quality: music.currentMusic.value?.playQuality)),
                                   onPressed: () {
                                     if (music.currentMusic.value == null) {
-                                      showFluentInfo(context, "暂无可下载内容");
+                                      showInfo( "暂无可下载内容");
                                     } else {
                                       qualityController.showFlyout(
                                         autoModeConfiguration: FlyoutAutoConfiguration(preferredMode: FlyoutPlacementMode.topCenter),
@@ -296,7 +296,7 @@ class _DesktopPlayBarState extends State<DesktopPlayBar> {
                                   icon: Icon(FluentIcons.download, size: 20),
                                   onPressed: () {
                                     if (music.currentMusic.value == null) {
-                                      showFluentInfo(context, "暂无可下载内容");
+                                       showInfo("暂无可下载内容");
                                     } else {
                                       downloadController.showFlyout(
                                         autoModeConfiguration: FlyoutAutoConfiguration(preferredMode: FlyoutPlacementMode.topCenter),
@@ -402,7 +402,7 @@ class _DesktopPlayBarState extends State<DesktopPlayBar> {
                               IconButton(
                                 icon: Icon(FluentIcons.more, size: 20),
                                 onPressed: () {
-                                  showFluentInfo(context, "暂未实现");
+                                   showInfo("暂未实现");
                                 },
                               ),
                             ],

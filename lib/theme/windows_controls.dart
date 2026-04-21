@@ -3,10 +3,7 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter_acrylic/window.dart';
-import 'package:flutter_acrylic/window_effect.dart';
-import 'package:get/get_utils/src/platform/platform.dart';
 import 'package:mix_music/utils/DebounceHelper.dart';
-import 'package:mix_music/utils/WindowsVersionHelper.dart';
 import 'package:mix_music/widgets/app_window_caption.dart';
 import 'package:window_manager/window_manager.dart';
 

@@ -56,7 +56,7 @@ class _DesktopDownloadSettingPageState extends State<DesktopDownloadSettingPage>
                   subtitle: downloadFolder.value ?? "暂无设置",
                   trailing: HyperTrailing(),
                   onTap: () async {
-                    var result = await FilePicker.platform.getDirectoryPath(dialogTitle: "选择目录", lockParentWindow: true);
+                    var result = await FilePicker.getDirectoryPath(dialogTitle: "选择目录", lockParentWindow: true);
                     if (result != null) {
                       downloadFolder.value = result;
                       AppDB.setString(Constant.KEY_DOWNLOAD_FOLDER, result);

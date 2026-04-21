@@ -9,10 +9,6 @@ import 'package:mix_music/common/api/music_api.dart';
 import 'package:mix_music/common/entity/plugins_info.dart';
 import 'package:mix_music/page/setting/login/user_controller.dart';
 import 'package:mix_music/theme/theme_controller.dart';
-import 'package:mix_music/widgets/fluent/fluent_group.dart';
-import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
-import 'package:mix_music/widgets/hyper/hyper_background_color.dart';
-import 'package:mix_music/widgets/hyper/hyper_group.dart';
 import 'package:mix_music/widgets/message.dart';
 
 class DesktopLoginByPhonePage extends StatefulWidget {
@@ -52,7 +48,7 @@ class _DesktopLoginByPhonePageState extends State<DesktopLoginByPhonePage> {
 
     // 简单的手机号格式校验
     if (phone.length != 11 || !RegExp(r'^[0-9]+$').hasMatch(phone)) {
-      showFluentError(context, "请输入有效的手机号");
+      showError("请输入有效的手机号");
       return;
     }
 
@@ -66,12 +62,12 @@ class _DesktopLoginByPhonePageState extends State<DesktopLoginByPhonePage> {
     api
         ?.sendPhoneCode(phone: phone)
         .then((v) {
-          showFluentInfo(context, "验证码已发送!");
+          showInfo("验证码已发送!");
         })
         .catchError((e) {
           _stopCountdown();
 
-          showFluentError(context, "验证码发送失败!");
+          showError("验证码发送失败!");
         });
   }
 
@@ -116,19 +112,19 @@ class _DesktopLoginByPhonePageState extends State<DesktopLoginByPhonePage> {
 
     // 简单的手机号格式校验
     if (phone.length != 11 || !RegExp(r'^[0-9]+$').hasMatch(phone)) {
-      showFluentError(context, "请输入有效的手机号");
+      showError("请输入有效的手机号");
       return;
     }
 
     if (code.isEmpty) {
-      showFluentError(context, "请输入验证码");
+      showError("请输入验证码");
       return;
     }
 
     api
         ?.loginByPhone(phone: phone, code: code)
         .then((v) {
-          showFluentInfo(context, "登录成功!");
+          showInfo("登录成功!");
           userController.getAllUser().then((v) {
             Get.back();
           });

@@ -13,7 +13,7 @@ import 'package:mix_music/theme/app_theme.dart';
 import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/theme/windows_controls.dart';
 import 'package:mix_music/utils/db.dart';
-import 'package:mix_music/utils/db.dart';
+import 'package:toastification/toastification.dart';
 
 import 'main.mapper.g.dart';
 import 'page/download/download_controller.dart';
@@ -67,63 +67,67 @@ class MyApp extends fluent.StatelessWidget {
   }
 
   Widget buildMobile(BuildContext context) {
-    return GetMaterialApp(
-      title: 'MixMusic',
-      //桌面拖动支持
-      scrollBehavior: const MaterialScrollBehavior().copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
-      debugShowCheckedModeBanner: false,
+    return ToastificationWrapper(
+      child: GetMaterialApp(
+        title: 'MixMusic',
+        //桌面拖动支持
+        scrollBehavior: const MaterialScrollBehavior().copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
+        debugShowCheckedModeBanner: false,
 
-      // initialBinding: AppBinding(),
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      builder: (_, child) {
-        ///如果无法检测到状态栏高度使用默认高度
-        var isPaddingCheckError = MediaQuery.of(context).viewPadding.top <= 0 || MediaQuery.of(context).viewPadding.top > 50;
+        // initialBinding: AppBinding(),
+        theme: lightTheme,
+        darkTheme: darkTheme,
+        builder: (_, child) {
+          ///如果无法检测到状态栏高度使用默认高度
+          var isPaddingCheckError = MediaQuery.of(context).viewPadding.top <= 0 || MediaQuery.of(context).viewPadding.top > 50;
 
-        if (isPaddingCheckError) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(viewPadding: const EdgeInsets.only(top: 24, bottom: 24), padding: const EdgeInsets.only(top: 16, bottom: 24)),
-            child: child ?? Container(),
-          );
-        } else {
-          return child ?? Container();
-        }
-      },
-      // builder: appRootWidget,
-      //2.注册路由观察者
-      getPages: Routes.mobileRoutes,
-      initialRoute: Routes.welcome,
-      localizationsDelegates: const [
-        //此处
-        GlobalMaterialLocalizations.delegate, // uses `flutter_localizations`
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        //此处
-        Locale('zh', 'CN'),
-        Locale('en', 'US'),
-      ],
+          if (isPaddingCheckError) {
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(viewPadding: const EdgeInsets.only(top: 24, bottom: 24), padding: const EdgeInsets.only(top: 16, bottom: 24)),
+              child: child ?? Container(),
+            );
+          } else {
+            return child ?? Container();
+          }
+        },
+        // builder: appRootWidget,
+        //2.注册路由观察者
+        getPages: Routes.mobileRoutes,
+        initialRoute: Routes.welcome,
+        localizationsDelegates: const [
+          //此处
+          GlobalMaterialLocalizations.delegate, // uses `flutter_localizations`
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          //此处
+          Locale('zh', 'CN'),
+          Locale('en', 'US'),
+        ],
+      ),
     );
   }
 
   Widget buildDesktop(BuildContext context) {
     var theme = Get.put(ThemeController());
 
-    return Obx(
-      () => fluent.FluentApp.router(
-        themeMode: theme.themeMode.value,
-        title: 'MixMusic',
-        //桌面拖动支持
-        scrollBehavior: const MaterialScrollBehavior().copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
-        debugShowCheckedModeBanner: false,
-        builder: windowsControls,
-        theme: fluent.FluentThemeData(brightness: Brightness.light, fontFamily: "Microsoft YaHei"),
-        darkTheme: fluent.FluentThemeData(brightness: Brightness.dark, fontFamily: "Microsoft YaHei"),
-        routeInformationParser: Routes.desktopRouter.routeInformationParser,
-        routerDelegate: Routes.desktopRouter.routerDelegate,
-        routeInformationProvider: Routes.desktopRouter.routeInformationProvider,
-        localizationsDelegates: [fluent.FluentLocalizations.delegate],
+    return ToastificationWrapper(
+      child: Obx(
+        () => fluent.FluentApp.router(
+          themeMode: theme.themeMode.value,
+          title: 'MixMusic',
+          //桌面拖动支持
+          scrollBehavior: const MaterialScrollBehavior().copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
+          debugShowCheckedModeBanner: false,
+          builder: windowsControls,
+          theme: fluent.FluentThemeData(brightness: Brightness.light, fontFamily: "Microsoft YaHei"),
+          darkTheme: fluent.FluentThemeData(brightness: Brightness.dark, fontFamily: "Microsoft YaHei"),
+          routeInformationParser: Routes.desktopRouter.routeInformationParser,
+          routerDelegate: Routes.desktopRouter.routerDelegate,
+          routeInformationProvider: Routes.desktopRouter.routeInformationProvider,
+          localizationsDelegates: [fluent.FluentLocalizations.delegate],
+        ),
       ),
     );
   }

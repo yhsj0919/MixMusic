@@ -99,7 +99,7 @@ class _DesktopRecommendTabPageState extends State<DesktopRecommendTabPage> with 
           } else {
             refreshController.finishLoad(IndicatorResult.fail, true);
           }
-          showFluentError(context, "可能没有登录");
+          showError("可能没有登录");
         });
   }
 

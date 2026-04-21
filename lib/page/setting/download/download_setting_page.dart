@@ -5,18 +5,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
-import 'package:mix_music/common/api/api_factory.dart';
 import 'package:mix_music/constant.dart';
-import 'package:mix_music/common/entity/plugins_info.dart';
-import 'package:mix_music/page/setting/login/user_controller.dart';
 import 'package:mix_music/utils/db.dart';
-import 'package:mix_music/widgets/app_image.dart';
-import 'package:mix_music/widgets/common_item.dart';
-import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
 import 'package:mix_music/widgets/hyper/hyper_background.dart';
 import 'package:mix_music/widgets/hyper/hyper_group.dart';
-import 'package:mix_music/widgets/hyper/hyper_icon.dart';
-import 'package:mix_music/widgets/hyper/hyper_leading.dart';
 import 'package:mix_music/widgets/hyper/hyper_list_tile.dart';
 import 'package:mix_music/widgets/hyper/hyper_trailing.dart';
 import 'package:mix_music/widgets/message.dart';
@@ -64,7 +56,7 @@ class _DownloadSettingPageState extends State<DownloadSettingPage> {
                         if (value >= 30) {
                           var ss = await getManageExternalStoragePermission();
                           if (ss) {
-                            var result = await FilePicker.platform.getDirectoryPath(
+                            var result = await FilePicker.getDirectoryPath(
                               dialogTitle: "选择目录",
                               lockParentWindow: true,
                             );
@@ -78,7 +70,7 @@ class _DownloadSettingPageState extends State<DownloadSettingPage> {
                         } else {
                           var ss = await getStoragePermission();
                           if (ss) {
-                            var result = await FilePicker.platform.getDirectoryPath(
+                            var result = await FilePicker.getDirectoryPath(
                               dialogTitle: "选择目录",
                               lockParentWindow: true,
                             );

@@ -13,7 +13,6 @@ import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/fluent/FluentMouseWidget.dart';
 import 'package:mix_music/widgets/fluent/Fluent_song_item.dart';
 import 'package:mix_music/widgets/hyper/hyper_loading.dart';
-import 'package:mix_music/widgets/hyper/hyper_song_item.dart';
 import 'package:mix_music/widgets/message.dart';
 import 'package:mix_music/widgets/page_custom_scroll_view.dart';
 import 'package:sliver_tools/sliver_tools.dart';
@@ -139,7 +138,7 @@ class _DesktopRankDetailPageState extends State<DesktopRankDetailPage> {
                                   Button(
                                     child: Row(spacing: 4, children: [Icon(FluentIcons.add), Text("添加到")]),
                                     onPressed: () {
-                                      showFluentInfo(context, "暂未实现");
+                                      showInfo( "暂未实现");
                                     },
                                   ),
                                 ],
@@ -210,7 +209,7 @@ class _DesktopRankDetailPageState extends State<DesktopRankDetailPage> {
           } else {
             refreshController.finishLoad(IndicatorResult.fail, true);
           }
-          showFluentError(context, e.toString());
+          showError( e.toString());
         });
   }
 }

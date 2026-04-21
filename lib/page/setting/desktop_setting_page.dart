@@ -141,7 +141,7 @@ class _DesktopSettingPageState extends State<DesktopSettingPage> {
 
                   AppDB.setBool(Constant.KEY_APP_DEBUG_ALERT, !alert);
 
-                  showFluentInfo(context, alert ? "已关闭调试弹窗" : "已开启调试弹窗");
+                  showInfo(alert ? "已关闭调试弹窗" : "已开启调试弹窗");
                 },
               ),
             ],
@@ -154,8 +154,7 @@ class _DesktopSettingPageState extends State<DesktopSettingPage> {
 
   openBattery() async {
     if (Platform.isAndroid) {
-      bool? isBatteryOptimizationDisabled =
-          await DisableBatteryOptimizationLatest.isBatteryOptimizationDisabled;
+      bool? isBatteryOptimizationDisabled = await DisableBatteryOptimizationLatest.isBatteryOptimizationDisabled;
       if (isBatteryOptimizationDisabled != true) {
         await DisableBatteryOptimizationLatest.showDisableBatteryOptimizationSettings();
       } else {

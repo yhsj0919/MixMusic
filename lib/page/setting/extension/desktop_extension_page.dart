@@ -14,7 +14,6 @@ import 'package:mix_music/page/home/home_controller.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/db.dart';
 import 'package:mix_music/utils/plugins_ext.dart';
-import 'package:mix_music/utils/db.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/fluent/fluent_group.dart';
 import 'package:mix_music/widgets/fluent/fluent_list_tile.dart';
@@ -75,7 +74,7 @@ class _DesktopExtensionPageState extends State<DesktopExtensionPage> {
             Button(
               onPressed: () async {
                 try {
-                  var result = await FilePicker.platform.pickFiles(
+                  var result = await FilePicker.pickFiles(
                     dialogTitle: "选择插件",
                     lockParentWindow: true,
                     type: GetPlatform.isDesktop ? FileType.custom : FileType.any,
@@ -85,12 +84,12 @@ class _DesktopExtensionPageState extends State<DesktopExtensionPage> {
                     File file = File(result.files.single.path!);
                     var plugins = parseExtension(file.readAsStringSync());
                     if (plugins == null) {
-                      showFluentError(context, "插件无效");
+                      showError( "插件无效");
                     } else {
                       AppDB.insertOrUpdate(table: Constant.KEY_EXTENSION, doc: JsonMapper.toMap(plugins)!, queryCondition: where("package").equals(plugins.package)).then((
                         v,
                       ) async {
-                        showFluentInfo(context, '${plugins.name}，安装成功');
+                         showInfo('${plugins.name}，安装成功');
 
                         getPlugins();
                         initPlugins();
@@ -99,7 +98,7 @@ class _DesktopExtensionPageState extends State<DesktopExtensionPage> {
                   }
                   getPlugins();
                 } catch (e) {
-                  showFluentError(context, '文件异常，可能不存在');
+                  showError( '文件异常，可能不存在');
                 }
               },
               child: Text('本地安装'),

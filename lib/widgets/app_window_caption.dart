@@ -57,8 +57,8 @@ class _AppWindowCaptionState extends State<AppWindowCaption>
         Container(
           width: 138,
           color: widget.brightness == Brightness.dark
-              ? Color(0xff202020)
-              : Colors.white,
+              ? Color(0x00202020)
+              : Colors.transparent,
           height: kWindowCaptionHeight,
           child: Row(
             mainAxisSize: MainAxisSize.min,

@@ -14,7 +14,6 @@ import 'package:mix_music/page/home/home_controller.dart';
 import 'package:mix_music/route/routes.dart';
 import 'package:mix_music/utils/db.dart';
 import 'package:mix_music/utils/plugins_ext.dart';
-import 'package:mix_music/utils/db.dart';
 import 'package:mix_music/widgets/OpacityRoute.dart';
 import 'package:mix_music/widgets/app_image.dart';
 import 'package:mix_music/widgets/ext.dart';
@@ -87,7 +86,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
             label: '本地',
             onTap: () async {
               try {
-                var result = await FilePicker.platform.pickFiles(
+                var result = await FilePicker.pickFiles(
                   dialogTitle: "选择插件",
                   lockParentWindow: true,
                   type: GetPlatform.isDesktop ? FileType.custom : FileType.any,

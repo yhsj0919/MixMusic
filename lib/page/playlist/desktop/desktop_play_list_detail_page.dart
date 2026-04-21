@@ -144,7 +144,7 @@ class _DesktopPlayListDetailPageState extends State<DesktopPlayListDetailPage> {
                                   Button(
                                     child: Row(spacing: 4, children: [Icon(FluentIcons.add), Text("添加到")]),
                                     onPressed: () {
-                                      showFluentInfo(context, "暂未实现");
+                                      showInfo("暂未实现");
                                     },
                                   ),
                                 ],
@@ -212,7 +212,7 @@ class _DesktopPlayListDetailPageState extends State<DesktopPlayListDetailPage> {
           } else {
             refreshController.finishLoad(IndicatorResult.fail, true);
           }
-          showFluentError(context, e);
+          showError(e);
         });
   }
 }

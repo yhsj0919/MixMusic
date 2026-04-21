@@ -8,12 +8,7 @@ import 'package:mix_music/theme/theme_controller.dart';
 import 'package:mix_music/theme/windows_controls.dart';
 
 class DesktopMainPage extends StatefulWidget {
-  const DesktopMainPage({
-    super.key,
-    required this.child,
-    required this.shellContext,
-    required this.state,
-  });
+  const DesktopMainPage({super.key, required this.child, required this.shellContext, required this.state});
 
   final Widget child;
   final BuildContext? shellContext;
@@ -28,26 +23,13 @@ class _DesktopMainPageState extends State<DesktopMainPage> {
 
   late final List<NavigationPaneItem> originalItems =
       [
-        PaneItem(
-          key: const ValueKey(Routes.home),
-          icon: const WindowsIcon(WindowsIcons.home),
-          title: const Text('首页'),
-          body: const SizedBox.shrink(),
-        ),
-        PaneItem(
-          key: const ValueKey(Routes.search),
-          icon: const Icon(FluentIcons.search),
-          title: const Text('搜索'),
-          body: const SizedBox.shrink(),
-        ),
+        PaneItem(key: const ValueKey(Routes.home), icon: const WindowsIcon(WindowsIcons.home), title: const Text('首页'), body: const SizedBox.shrink()),
+        PaneItem(key: const ValueKey(Routes.search), icon: const Icon(FluentIcons.search), title: const Text('搜索'), body: const SizedBox.shrink()),
         // PaneItemSeparator(),
         PaneItemHeader(
           header: Row(
             children: [
-              Container(
-                padding: EdgeInsets.only(left: 6, bottom: 6),
-                child: Text('音乐'),
-              ),
+              Container(padding: EdgeInsets.only(left: 6, bottom: 6), child: Text('音乐')),
               Expanded(child: Container()),
               IconButton(
                 icon: RotatedBox(
@@ -61,56 +43,16 @@ class _DesktopMainPageState extends State<DesktopMainPage> {
             ],
           ),
         ),
-        PaneItem(
-          key: const ValueKey(Routes.recommend),
-          icon: const Icon(FluentIcons.like),
-          title: const Text('每日推荐'),
-          body: const SizedBox.shrink(),
-        ),
-        PaneItem(
-          key: const ValueKey(Routes.rank),
-          icon: const Icon(FluentIcons.chart),
-          title: const Text('排行'),
-          body: const SizedBox.shrink(),
-        ),
-        PaneItem(
-          key: const ValueKey(Routes.artist),
-          icon: const Icon(FluentIcons.contact),
-          title: const Text('歌手'),
-          body: const SizedBox.shrink(),
-        ),
-        PaneItem(
-          key: const ValueKey(Routes.playList),
-          icon: const Icon(FluentIcons.playlist_music),
-          title: const Text('歌单'),
-          body: const SizedBox.shrink(),
-        ),
-        PaneItem(
-          key: const ValueKey(Routes.album),
-          icon: const Icon(WindowsIcons.music_album),
-          title: const Text('专辑'),
-          body: const SizedBox.shrink(),
-        ),
-        PaneItem(
-          key: const ValueKey(Routes.mv),
-          icon: const Icon(FluentIcons.my_movies_t_v),
-          title: const Text('MV'),
-          body: const SizedBox.shrink(),
-        ),
+        PaneItem(key: const ValueKey(Routes.recommend), icon: const Icon(FluentIcons.like), title: const Text('每日推荐'), body: const SizedBox.shrink()),
+        PaneItem(key: const ValueKey(Routes.rank), icon: const Icon(FluentIcons.chart), title: const Text('排行'), body: const SizedBox.shrink()),
+        PaneItem(key: const ValueKey(Routes.artist), icon: const Icon(FluentIcons.contact), title: const Text('歌手'), body: const SizedBox.shrink()),
+        PaneItem(key: const ValueKey(Routes.playList), icon: const Icon(FluentIcons.playlist_music), title: const Text('歌单'), body: const SizedBox.shrink()),
+        PaneItem(key: const ValueKey(Routes.album), icon: const Icon(WindowsIcons.music_album), title: const Text('专辑'), body: const SizedBox.shrink()),
+        PaneItem(key: const ValueKey(Routes.mv), icon: const Icon(FluentIcons.my_movies_t_v), title: const Text('MV'), body: const SizedBox.shrink()),
         // PaneItem(key: const ValueKey('/song'), icon: const Icon(FluentIcons.music_note), title: const Text('新歌'), body: const SizedBox.shrink()),
         PaneItemSeparator(),
-        PaneItem(
-          key: const ValueKey(Routes.appHistoryMusicList),
-          icon: const Icon(FluentIcons.history),
-          title: const Text('历史'),
-          body: const SizedBox.shrink(),
-        ),
-        PaneItem(
-          key: const ValueKey(Routes.download),
-          icon: const Icon(FluentIcons.download),
-          title: const Text('下载'),
-          body: const SizedBox.shrink(),
-        ),
+        PaneItem(key: const ValueKey(Routes.appHistoryMusicList), icon: const Icon(FluentIcons.history), title: const Text('历史'), body: const SizedBox.shrink()),
+        PaneItem(key: const ValueKey(Routes.download), icon: const Icon(FluentIcons.download), title: const Text('下载'), body: const SizedBox.shrink()),
       ].map<NavigationPaneItem>((e) {
         PaneItem buildPaneItem(PaneItem item) {
           return PaneItem(
@@ -179,26 +121,19 @@ class _DesktopMainPageState extends State<DesktopMainPage> {
           Expanded(
             child: NavigationView(
               titleBar: TitleBar(
+                height: 50,
                 isBackButtonVisible: false,
                 // leading: context.canPop() ? IconButton(icon: const WindowsIcon(WindowsIcons.back), onPressed: () => context.pop()) : null,
                 icon: null,
                 title: Container(
                   padding: EdgeInsets.symmetric(horizontal: 12),
-                  child: Text(
-                    'MixMusic',
-                    style: FluentTheme.of(context).typography.bodyLarge,
-                  ),
+                  child: Text('MixMusic', style: FluentTheme.of(context).typography.bodyLarge),
                 ),
                 // automaticallyImplyLeading: false,
               ),
               paneBodyBuilder: (item, child) {
-                final name = item?.key is ValueKey
-                    ? (item!.key as ValueKey).value
-                    : null;
-                return FocusTraversalGroup(
-                  key: ValueKey('body$name'),
-                  child: widget.child,
-                );
+                final name = item?.key is ValueKey ? (item!.key as ValueKey).value : null;
+                return FocusTraversalGroup(key: ValueKey('body$name'), child: widget.child);
               },
 
               pane: NavigationPane(
@@ -212,10 +147,7 @@ class _DesktopMainPageState extends State<DesktopMainPage> {
             ),
           ),
           Divider(
-            style: DividerThemeData(
-              verticalMargin: const EdgeInsets.all(0),
-              horizontalMargin: const EdgeInsets.all(0),
-            ),
+            style: DividerThemeData(verticalMargin: const EdgeInsets.all(0), horizontalMargin: const EdgeInsets.all(0)),
           ),
           Container(height: 118, child: DesktopPlayBar()),
         ],
@@ -225,25 +157,15 @@ class _DesktopMainPageState extends State<DesktopMainPage> {
 
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
-    int indexOriginal = originalItems
-        .where((item) => item.key != null)
-        .toList()
-        .indexWhere((item) => item.key == Key(location));
+    int indexOriginal = originalItems.where((item) => item.key != null).toList().indexWhere((item) => item.key == Key(location));
 
     if (indexOriginal == -1) {
-      int indexFooter = footerItems
-          .where((element) => element.key != null)
-          .toList()
-          .indexWhere((element) => element.key == Key(location));
+      int indexFooter = footerItems.where((element) => element.key != null).toList().indexWhere((element) => element.key == Key(location));
       if (indexFooter == -1) {
         Future.delayed(Duration(milliseconds: 300)).then((v) {});
         return 0;
       }
-      return originalItems
-              .where((element) => element.key != null)
-              .toList()
-              .length +
-          indexFooter;
+      return originalItems.where((element) => element.key != null).toList().length + indexFooter;
     } else {
       return indexOriginal;
     }

@@ -61,7 +61,7 @@ class MyApp extends fluent.StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  buildMobile(context);
+    // return  buildMobile(context);
     // return  buildDesktop(context);
     return GetPlatform.isDesktop ? buildDesktop(context) : buildMobile(context);
   }

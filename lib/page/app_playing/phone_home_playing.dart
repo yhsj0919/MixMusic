@@ -2,12 +2,11 @@ import 'dart:math';
 
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_lyric/lyrics_reader_widget.dart';
+import 'package:flutter_lyric/flutter_lyric.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/common/entity/mix_quality.dart';
 import 'package:mix_music/common/entity/mix_song.dart';
-import 'package:mix_music/page/app_playing/phone_playing.dart';
 import 'package:mix_music/page/app_playlist/app_download_type_page.dart';
 import 'package:mix_music/page/app_playlist/app_play_quality_page.dart';
 import 'package:mix_music/page/app_playlist/app_playlist_page.dart';
@@ -91,7 +90,7 @@ class _PhoneHomePlayingState extends State<PhoneHomePlaying> {
                     },
                     children: [
                       buildImage(),
-                      Obx(() => AnimatedSwitcher(duration: const Duration(milliseconds: 500), child: _showLrc.value ? Obx(() => buildLrc(context)) : Container())),
+                      Obx(() => AnimatedSwitcher(duration: const Duration(milliseconds: 500), child: _showLrc.value ? buildLrc(context) : Container())),
                     ],
                   ),
                 ),
@@ -396,52 +395,30 @@ class _PhoneHomePlayingState extends State<PhoneHomePlaying> {
   }
 
   Widget buildLrc(BuildContext context) {
-    return LyricsReader(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      position: music.position.value.inMilliseconds,
-      lyricUi: UIMix(
-        defaultSize: context.isPhone ? 22 : 24,
-        otherMainSize: context.isPhone ? 18 : 20,
-        defaultExtSize: context.isPhone ? 20 : 22,
-        highlight: false,
-        playingMainTextColor: Theme.of(context).colorScheme.onSurface,
-        playingOtherMainTextColor: Theme.of(context).colorScheme.onSecondary,
-      ),
-      model: music.lyricModel.value,
-      playing: true,
-      onTap: () {
-        showCover.value = !showCover.value;
-      },
-      emptyBuilder: () => Center(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Text("暂无歌词", style: Theme.of(context).textTheme.bodyMedium),
-        ),
-      ),
-      selectLineBuilder: (progress, confirm) {
-        return SizedBox(
-          height: 30,
-          child: Stack(
-            children: [
-              Container(
-                alignment: Alignment.centerLeft,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                child: InkWell(
-                  child: Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: (theme.playingColor.value ?? Theme.of(context).colorScheme.primary).withOpacity(0.5)),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    child: Text(progress.date("mm:ss"), style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
-                  ),
-                  onTap: () {
-                    confirm.call();
-                    music.seek(Duration(milliseconds: progress));
-                  },
-                ),
-              ),
-            ],
+    final style = buildMixLyricStyle(
+      defaultSize: context.isPhone ? 22 : 24,
+      otherMainSize: context.isPhone ? 18 : 20,
+      defaultExtSize: context.isPhone ? 20 : 22,
+      highlight: false,
+      playingMainTextColor: Theme.of(context).colorScheme.onSurface,
+      playingOtherMainTextColor: Theme.of(context).colorScheme.onSecondary,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+    );
+
+    return GestureDetector(
+      onTap: () => showCover.value = !showCover.value,
+      child: Stack(
+        children: [
+          LyricView(controller: music.lyricController, style: style),
+          LyricSelectionProgress2(
+            controller: music.lyricController,
+            style: style,
+            onPlay: (state) {
+              music.seek(state.duration);
+            },
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 

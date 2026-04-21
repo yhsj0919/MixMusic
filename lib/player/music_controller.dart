@@ -2,8 +2,7 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:dart_json_mapper/dart_json_mapper.dart';
-import 'package:flutter_lyric/lyrics_reader.dart';
-import 'package:flutter_lyric/lyrics_reader_model.dart';
+import 'package:flutter_lyric/flutter_lyric.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:mix_music/common/api/api_factory.dart';
@@ -32,8 +31,8 @@ class MusicController extends GetxController {
   Rx<PlayMode> playMode = Rx(PlayMode.RepeatAll);
 
   // var appC = Get.put(AppController());
-  Rxn<LyricsReaderModel> lyricModel = Rxn();
   Rxn<MixLrc> lyric = Rxn();
+  final LyricController lyricController = LyricController();
 
   RxInt musicIndex = RxInt(-1);
   RxList<MixSong> musicList = RxList();
@@ -57,6 +56,9 @@ class MusicController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    lyricController.setOnTapLineCallback((Duration position) {
+      seek(position);
+    });
     currentMusic.value = AppDB.getObject<MixSong>(Constant.KEY_APP_CURRENT_MUSIC);
 
     AppDB.getList<MixSong>(Constant.KEY_APP_MUSIC_LIST).then((v) {
@@ -127,6 +129,7 @@ class MusicController extends GetxController {
         // isPlaying.value = true;
         position.value = event ?? Duration();
       }
+      lyricController.setProgress(position.value);
     });
 
     Player.onNext.listen((event) {
@@ -195,10 +198,12 @@ class MusicController extends GetxController {
 
         if (media.value?.id.toString() != value.mediaItem().id.toString() && value.getUrl() != null && value.getUrl() != "") {
           if ((value.getLyric()?.lrc?.length ?? 0) > 50) {
-            lyricModel.value = LyricsModelBuilder.create().bindLyricToMain(value.getLyric()?.lrc?.replaceAll(":00]", ".00]") ?? "").getModel();
+            lyricController.loadLyric(
+              value.getLyric()?.lrc?.replaceAll(":00]", ".00]") ?? "",
+            );
           } else {
             lyric.value = null;
-            lyricModel.value = LyricsModelBuilder.create().bindLyricToMain("暂无歌词").getModel();
+            lyricController.loadLyric('[00:00.00]暂无歌词');
           }
           // if (music.match == true) {
           //   showComplete('音频来自:${ApiFactory.getPlugin(value.matchSong?.package)?.name ?? "未知"}');
@@ -232,7 +237,7 @@ class MusicController extends GetxController {
         }
       },
       onError: (e) {
-        lyricModel.value = LyricsModelBuilder.create().bindLyricToMain("暂无歌词").getModel();
+        lyricController.loadLyric('[00:00.00]暂无歌词');
         lyric.value = null;
         duration.value = Duration();
         position.value = Duration();
@@ -273,10 +278,12 @@ class MusicController extends GetxController {
           });
 
           if ((value.getLyric()?.lrc?.length ?? 0) > 50) {
-            lyricModel.value = LyricsModelBuilder.create().bindLyricToMain(value.getLyric()?.lrc?.replaceAll(":00]", ".00]") ?? "").getModel();
+            lyricController.loadLyric(
+              value.getLyric()?.lrc?.replaceAll(":00]", ".00]") ?? "",
+            );
           } else {
             lyric.value = null;
-            lyricModel.value = LyricsModelBuilder.create().bindLyricToMain("暂无歌词").getModel();
+            lyricController.loadLyric('[00:00.00]暂无歌词');
           }
           Player.pause();
           Player.playWithQualityChange(music.mediaItem(), position.value)
@@ -412,6 +419,7 @@ class MusicController extends GetxController {
     Player.pause();
     Player.stop();
     Player.dispose();
+    lyricController.dispose();
     requestTimeOutFuture?.cancel();
     requestFuture?.cancel();
 

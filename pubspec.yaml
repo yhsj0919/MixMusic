@@ -70,7 +70,7 @@ dependencies:
   go_router: ^17.2.2
 
   #歌词
-  flutter_lyric: ^2.0.4+6
+  flutter_lyric: ^3.0.3
   extended_nested_scroll_view: ^6.2.1
 
   #网络请求

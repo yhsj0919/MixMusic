@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_lyric/lyrics_reader_widget.dart';
+import 'package:flutter_lyric/flutter_lyric.dart';
 import 'package:get/get.dart';
 import 'package:mix_music/common/api/api_factory.dart';
 import 'package:mix_music/page/app_playing/desktop_play_bar.dart';
@@ -25,59 +25,43 @@ class _DesktopPlayingState extends State<DesktopPlaying> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.transparent),
-      backgroundColor: Theme.brightnessOf(context)==Brightness.light?Colors.white:Colors.black,
+      backgroundColor: Theme.brightnessOf(context) == Brightness.light ? Colors.white : Colors.black,
       body: Stack(
         alignment: Alignment.bottomLeft,
         children: [
           Center(
-            child: Obx(
-              () => LyricsReader(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                position: music.position.value.inMilliseconds,
-                lyricUi: UIMix(
-                  defaultSize: 24,
-                  otherMainSize: 20,
-                  defaultExtSize: 22,
-                  highlight: false,
-                  playingMainTextColor: Theme.brightnessOf(context)==Brightness.light?Colors.black:Colors.white,
-                  playingOtherMainTextColor: Theme.brightnessOf(context)==Brightness.light?Colors.black38:Colors.white54,
-                ),
-                model: music.lyricModel.value,
-                playing: true,
-                emptyBuilder: () => Center(
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Text("暂无歌词", style: Theme.of(context).textTheme.bodyMedium),
+            child: Stack(
+              children: [
+                LyricView(
+                  controller: music.lyricController,
+                  style: buildMixLyricStyle(
+                    defaultSize: 24,
+                    otherMainSize: 20,
+                    defaultExtSize: 22,
+                    highlight: false,
+                    playingMainTextColor: Theme.brightnessOf(context) == Brightness.light ? Colors.black : Colors.white,
+                    playingOtherMainTextColor: Theme.brightnessOf(context) == Brightness.light ? Colors.black38 : Colors.white54,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
+
                 ),
-                selectLineBuilder: (progress, confirm) {
-                  return SizedBox(
-                    height: 30,
-                    child: Stack(
-                      children: [
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          margin: const EdgeInsets.symmetric(horizontal: 16),
-                          child: InkWell(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                color: (theme.playingColor.value ?? Theme.of(context).colorScheme.primary).withOpacity(0.5),
-                              ),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              child: Text(progress.date("mm:ss"), style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
-                            ),
-                            onTap: () {
-                              confirm.call();
-                              music.seek(Duration(milliseconds: progress));
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                LyricSelectionProgress(
+                  controller: music.lyricController,
+                  style: buildMixLyricStyle(
+                    defaultSize: 24,
+                    otherMainSize: 20,
+                    defaultExtSize: 22,
+                    highlight: true,
+                    playingMainTextColor: Theme.brightnessOf(context) == Brightness.light ? Colors.black : Colors.white,
+                    playingOtherMainTextColor: Theme.brightnessOf(context) == Brightness.light ? Colors.black38 : Colors.white54,
+
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                  onPlay: (state) {
+                    music.seek(state.duration);
+                  },
+                ),
+              ],
             ),
           ),
           Obx(

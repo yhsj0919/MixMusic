@@ -1,132 +1,83 @@
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:get/get.dart';
-import 'package:just_audio_media_kit/just_audio_media_kit.dart';
-import 'package:media_kit/media_kit.dart' as media;
-import 'package:mix_music/common/api/api_factory.dart';
-import 'package:mix_music/player/music_controller.dart';
-import 'package:mix_music/route/routes.dart';
-import 'package:mix_music/theme/app_theme.dart';
-import 'package:mix_music/theme/theme_controller.dart';
-import 'package:mix_music/theme/windows_controls.dart';
-import 'package:mix_music/utils/db.dart';
-import 'package:toastification/toastification.dart';
+import 'package:lemon_ui/lemon_ui.dart';
+import 'package:lemon_x/lemon_x.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'main.mapper.g.dart';
-import 'page/download/download_controller.dart';
-import 'page/timer/timer_close_controller.dart';
-import 'player/Player.dart';
-
-const Set<PointerDeviceKind> _kTouchLikeDeviceTypes = <PointerDeviceKind>{
-  PointerDeviceKind.touch,
-  PointerDeviceKind.mouse,
-  PointerDeviceKind.stylus,
-  PointerDeviceKind.invertedStylus,
-  PointerDeviceKind.unknown,
-};
+import 'page/setting/setting_controller.dart';
+import 'common/plugin/plugin_controller.dart';
+import 'common/player/player_controller.dart';
+import 'common/download/download_controller.dart';
+import 'common/local/local_music_controller.dart';
+import 'common/local/local_music_api.dart';
+import 'route/routes.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await AppDB.init();
-  await initWindow();
-  media.MediaKit.ensureInitialized();
-  JustAudioMediaKit.ensureInitialized();
-  await Player.init();
-  initializeJsonMapper();
-  SystemChrome.setSystemUIOverlayStyle(
-    SystemUiOverlayStyle.dark.copyWith(
-      // 沉浸式状态栏（仅安卓）
-      statusBarColor: Colors.transparent,
-      // 沉浸式导航指示器
-      systemNavigationBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarContrastEnforced: false,
-    ),
-  );
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  await ApiFactory.init();
-  Get.put(ThemeController());
-  Get.put(MusicController());
-  Get.put(DownloadController());
-  Get.put(TimeCloseController());
-
-  runApp(const MyApp());
+  final preferences = await SharedPreferences.getInstance();
+  runApp(MainApp(preferences: preferences));
 }
 
-class MyApp extends fluent.StatelessWidget {
-  const MyApp({super.key});
+class MainApp extends StatefulWidget {
+  const MainApp({super.key, this.preferences});
+  final SharedPreferences? preferences;
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  final controllers = LxContainer();
+  late final settings = controllers.put(
+    () => SettingController(preferences: widget.preferences),
+  );
+  late final router = createRouter(settings);
+
+  @override
+  void dispose() {
+    router.dispose();
+    controllers.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // return  buildMobile(context);
-    // return  buildDesktop(context);
-    return GetPlatform.isDesktop ? buildDesktop(context) : buildMobile(context);
-  }
-
-  Widget buildMobile(BuildContext context) {
-    return ToastificationWrapper(
-      child: GetMaterialApp(
+    return LxScope(
+      container: controllers,
+      disposeContainer: false,
+      bindings: (scope) {
+        scope.put(() => PluginController(preferences: widget.preferences));
+        scope.put(() => LocalMusicController(preferences: widget.preferences));
+        final plugins = controllers.find<PluginController>();
+        plugins.builtins[LocalMusicController.pluginId] = LocalMusicApi(
+          plugins.manager,
+        );
+        scope.put(
+          () => PlayerController(
+            scope.find<PluginController>(),
+            preferences: widget.preferences,
+          ),
+        );
+        scope.put(
+          () => DownloadController(
+            scope.find<PluginController>(),
+            cache: scope.find<PlayerController>().cache,
+            preferences: widget.preferences,
+          ),
+        );
+      },
+      child: MaterialApp.router(
         title: 'MixMusic',
-        //桌面拖动支持
-        scrollBehavior: const MaterialScrollBehavior().copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
         debugShowCheckedModeBanner: false,
-
-        // initialBinding: AppBinding(),
-        theme: lightTheme,
-        darkTheme: darkTheme,
-        builder: (_, child) {
-          ///如果无法检测到状态栏高度使用默认高度
-          var isPaddingCheckError = MediaQuery.of(context).viewPadding.top <= 0 || MediaQuery.of(context).viewPadding.top > 50;
-
-          if (isPaddingCheckError) {
-            return MediaQuery(
-              data: MediaQuery.of(context).copyWith(viewPadding: const EdgeInsets.only(top: 24, bottom: 24), padding: const EdgeInsets.only(top: 16, bottom: 24)),
-              child: child ?? Container(),
-            );
-          } else {
-            return child ?? Container();
-          }
-        },
-        // builder: appRootWidget,
-        //2.注册路由观察者
-        getPages: Routes.mobileRoutes,
-        initialRoute: Routes.welcome,
-        localizationsDelegates: const [
-          //此处
-          GlobalMaterialLocalizations.delegate, // uses `flutter_localizations`
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          //此处
-          Locale('zh', 'CN'),
-          Locale('en', 'US'),
-        ],
-      ),
-    );
-  }
-
-  Widget buildDesktop(BuildContext context) {
-    var theme = Get.put(ThemeController());
-
-    return ToastificationWrapper(
-      child: Obx(
-        () => fluent.FluentApp.router(
-          themeMode: theme.themeMode.value,
-          title: 'MixMusic',
-          //桌面拖动支持
-          scrollBehavior: const MaterialScrollBehavior().copyWith(scrollbars: true, dragDevices: _kTouchLikeDeviceTypes),
-          debugShowCheckedModeBanner: false,
-          builder: windowsControls,
-          theme: fluent.FluentThemeData(brightness: Brightness.light, fontFamily: "Microsoft YaHei"),
-          darkTheme: fluent.FluentThemeData(brightness: Brightness.dark, fontFamily: "Microsoft YaHei"),
-          routeInformationParser: Routes.desktopRouter.routeInformationParser,
-          routerDelegate: Routes.desktopRouter.routerDelegate,
-          routeInformationProvider: Routes.desktopRouter.routeInformationProvider,
-          localizationsDelegates: [fluent.FluentLocalizations.delegate],
+        routerConfig: router,
+        builder: (context, child) => HyperDeviceDetector(
+          builder: (context, device, child) => Obx(
+            () => HyperTheme(
+              data: settings.darkMode.value
+                  ? HyperThemeData.dark()
+                  : HyperThemeData.light(),
+              child: child!,
+            ),
+          ),
+          child: child,
         ),
       ),
     );

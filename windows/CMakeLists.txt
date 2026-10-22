@@ -57,6 +57,13 @@ add_subdirectory("runner")
 # them to the application.
 include(flutter/generated_plugins.cmake)
 
+# Compatibility with current MSVC and UTF-8 plugin sources.
+target_compile_definitions(audio_service_win_plugin PRIVATE
+  _SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
+target_compile_definitions(webview_all_windows_plugin PRIVATE
+  _SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
+target_compile_options(mpv_audio_kit_plugin PRIVATE /utf-8)
+
 
 # === Installation ===
 # Support files are copied into place next to the executable, so that it can

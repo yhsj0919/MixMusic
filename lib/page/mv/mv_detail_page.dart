@@ -1,401 +1,126 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:get/get.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:media_kit_video/media_kit_video.dart';
-import 'package:mix_music/common/api/api_factory.dart';
-import 'package:mix_music/common/entity/mix_download.dart';
-import 'package:mix_music/common/entity/mix_mv.dart';
-import 'package:mix_music/common/entity/mix_quality.dart';
-import 'package:mix_music/page/download/download_controller.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lemon_ui/lemon_ui.dart';
+import 'package:lemon_x/lemon_x.dart';
 
-import '../../player/music_controller.dart';
-import '../../widgets/message.dart';
+import '../../common/plugin/plugin_controller.dart';
+import '../../common/entity/mv.dart';
+import '../setting/extension/plugin_logs.dart';
+import 'mv_controller.dart';
 
 class MvDetailPage extends StatefulWidget {
-  const MvDetailPage({super.key, required this.mv});
-
-  final MixMv mv;
+  const MvDetailPage({
+    super.key,
+    required this.plugins,
+    required this.resource,
+  });
+  final PluginController plugins;
+  final Mv resource;
 
   @override
   State<MvDetailPage> createState() => _MvDetailPageState();
 }
 
 class _MvDetailPageState extends State<MvDetailPage> {
-  MusicController music = Get.put(MusicController());
-  final DownloadController download = Get.put(DownloadController());
-
-  Rxn<MixMv> mv = Rxn();
-
-  RxBool firstLoad = RxBool(true);
-
-  RxList<MixQuality> quality = RxList();
-
-  Rxn<MixQuality> selectQuality = Rxn();
-
-  // Create a [Player] to control playback.
-  late final player = Player();
-
-  // Create a [VideoController] to handle video output from [Player].
-  late final controller = VideoController(player);
-
-  bool completed = false;
-  Duration? position;
+  late final controller = MvController(widget.plugins, widget.resource);
 
   @override
   void initState() {
     super.initState();
-    music.pause();
-    mv.value = widget.mv;
-
-    player.stream.position.listen((Duration p) {
-      position = p;
-    });
-
-    Future.delayed(const Duration(milliseconds: 300)).then((value) {
-      getAlbumInfo();
-    });
-  }
-
-  void _initializeVideoPlayer(String source, {Duration? position}) async {
-    if (position != null && position.inSeconds > 2) {
-      player.open(Media(source, start: position - Duration(seconds: 2)));
-    } else {
-      player.open(Media(source, start: position));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var video = SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.width * 9 / 16,
-      // Use [Video] widget to display video output.
-      child: Video(controller: controller),
-    );
-
-    return Scaffold(
-      appBar: AppBar(title: Text(mv.value?.title ?? "")),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Flexible(
-            child: Obx(
-              () => firstLoad.value
-                  ? Container(
-                      color: Colors.black,
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.width * 9 / 16,
-                      // Use [Video] widget to display video output.
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                  : GetPlatform.isDesktop
-                  ? desktopTheme(child: video, quality: quality.value)
-                  : phoneTheme(child: video, quality: quality.value),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget desktopTheme({
-    required Widget child,
-    required List<MixQuality> quality,
-  }) {
-    return MaterialDesktopVideoControlsTheme(
-      normal: MaterialDesktopVideoControlsThemeData(
-        buttonBarButtonSize: 24.0,
-        buttonBarButtonColor: Colors.white,
-        bottomButtonBar: [
-          MaterialDesktopSkipPreviousButton(),
-          MaterialDesktopPlayOrPauseButton(),
-          MaterialDesktopSkipNextButton(),
-          MaterialDesktopVolumeButton(),
-          MaterialDesktopPositionIndicator(),
-          Spacer(),
-          PopupMenuButton<MixQuality>(
-            tooltip: "下载",
-            padding: const EdgeInsets.all(0),
-            // elevation: 2,
-            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
-            itemBuilder: (BuildContext context) {
-              return quality
-                  .map(
-                    (e) => PopupMenuItem(
-                      value: e,
-                      child: Text(e.title ?? "未知"),
-                      onTap: () {
-
-                        var dl = MixDownload.fromMv(mv.value!, e);
-                        dl.url = e.url;
-                        download.addTask(dl);
-                      },
-                    ),
-                  )
-                  .toList();
-            },
-            child: Text("下载", style: TextStyle(color: Colors.white)),
-          ),
-          Gap(8),
-          PopupMenuButton<MixQuality>(
-            tooltip: "清晰度",
-            padding: const EdgeInsets.all(0),
-            // elevation: 2,
-            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
-            itemBuilder: (BuildContext context) {
-              return quality
-                  .map(
-                    (e) => PopupMenuItem(
-                      value: e,
-                      child: Text(e.title ?? "未知"),
-                      onTap: () {
-                        selectQuality.value = e;
-                        _initializeVideoPlayer(e.url ?? "", position: position);
-                      },
-                    ),
-                  )
-                  .toList();
-            },
-            child: Obx(
-              () => Text(
-                selectQuality.value?.title ?? "清晰度",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-          Gap(8),
-
-          MaterialDesktopFullscreenButton(),
-        ],
-      ),
-      fullscreen: MaterialDesktopVideoControlsThemeData(
-        bottomButtonBar: [
-          MaterialDesktopSkipPreviousButton(),
-          MaterialDesktopPlayOrPauseButton(),
-          MaterialDesktopSkipNextButton(),
-          MaterialDesktopVolumeButton(),
-          MaterialDesktopPositionIndicator(),
-          Spacer(),
-          PopupMenuButton<MixQuality>(
-            tooltip: "下载",
-            padding: const EdgeInsets.all(0),
-            // elevation: 2,
-            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
-            itemBuilder: (BuildContext context) {
-              return quality
-                  .map(
-                    (e) => PopupMenuItem(
-                  value: e,
-                  child: Text(e.title ?? "未知"),
-                  onTap: () {
-
-                    var dl = MixDownload.fromMv(mv.value!, e);
-                    dl.url = e.url;
-                    download.addTask(dl);
-                  },
-                ),
-              )
-                  .toList();
-            },
-            child: Text("下载", style: TextStyle(color: Colors.white)),
-          ),
-          Gap(8),
-
-          PopupMenuButton<MixQuality>(
-            tooltip: "清晰度",
-            padding: const EdgeInsets.all(0),
-            // elevation: 2,
-            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
-            itemBuilder: (BuildContext context) {
-              return quality
-                  .map(
-                    (e) => PopupMenuItem(
-                      value: e,
-                      child: Text(e.title ?? "未知"),
-                      onTap: () {
-                        selectQuality.value = e;
-                        _initializeVideoPlayer(e.url ?? "", position: position);
-                      },
-                    ),
-                  )
-                  .toList();
-            },
-            child: Obx(
-              () => Text(
-                selectQuality.value?.title ?? "清晰度",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-          Gap(8),
-          MaterialDesktopFullscreenButton(),
-        ],
-      ),
-      child: child,
-    );
-  }
-
-  Widget phoneTheme({
-    required Widget child,
-    required List<MixQuality> quality,
-  }) {
-    return MaterialVideoControlsTheme(
-      normal: MaterialVideoControlsThemeData(
-        buttonBarButtonSize: 24.0,
-        buttonBarButtonColor: Colors.white,
-        bottomButtonBar: [
-          MaterialPositionIndicator(),
-          Spacer(),
-          PopupMenuButton<MixQuality>(
-            tooltip: "下载",
-            padding: const EdgeInsets.all(0),
-            // elevation: 2,
-            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
-            itemBuilder: (BuildContext context) {
-              return quality
-                  .map(
-                    (e) => PopupMenuItem(
-                  value: e,
-                  child: Text(e.title ?? "未知"),
-                  onTap: () {
-
-                    var dl = MixDownload.fromMv(mv.value!, e);
-                    dl.url = e.url;
-                    download.addTask(dl);
-                  },
-                ),
-              )
-                  .toList();
-            },
-            child: Text("下载", style: TextStyle(color: Colors.white)),
-          ),
-          Gap(8),
-          PopupMenuButton<MixQuality>(
-            tooltip: "清晰度",
-            padding: const EdgeInsets.all(0),
-            // elevation: 2,
-            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
-            itemBuilder: (BuildContext context) {
-              return quality
-                  .map(
-                    (e) => PopupMenuItem(
-                      value: e,
-                      child: Text(e.title ?? "未知"),
-                      onTap: () {
-                        selectQuality.value = e;
-                        _initializeVideoPlayer(e.url ?? "", position: position);
-                      },
-                    ),
-                  )
-                  .toList();
-            },
-            child: Obx(
-              () => Text(
-                selectQuality.value?.title ?? "清晰度",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-          Gap(8),
-          MaterialDesktopFullscreenButton(),
-        ],
-      ),
-      fullscreen: MaterialVideoControlsThemeData(
-        bottomButtonBar: [
-          MaterialPositionIndicator(),
-          Spacer(),
-          PopupMenuButton<MixQuality>(
-            tooltip: "下载",
-            padding: const EdgeInsets.all(0),
-            // elevation: 2,
-            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
-            itemBuilder: (BuildContext context) {
-              return quality
-                  .map(
-                    (e) => PopupMenuItem(
-                  value: e,
-                  child: Text(e.title ?? "未知"),
-                  onTap: () {
-
-                    var dl = MixDownload.fromMv(mv.value!, e);
-                    dl.url = e.url;
-                    download.addTask(dl);
-                  },
-                ),
-              )
-                  .toList();
-            },
-            child: Text("下载", style: TextStyle(color: Colors.white)),
-          ),
-          Gap(8),
-
-          PopupMenuButton<MixQuality>(
-            tooltip: "清晰度",
-            padding: const EdgeInsets.all(0),
-            // elevation: 2,
-            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
-            itemBuilder: (BuildContext context) {
-              return quality
-                  .map(
-                    (e) => PopupMenuItem(
-                      value: e,
-                      child: Text(e.title ?? "未知"),
-                      onTap: () {
-                        selectQuality.value = e;
-                        _initializeVideoPlayer(e.url ?? "", position: position);
-                      },
-                    ),
-                  )
-                  .toList();
-            },
-            child: Obx(
-              () => Text(
-                selectQuality.value?.title ?? "清晰度",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-          Gap(8),
-          MaterialDesktopFullscreenButton(),
-        ],
-      ),
-      child: child,
-    );
+    controller.load();
   }
 
   @override
   void dispose() {
-    player.dispose();
+    controller.disposeController();
     super.dispose();
   }
 
-  ///获取专辑
-  void getAlbumInfo() {
-    ApiFactory.api(package: mv.value?.package ?? "")
-        ?.mvInfo(mv: mv.value!)
-        .then((value) {
-          firstLoad.value = false;
-
-          mv.value = value.data;
-          quality.clear();
-          quality.addAll(mv.value?.quality ?? []);
-          if (quality.isNotEmpty) {
-            var ss = quality.reduce(
-              (a, b) => (a.quality ?? 0) < (b.quality ?? 0) ? a : b,
-            );
-            selectQuality.value = ss;
-
-            _initializeVideoPlayer(ss.url ?? "");
-          }
-
-          // showComplete("操作成功");
-        })
-        .catchError((e) {
-          firstLoad.value = false;
-          print(e);
-
-          showError(e);
-        });
-  }
+  @override
+  Widget build(BuildContext context) => HyperScaffold(
+    appBar: HyperAppBar(
+      title: HyperText(widget.resource.title),
+      automaticallyImplyLeading: false,
+      leading: HyperDeviceDetector.of(context) == HyperDeviceType.desktop
+          ? null
+          : HyperIconButton.ghost(
+              tooltip: '返回',
+              icon: const HyperIcon(Icons.arrow_back_rounded),
+              onPressed: () =>
+                  context.canPop() ? context.pop() : context.go('/'),
+            ),
+    ),
+    body: Obx(
+      () => controller.info.when(
+        loading: () => const Center(child: HyperText('正在加载…')),
+        error: (error, stack) => HyperResult.empty(
+          title: 'MV 详情加载失败',
+          description: '$error',
+          actions: [
+            HyperButton.tonal(
+              onPressed: controller.load,
+              label: const HyperText('重试'),
+            ),
+          ],
+        ),
+        data: (detail) => ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            HyperText(detail.title),
+            if (detail.favorited != null)
+              HyperBadge(label: detail.favorited! ? '已收藏' : '未收藏'),
+            if (detail.subtitle != null) HyperText(detail.subtitle!),
+            if (detail.description case final String description)
+              HyperText(description),
+            const SizedBox(height: 16),
+            HyperText('地址：${detail.url ?? '未返回地址'}'),
+            for (final quality in detail.qualities)
+              HyperListTile(
+                title: HyperText(quality.title),
+                subtitle: HyperText(quality.url ?? '未返回地址'),
+              ),
+            Wrap(
+              spacing: 8,
+              children: [
+                if (controller.supportsFavorite)
+                  HyperMenuButton(
+                    items: [
+                      if (detail.favorited != true)
+                        const HyperMenuItem(id: 'favorite', label: '收藏'),
+                      if (detail.favorited != false)
+                        const HyperMenuItem(id: 'unfavorite', label: '取消收藏'),
+                    ],
+                    onSelected: (action) => widget.plugins.manage(
+                      widget.resource.pluginId,
+                      () async {
+                        final value = action == 'favorite';
+                        await controller.favorite(value);
+                        return value ? '已收藏' : '已取消收藏';
+                      },
+                    ),
+                    child: const HyperIcon(Icons.more_horiz),
+                  ),
+                HyperButton.tonal(
+                  onPressed: controller.printAddresses,
+                  label: const HyperText('打印地址'),
+                ),
+                HyperButton.text(
+                  onPressed: () => showPluginLogs(
+                    context,
+                    pluginId: widget.resource.pluginId,
+                  ),
+                  label: const HyperText('查看插件日志'),
+                ),
+              ],
+            ),
+            Obx(
+              () => widget.plugins.action.hasError
+                  ? HyperText('操作失败：${widget.plugins.action.errorValue}')
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }

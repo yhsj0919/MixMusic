@@ -1,105 +1,90 @@
-import 'package:easy_refresh/easy_refresh.dart';
-import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:mix_music/common/api/api_factory.dart';
-import 'package:mix_music/common/entity/mix_album.dart';
-import 'package:mix_music/common/entity/mix_artist.dart';
-import 'package:mix_music/common/entity/page_entity.dart';
-import 'package:mix_music/route/routes.dart';
-import 'package:mix_music/utils/SubordinateScrollController.dart';
-import 'package:mix_music/widgets/app_image.dart';
-import 'package:mix_music/widgets/message.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lemon_ui/lemon_ui.dart';
+import 'package:lemon_x/lemon_x.dart';
 
-
-import '../../widgets/hyper/hyper_loading.dart';
-import '../../widgets/page_list_view.dart';
+import '../../common/plugin/collection_controller.dart';
 
 class ArtistDetailAlbum extends StatefulWidget {
-  const ArtistDetailAlbum({super.key, required this.artist});
-
-  final MixArtist artist;
+  const ArtistDetailAlbum({super.key, required this.collection});
+  final CollectionController collection;
 
   @override
   State<ArtistDetailAlbum> createState() => _ArtistDetailAlbumState();
 }
 
-class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> with AutomaticKeepAliveClientMixin {
-  late EasyRefreshController refreshController;
-  Rxn<PageEntity> pageEntity = Rxn();
-  RxList<MixAlbum> albumList = RxList();
-  RxBool firstLoad = RxBool(true);
-
+class _ArtistDetailAlbumState extends State<ArtistDetailAlbum> {
   @override
   void initState() {
     super.initState();
-    refreshController = EasyRefreshController(controlFinishLoad: true, controlFinishRefresh: true);
-    Future.delayed(const Duration(milliseconds: 300)).then((v) {
-      artistSong(artist: widget.artist);
-    });
+    if (widget.collection.albumPage == 0) widget.collection.loadMoreAlbums();
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return Obx(
-      () => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 600),
-        child: firstLoad.value
-            ? const HyperLoading()
-            : PageListView(
-                controller: refreshController,
-                onRefresh: () {
-                  return artistSong(artist: widget.artist);
-                },
-                onLoad: () {
-                  return artistSong(artist: widget.artist, page: pageEntity.value?.page ?? 0);
-                },
-                scrollController: SubordinateScrollController(context.findAncestorStateOfType<ExtendedNestedScrollViewState>()!.innerController),
-                itemCount: albumList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  var item = albumList[index];
-                  return ListTile(
-                    leading: Hero(tag: "${item.package}${item.id}${item.pic}", child: AppImage(url: item.pic ?? "")),
-                    title: Text("${item.title}", maxLines: 1),
-                    subtitle: Text("${item.subTitle}", maxLines: 1),
-                    onTap: () {
-                       Get.toNamed(id: Routes.key,Routes.albumDetail, arguments: item);
-                    },
-                  );
-                },
+    final collection = widget.collection;
+    return HyperScaffold(
+      appBar: HyperAppBar(
+        title: HyperText('${collection.resource.title} · 专辑'),
+        automaticallyImplyLeading: false,
+        leading: HyperDeviceDetector.of(context) == HyperDeviceType.desktop
+            ? null
+            : HyperIconButton.ghost(
+                tooltip: '返回',
+                icon: const HyperIcon(Icons.arrow_back_rounded),
+                onPressed: () =>
+                    context.canPop() ? context.pop() : context.go('/'),
               ),
+      ),
+      body: NotificationListener<ScrollUpdateNotification>(
+        onNotification: (event) {
+          if (event.depth == 0 &&
+              event.metrics.extentAfter < 240 &&
+              collection.albumsError.value.isEmpty) {
+            collection.loadMoreAlbums();
+          }
+          return false;
+        },
+        child: Obx(() {
+          final albums = collection.albums.value;
+          return ListView.builder(
+            padding: const EdgeInsets.all(20),
+            itemCount: albums.length + 1,
+            itemBuilder: (context, index) {
+              if (index < albums.length) {
+                final album = albums[index];
+                return HyperListTile(
+                  leading: const HyperIcon(Icons.album_outlined),
+                  title: HyperText(album.title),
+                  subtitle: HyperText(album.subtitle ?? ''),
+                  onTap: () => context.push('/album', extra: album),
+                );
+              }
+              return Obx(
+                () => Column(
+                  children: [
+                    if (collection.albumsLoading.value)
+                      const HyperText('正在加载…')
+                    else if (collection.albumsError.value.isNotEmpty) ...[
+                      HyperText('加载失败：${collection.albumsError.value}'),
+                      HyperButton.text(
+                        onPressed: collection.loadMoreAlbums,
+                        label: const HyperText('重试'),
+                      ),
+                    ] else if (collection.albumsHasMore.value)
+                      HyperButton.text(
+                        onPressed: collection.loadMoreAlbums,
+                        label: const HyperText('加载更多'),
+                      )
+                    else
+                      HyperText(albums.isEmpty ? '暂无专辑' : '已加载全部专辑'),
+                  ],
+                ),
+              );
+            },
+          );
+        }),
       ),
     );
   }
-
-  ///获取歌单
-  void artistSong({required MixArtist artist, int page = 0}) {
-    ApiFactory.api(package: widget.artist.package)?.artistAlbum(artist: artist, page: page, size: 20).then((value) {
-      firstLoad.value = false;
-      pageEntity.value = value.page;
-      if (page == 0) {
-        albumList.clear();
-        refreshController.finishRefresh();
-      }
-      Future.delayed(Duration(milliseconds: 200)).then((v) {
-        refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
-      });
-
-      albumList.addAll(value.data ?? []);
-
-      // showComplete("操作成功");
-    }).catchError((e) {
-      firstLoad.value = false;
-      if (page == 0) {
-        refreshController.finishRefresh(IndicatorResult.fail, true);
-      } else {
-        refreshController.finishLoad(IndicatorResult.fail, true);
-      }
-      showError(e);
-    });
-  }
-
-  @override
-  bool get wantKeepAlive => true;
 }

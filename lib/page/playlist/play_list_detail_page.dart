@@ -1,177 +1,214 @@
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:get/get.dart';
-import 'package:mix_music/common/api/api_factory.dart';
-import 'package:mix_music/common/entity/mix_play_list.dart';
-import 'package:mix_music/common/entity/mix_song.dart';
-import 'package:mix_music/common/entity/page_entity.dart';
-import 'package:mix_music/page/app_playing/play_bar.dart';
-import 'package:mix_music/widgets/app_image.dart';
-import 'package:mix_music/widgets/hyper/hyper_loading.dart';
-import 'package:mix_music/widgets/hyper/hyper_song_item.dart';
-import 'package:mix_music/widgets/page_custom_scroll_view.dart';
-import 'package:sliver_tools/sliver_tools.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lemon_ui/lemon_ui.dart';
+import 'package:lemon_x/lemon_x.dart';
 
-import '../../player/music_controller.dart';
-import '../../widgets/message.dart';
+import '../../common/player/player_controller.dart';
+import '../../common/plugin/collection_controller.dart';
+import '../../common/plugin/plugin_controller.dart';
+import '../app_playing/song_actions.dart';
+import '../download/download_actions.dart';
 
 class PlayListDetailPage extends StatefulWidget {
-  const PlayListDetailPage({super.key, required this.playlist});
-
-  final MixPlaylist playlist;
+  const PlayListDetailPage({
+    super.key,
+    required this.collection,
+    this.embedded = false,
+  });
+  final CollectionController collection;
+  final bool embedded;
 
   @override
   State<PlayListDetailPage> createState() => _PlayListDetailPageState();
 }
 
 class _PlayListDetailPageState extends State<PlayListDetailPage> {
-  late EasyRefreshController refreshController;
-  MusicController music = Get.put(MusicController());
-  RxList<MixSong> songList = RxList();
-  Rxn<PageEntity> pageEntity = Rxn();
-  Rxn<MixPlaylist> playlist = Rxn();
-  final RxBool _isVisible = RxBool(false);
-  final RxBool _showData = RxBool(false);
-
-  RxBool firstLoad = RxBool(true);
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 100)).then((value) {
-      _isVisible.value = true;
-    });
-    playlist.value = widget.playlist;
-    refreshController = EasyRefreshController(controlFinishRefresh: true, controlFinishLoad: true);
-
-    Future.delayed(const Duration(milliseconds: 300)).then((value) {
-      getPlayListInfo();
-    });
+    if (widget.collection.page == 0) widget.collection.loadMore();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: PlayBar(),
-      body: PageCustomScrollView(
-        controller: refreshController,
-        onRefresh: () {
-          return getPlayListInfo();
-        },
-        onLoad: () {
-          return getPlayListInfo(page: pageEntity.value?.page ?? 0);
-        },
-        slivers: [
-          SliverAppBar.large(
-            title: Text(playlist.value?.title ?? ""),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  showDialog(
-                    useRootNavigator: false,
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('关于'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            AppImage(url: playlist.value?.pic ?? "", width: 260, height: 260),
-                            Gap(16),
-                            Text(playlist.value?.desc ?? ""),
-                          ],
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0), // 设置圆角的大小
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop(); // 关闭对话框
-                            },
-                            child: const Text('关闭'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                icon: const Icon(Icons.info_outline_rounded),
-              ),
-            ],
-          ),
-          PinnedHeaderSliver(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainer, borderRadius: const BorderRadius.all(Radius.circular(12))),
-                child: ListTile(
-                  title: Text("播放全部"),
-                  trailing: Icon(Icons.play_arrow_rounded, size: 30),
-                  onTap: () {
-                    music.playList(list: songList, index: 0);
-                  },
-                ),
-              ),
-            ),
-          ),
-          Obx(
-            () => SliverAnimatedSwitcher(
-              duration: const Duration(milliseconds: 600),
-              child: firstLoad.value
-                  ? const SliverToBoxAdapter(child: HyperLoading(height: 400))
-                  : SliverList.builder(
-                      // physics: const NeverScrollableScrollPhysics(),
-                      // shrinkWrap: true,
-                      // padding: const EdgeInsets.only(top: 0),
-                      itemCount: songList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        var song = songList[index];
-                        return HyperSongItem(
-                          song: song,
-                          onTap: () {
-                            music.playList(list: songList, index: index);
-                          },
-                        );
-                      },
+    final collection = widget.collection;
+    final player = context.lx.find<PlayerController>();
+    final plugins = context.lx.find<PluginController>();
+    return HyperScaffold(
+      appBar: widget.embedded
+          ? null
+          : HyperAppBar(
+              title: HyperText(collection.resource.title),
+              automaticallyImplyLeading: false,
+              leading:
+                  HyperDeviceDetector.of(context) == HyperDeviceType.desktop
+                  ? null
+                  : HyperIconButton.ghost(
+                      tooltip: '返回',
+                      icon: const HyperIcon(Icons.arrow_back_rounded),
+                      onPressed: () =>
+                          context.canPop() ? context.pop() : context.go('/'),
                     ),
             ),
-          ),
-        ],
+      body: NotificationListener<ScrollUpdateNotification>(
+        onNotification: (event) {
+          if (event.depth == 0 &&
+              event.metrics.extentAfter < 240 &&
+              collection.error.value.isEmpty) {
+            collection.loadMore();
+          }
+          return false;
+        },
+        child: Obx(() {
+          final songs = collection.songs.value;
+          final info = collection.info.value;
+          return ListView.builder(
+            padding: const EdgeInsets.all(20),
+            itemCount: songs.length + 2,
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    HyperText(info.title),
+                    if (info.favorited != null)
+                      HyperBadge(label: info.favorited! ? '已收藏' : '未收藏'),
+                    if (info.subtitle != null) HyperText('${info.subtitle}'),
+                    if (info.description != null)
+                      HyperText('${info.description}'),
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        HyperButton.filled(
+                          onPressed: songs.isEmpty
+                              ? null
+                              : () => player.addCollection(
+                                  collection,
+                                  play: true,
+                                ),
+                          label: const HyperText('播放全部'),
+                        ),
+                        HyperButton.tonal(
+                          onPressed: songs.isEmpty
+                              ? null
+                              : () => player.addCollection(collection),
+                          label: const HyperText('加入播放列表'),
+                        ),
+                        HyperButton.tonal(
+                          onPressed: () =>
+                              downloadCollection(context, collection),
+                          label: const HyperText('下载全部'),
+                        ),
+                        if (collection.supportsFavorite)
+                          HyperMenuButton(
+                            items: [
+                              if (info.favorited != true)
+                                const HyperMenuItem(
+                                  id: 'favorite',
+                                  label: '收藏',
+                                ),
+                              if (info.favorited != false)
+                                const HyperMenuItem(
+                                  id: 'unfavorite',
+                                  label: '取消收藏',
+                                ),
+                            ],
+                            onSelected: (action) => plugins.manage(
+                              collection.resource.pluginId,
+                              () async {
+                                final value = action == 'favorite';
+                                await collection.favorite(value);
+                                return value ? '已收藏' : '已取消收藏';
+                              },
+                            ),
+                            child: const HyperIcon(Icons.more_horiz),
+                          ),
+                        if (collection.kind == CollectionKind.artist &&
+                            collection.api.supportsArtistAlbums)
+                          HyperButton.tonal(
+                            onPressed: () => context.push(
+                              '/artist/albums',
+                              extra: collection.resource,
+                            ),
+                            label: const HyperText('查看专辑'),
+                          ),
+                      ],
+                    ),
+                    HyperText(
+                      '已加载 ${songs.length} 首${info.total == null ? '' : ' / ${info.total} 首'}',
+                    ),
+                    Obx(
+                      () => plugins.action.hasError
+                          ? HyperText('操作失败：${plugins.action.errorValue}')
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                );
+              }
+              if (index <= songs.length) {
+                final song = songs[index - 1];
+                return HyperListTile(
+                  title: Row(
+                    children: [
+                      Flexible(child: HyperText(song.title)),
+                      const SizedBox(width: 8),
+                      HyperBadge(
+                        label: switch (song.favorited) {
+                          true => '已收藏',
+                          false => '未收藏',
+                          null => '收藏未知',
+                        },
+                      ),
+                      if (song.vip) ...[
+                        const SizedBox(width: 8),
+                        const HyperBadge(label: 'VIP'),
+                      ],
+                    ],
+                  ),
+                  subtitle: HyperText(song.subtitle ?? song.pluginId),
+                  leading: const HyperIcon(Icons.music_note_rounded),
+                  trailing: HyperIconButton.ghost(
+                    tooltip: '歌曲操作',
+                    icon: const HyperIcon(Icons.more_horiz),
+                    onPressed: () async {
+                      await showSongActions(
+                        context,
+                        song,
+                        removeFromPlaylist: collection.canRemoveSongs
+                            ? () => collection.removeSong(song)
+                            : null,
+                      );
+                      if (mounted) collection.songs.refresh();
+                    },
+                  ),
+                  onTap: () => selectAndPlay(context, song),
+                );
+              }
+              return Obx(
+                () => Column(
+                  children: [
+                    if (collection.loading.value)
+                      const HyperText('正在加载…')
+                    else if (collection.error.value.isNotEmpty) ...[
+                      HyperText('加载失败：${collection.error.value}'),
+                      HyperButton.text(
+                        onPressed: collection.loadMore,
+                        label: const HyperText('重试'),
+                      ),
+                    ] else if (collection.hasMore.value)
+                      HyperButton.text(
+                        onPressed: collection.loadMore,
+                        label: const HyperText('加载更多'),
+                      )
+                    else
+                      HyperText(songs.isEmpty ? '暂无歌曲' : '已加载全部歌曲'),
+                  ],
+                ),
+              );
+            },
+          );
+        }),
       ),
     );
-  }
-
-  ///获取歌单
-  void getPlayListInfo({int page = 0}) {
-    ApiFactory.api(package: playlist.value?.package ?? "")
-        ?.playListInfo(playlist: playlist.value!, page: page, size: 20)
-        .then((value) {
-          _showData.value = true;
-          firstLoad.value = false;
-          pageEntity.value = value.page;
-          if (page == 0) {
-            songList.clear();
-            refreshController.finishRefresh();
-          }
-          Future.delayed(Duration(milliseconds: 200)).then((v) {
-            refreshController.finishLoad(pageEntity.value?.last == false ? IndicatorResult.success : IndicatorResult.noMore, true);
-          });
-          songList.addAll(value.data?.songs ?? []);
-
-          // showComplete("操作成功");
-        })
-        .catchError((e) {
-          firstLoad.value = false;
-          if (page == 0) {
-            refreshController.finishRefresh(IndicatorResult.fail, true);
-          } else {
-            refreshController.finishLoad(IndicatorResult.fail, true);
-          }
-          showError(e);
-        });
   }
 }

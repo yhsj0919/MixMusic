@@ -1,201 +1,465 @@
-import 'package:flutter_js/flutter_js.dart';
-import 'package:mix_music/common/entity/app_resp_entity.dart';
-import 'package:mix_music/common/entity/mix_artist_type.dart';
-import 'package:mix_music/common/entity/mix_download.dart';
-import 'package:mix_music/common/entity/mix_lrc.dart';
-import 'package:mix_music/common/entity/mix_mv.dart';
-import 'package:mix_music/common/entity/mix_mv_type.dart';
-import 'package:mix_music/common/entity/mix_play_list_type.dart';
-import 'package:mix_music/common/entity/mix_quality.dart';
-import 'package:mix_music/common/entity/mix_user.dart';
-import 'package:mix_music/common/entity/plugins_info.dart';
+import 'package:lemon_js_extensions/lemon_js_extensions.dart';
 
-import '../entity/mix_album.dart';
-import '../entity/mix_album_type.dart';
-import '../entity/mix_artist.dart';
-import '../entity/mix_play_list.dart';
-import '../entity/mix_rank.dart';
-import '../entity/mix_rank_type.dart';
-import '../entity/mix_song.dart';
+import '../entity/song.dart';
+import '../entity/album.dart';
+import '../entity/artist.dart';
+import '../entity/play_list.dart';
+import '../entity/rank.dart';
+import '../entity/mv.dart';
+import '../entity/music_collection.dart';
+import '../entity/plugin_account.dart';
+import '../entity/comment.dart';
 
-abstract class MusicApi {
-  PluginsInfo? plugins;
-  JavascriptRuntime? current;
+class MusicApi {
+  final JsExtensionManager manager;
+  final String pluginId;
+  MusicApi(this.manager, this.pluginId);
 
-  ///=====================================搜索=====================================================
-  ///搜索歌曲
-  Future<AppRespEntity<List<MixSong>>> searchMusic({required String keyword, required int page, required int size});
+  Song updateMetadata(Song song, Map<String, String> tags) => song;
 
-  ///搜索专辑
-  Future<AppRespEntity<List<MixAlbum>>> searchAlbum({required String keyword, required int page, required int size});
+  Future<CommentPage> songComments(
+    Song song, {
+    dynamic category,
+    int page = 0,
+    int size = 20,
+    dynamic cursor,
+  }) async {
+    final data = await _call('songComments', [
+      song.toJson(),
+      {'category': category, 'page': page, 'size': size, 'cursor': cursor},
+    ]) as Map;
+    return (
+      items: (data['items'] as List)
+          .map((item) => Comment.fromJson(item as Map))
+          .toList(),
+      categories: (data['categories'] as List? ?? [])
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList(),
+      category: data['category'],
+      total: data['total'] as int?,
+      hasMore: data['hasMore'] as bool,
+      cursor: data['cursor'],
+    );
+  }
 
-  ///搜索歌手
-  Future<AppRespEntity<List<MixArtist>>> searchArtist({required String keyword, required int page, required int size});
+  bool get supportsArtistAlbums =>
+      manager
+          .find(pluginId)
+          ?.installed
+          ?.extension
+          .service
+          ?.publicExports
+          .contains('artistAlbum') ??
+      false;
 
-  ///搜索歌单
-  Future<AppRespEntity<List<MixPlaylist>>> searchPlayList({required String keyword, required int page, required int size});
+  // 本地收藏由宿主管理；不发送给插件，也不接受插件覆盖。资源 ID 保持原样。
+  Object? _pluginData(Object? value) => switch (value) {
+    List() => value.map(_pluginData).toList(),
+    Map() => {
+      for (final entry in value.entries)
+        if (entry.key != 'locallyFavorited' && entry.key != 'matchedSong')
+          entry.key: entry.key == 'id' ? entry.value : _pluginData(entry.value),
+    },
+    _ => value,
+  };
 
-  ///搜索MV
-  Future<AppRespEntity<List<MixMv>>> searchMv({required String keyword, required int page, required int size});
+  Future<Object?> _call(String method, List<Object?> args) async => _pluginData(
+    await manager.call(
+      pluginId,
+      method,
+      arguments: _pluginData(args) as List<Object?>,
+    ),
+  );
 
-  ///搜索建议
-  Future<AppRespEntity<List<String>>> searchSuggest({required String keyword});
+  Future<List<Song>> searchMusic(
+    String keyword, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('searchMusic', [keyword, page, size]);
+    return (result as List)
+        .map((item) => Song.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///=====================================搜索=====================================================
-  ///
-  ///
-  ///=====================================首页，推荐=====================================================
-  ///最新专辑
-  Future<AppRespEntity<List<MixAlbum>>> albumRec();
+  Future<List<Album>> searchAlbum(
+    String keyword, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('searchAlbum', [keyword, page, size]);
+    return (result as List)
+        .map((item) => Album.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///歌单推荐
-  Future<AppRespEntity<List<MixPlaylist>>> playListRec();
+  Future<List<Artist>> searchArtist(
+    String keyword, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('searchArtist', [keyword, page, size]);
+    return (result as List)
+        .map((item) => Artist.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///新歌
-  Future<AppRespEntity<List<MixSong>>> songRec();
+  Future<List<PlayList>> searchPlayList(
+    String keyword, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('searchPlayList', [keyword, page, size]);
+    return (result as List)
+        .map(
+          (item) => PlayList.fromJson({...item as Map, 'pluginId': pluginId}),
+        )
+        .toList();
+  }
 
-  ///MV
-  Future<AppRespEntity<List<MixMv>>> mvRec();
+  Future<List<Mv>> searchMv(
+    String keyword, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('searchMv', [keyword, page, size]);
+    return (result as List)
+        .map((item) => Mv.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///=====================================首页，推荐=====================================================
-  ///
-  ///
-  ///=====================================歌单=====================================================
+  Future<List<String>> searchSuggest(String keyword) async {
+    final result = await _call('searchSuggest', [keyword]);
+    return List<String>.from(result as List);
+  }
 
-  ///歌单
-  Future<AppRespEntity<List<MixPlaylist>>> playList({MixPlaylistType? type, required int page, required int size});
+  Future<Song> playUrl(Song song) async {
+    final result = await _call('playUrl', [song.toJson()]);
+    return Song.fromJson({
+      ...song.toJson(),
+      ...result as Map,
+      'pluginId': pluginId,
+    });
+  }
 
-  ///歌单分类
-  Future<AppRespEntity<List<MixPlaylistType>>> playListType();
+  Future<Map<String, dynamic>> lrc(Song song) async {
+    final result = await _call('lrc', [song.toJson()]);
+    return Map<String, dynamic>.from(result as Map);
+  }
 
-  ///获取歌单详情
-  Future<AppRespEntity<MixPlaylist>> playListInfo({required MixPlaylist playlist, required int page, required int size});
+  Future<Map<String, dynamic>> download(Map<String, dynamic> download) async {
+    final result = await _call('download', [download]);
+    return Map<String, dynamic>.from(result as Map);
+  }
 
-  ///解析歌单
-  Future<AppRespEntity<MixPlaylist>> parsePlayList({required String? url});
+  Future<MusicCollection> recommendInfo([int page = 0, int size = 20]) async {
+    final result = await _call('recommendInfo', [page, size]);
+    return MusicCollection.fromJson({
+      'id': 'daily',
+      'title': '每日推荐',
+      ...result as Map,
+      'pluginId': pluginId,
+    });
+  }
 
-  ///=====================================歌单=====================================================
-  ///
-  ///
-  ///=====================================地址=====================================================
+  Future<List<Map<String, dynamic>>> playListType() async {
+    final result = await _call('playListType', []);
+    return (result as List)
+        .map((item) => Map<String, dynamic>.from(item as Map))
+        .toList();
+  }
 
-  ///获取播放地址
-  Future<MixSong> playUrl(MixSong song);
+  Future<List<PlayList>> playList(
+    Map<String, dynamic>? category, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('playList', [category, page, size]);
+    return (result as List)
+        .map(
+          (item) => PlayList.fromJson({...item as Map, 'pluginId': pluginId}),
+        )
+        .toList();
+  }
 
-  ///下载地址
-  Future<MixDownload> download(MixDownload download);
+  Future<PlayList> playListInfo(
+    PlayList playlist, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('playListInfo', [playlist.toJson(), page, size]);
+    return PlayList.fromJson({
+      ...playlist.toJson(),
+      ...result as Map,
+      'pluginId': pluginId,
+    });
+  }
 
-  Future<MixLrc> lrc(MixSong song);
+  Future<List<Map<String, dynamic>>> albumType() async {
+    final result = await _call('albumType', []);
+    return (result as List)
+        .map((item) => Map<String, dynamic>.from(item as Map))
+        .toList();
+  }
 
-  ///=====================================地址=====================================================
-  ///
-  ///
-  ///=====================================专辑=====================================================
+  Future<List<Album>> albumList(
+    Map<String, dynamic>? category, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('albumList', [category, page, size]);
+    return (result as List)
+        .map((item) => Album.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///专辑分类
-  Future<AppRespEntity<List<MixAlbumType>>> albumType();
+  Future<Album> albumInfo(Album album, [int page = 0, int size = 20]) async {
+    final result = await _call('albumInfo', [album.toJson(), page, size]);
+    return Album.fromJson({
+      ...album.toJson(),
+      ...result as Map,
+      'pluginId': pluginId,
+    });
+  }
 
-  ///专辑
-  Future<AppRespEntity<List<MixAlbum>>> albumList({MixAlbumType? type, required int page, required int size});
+  Future<List<PlayList>> playListRec() async {
+    final result = await _call('playListRec', []);
+    return (result as List)
+        .map(
+          (item) => PlayList.fromJson({...item as Map, 'pluginId': pluginId}),
+        )
+        .toList();
+  }
 
-  ///获取专辑详情
-  Future<AppRespEntity<MixAlbum>> albumInfo({required MixAlbum album, required int page, required int size});
+  Future<List<Album>> albumRec() async {
+    final result = await _call('albumRec', []);
+    return (result as List)
+        .map((item) => Album.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///=====================================专辑=====================================================
-  ///
-  ///
-  ///=====================================榜单=====================================================
+  Future<List<Song>> songRec() async {
+    final result = await _call('songRec', []);
+    return (result as List)
+        .map((item) => Song.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///榜单
-  Future<AppRespEntity<List<MixRankType>>> rankList();
+  Future<List<Mv>> mvRec() async {
+    final result = await _call('mvRec', []);
+    return (result as List)
+        .map((item) => Mv.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///获取榜单详情
-  Future<AppRespEntity<MixRank>> rankInfo({required MixRank rank, required int page, required int size});
+  Future<List<Rank>> rankList() async {
+    final result = await _call('rankList', []);
+    return (result as List)
+        .map((item) => Rank.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///=====================================榜单=====================================================
-  ///
-  ///
-  ///=====================================歌手=====================================================
-  ///歌手
-  Future<AppRespEntity<List<MixArtist>>> artistList({Map<String, dynamic>? type, required int page, required int size});
+  Future<Rank> rankInfo(Rank rank, [int page = 0, int size = 20]) async {
+    final result = await _call('rankInfo', [rank.toJson(), page, size]);
+    return Rank.fromJson({
+      ...rank.toJson(),
+      ...result as Map,
+      'pluginId': pluginId,
+    });
+  }
 
-  ///歌手分类
-  Future<AppRespEntity<List<MixArtistType>>> artistType();
+  Future<List<Map<String, dynamic>>> artistType() async {
+    final result = await _call('artistType', []);
+    return (result as List)
+        .map((item) => Map<String, dynamic>.from(item as Map))
+        .toList();
+  }
 
-  ///获取歌手详情
-  Future<AppRespEntity<MixArtist>> artistInfo({required MixArtist artist});
+  Future<List<Artist>> artistList(
+    Map<String, dynamic>? category, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('artistList', [category, page, size]);
+    return (result as List)
+        .map((item) => Artist.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///歌手歌曲
-  Future<AppRespEntity<List<MixSong>>> artistSong({required MixArtist artist, required int page, required int size});
+  Future<Artist> artistInfo(
+    Artist artist, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('artistInfo', [artist.toJson(), page, size]);
+    return Artist.fromJson({
+      ...artist.toJson(),
+      ...result as Map,
+      'pluginId': pluginId,
+    });
+  }
 
-  ///歌手专辑
-  Future<AppRespEntity<List<MixAlbum>>> artistAlbum({required MixArtist artist, required int page, required int size});
+  Future<List<Song>> artistSong(
+    Artist artist, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('artistSong', [artist.toJson(), page, size]);
+    return (result as List)
+        .map((item) => Song.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///=====================================歌手=====================================================
-  ///
-  ///
-  ///
-  ///=====================================用户=====================================================
-  ///用户信息
-  Future<AppRespEntity<MixUser>> userInfo();
+  Future<List<Album>> artistAlbum(
+    Artist artist, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('artistAlbum', [artist.toJson(), page, size]);
+    return (result as List)
+        .map((item) => Album.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///刷新Cookie
-  Future<AppRespEntity<dynamic>> userRefresh();
+  Future<List<Map<String, dynamic>>> mvType() async {
+    final result = await _call('mvType', []);
+    return (result as List)
+        .map((item) => Map<String, dynamic>.from(item as Map))
+        .toList();
+  }
 
-  ///=====================================用户=====================================================
-  ///
-  ///
-  ///=====================================MV=====================================================
+  Future<List<Mv>> mvList(
+    Map<String, dynamic>? category, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final result = await _call('mvList', [category, page, size]);
+    return (result as List)
+        .map((item) => Mv.fromJson({...item as Map, 'pluginId': pluginId}))
+        .toList();
+  }
 
-  ///MV分类
-  Future<AppRespEntity<List<MixMvType>>> mvType();
+  Future<Mv> mvInfo(Mv mv) async {
+    final result = await _call('mvInfo', [mv.toJson()]);
+    return Mv.fromJson({
+      ...mv.toJson(),
+      ...result as Map,
+      'pluginId': pluginId,
+    });
+  }
 
-  ///MV
-  Future<AppRespEntity<List<MixMv>>> mvList({Map<String, dynamic>? type, required int page, required int size});
+  Future<PlayList?> parsePlayList(String url) async {
+    final result = await _call('parsePlayList', [url]);
+    if (result == null) return null;
+    if (result is! Map || result['id'] == null) {
+      throw StateError('插件未返回有效歌单信息');
+    }
+    return PlayList.fromJson({...result, 'pluginId': pluginId});
+  }
 
-  ///获取MV详情
-  Future<AppRespEntity<MixMv>> mvInfo({required MixMv mv});
+  Future<MusicCollection> mySongs([int page = 0, int size = 20]) async {
+    final data = await _call('mySongs', [page, size]);
+    return MusicCollection.fromJson({...data as Map, 'pluginId': pluginId});
+  }
 
-  ///=====================================MV=====================================================
-  ///
-  ///
-  ///=====================================登录=====================================================
-  ///设置Cookie
-  Future<AppRespEntity<dynamic>> setCookie({required String cookie});
+  Future<({List<PlayList> items, bool hasMore})> myPlayLists(
+    bool created, [
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final data = await _call('myPlayLists', [created, page, size]) as Map;
+    return (
+      items: [
+        for (final item in data['items'] as List)
+          PlayList.fromJson({...item as Map, 'pluginId': pluginId}),
+      ],
+      hasMore: data['hasMore'] as bool,
+    );
+  }
 
-  ///获取Cookie
-  Future<AppRespEntity<String>> getCookie();
+  Future<({List<Album> items, bool hasMore})> myAlbums([
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final data = await _call('myAlbums', [page, size]) as Map;
+    return (
+      items: [
+        for (final item in data['items'] as List)
+          Album.fromJson({...item as Map, 'pluginId': pluginId}),
+      ],
+      hasMore: data['hasMore'] as bool,
+    );
+  }
 
-  ///发送验证码
-  Future<AppRespEntity<dynamic>> sendPhoneCode({required String phone});
+  Future<({List<Mv> items, bool hasMore})> myMvs([
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final data = await _call('myMvs', [page, size]) as Map;
+    return (
+      items: [
+        for (final item in data['items'] as List)
+          Mv.fromJson({...item as Map, 'pluginId': pluginId}),
+      ],
+      hasMore: data['hasMore'] as bool,
+    );
+  }
 
-  ///验证码登录
-  Future<AppRespEntity<MixUser>> loginByPhone({required String phone, required String code});
+  Future<({List<Artist> items, bool hasMore})> myArtists([
+    int page = 0,
+    int size = 20,
+  ]) async {
+    final data = await _call('myArtists', [page, size]) as Map;
+    return (
+      items: [
+        for (final item in data['items'] as List)
+          Artist.fromJson({...item as Map, 'pluginId': pluginId}),
+      ],
+      hasMore: data['hasMore'] as bool,
+    );
+  }
 
-  ///网页登陆地址
-  Future<String> getWebLoginUrl();
+  Future<void> createPlayList(String name) async =>
+      await _call('createPlayList', [name]);
+  Future<void> deletePlayList(PlayList playlist) async =>
+      await _call('deletePlayList', [playlist.toJson()]);
+  Future<void> addToPlayList(PlayList playlist, List<Song> songs) async =>
+      await _call('addToPlayList', [
+        playlist.toJson(),
+        songs.map((x) => x.toJson()).toList(),
+      ]);
+  Future<void> removeFromPlayList(PlayList playlist, List<Song> songs) async =>
+      await _call('removeFromPlayList', [
+        playlist.toJson(),
+        songs.map((x) => x.toJson()).toList(),
+      ]);
+  Future<void> favoriteSong(Song song, bool favorite) async {
+    await _call('favoriteSong', [song.toJson(), favorite]);
+    song.favorited = favorite;
+  }
 
-  ///=====================================登录=====================================================
-  ///
-  ///
-  ///=====================================每日推荐=====================================================
-  ///获取每日推荐详情
-  Future<AppRespEntity<MixPlaylist>> recommendInfo({required int page, required int size});
+  Future<void> favoritePlayList(PlayList playlist, bool favorite) async {
+    await _call('favoritePlayList', [playlist.toJson(), favorite]);
+    playlist.favorited = favorite;
+  }
 
-  ///=====================================每日推荐=====================================================
-  ///
-  ///
-  ///=====================================公共=====================================================
-  ///执行方法
-  Future<dynamic> invokeMethod({required String method, List<String> params = const []});
+  Future<void> favoriteAlbum(Album album, bool favorite) async {
+    await _call('favoriteAlbum', [album.toJson(), favorite]);
+    album.favorited = favorite;
+  }
 
-  ///获取所有的key
-  List<String> keys({required String obj});
+  Future<void> favoriteArtist(Artist artist, bool favorite) async {
+    await _call('favoriteArtist', [artist.toJson(), favorite]);
+    artist.favorited = favorite;
+  }
 
-  ///是否包含某个key
-  bool contains({required String key, String obj = "music"});
+  Future<void> favoriteMv(Mv mv, bool favorite) async {
+    await _call('favoriteMv', [mv.toJson(), favorite]);
+    mv.favorited = favorite;
+  }
 
-  ///=====================================公共=====================================================
-
-  void dispose();
+  Future<PluginAccount> getAccount() async {
+    final result = await _call('getAccount', []);
+    return PluginAccount.fromJson(Map<String, dynamic>.from(result as Map));
+  }
 }

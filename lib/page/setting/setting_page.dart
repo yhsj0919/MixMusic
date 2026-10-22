@@ -1,181 +1,222 @@
-import 'dart:io';
-import 'dart:math';
-
-import 'package:disable_battery_optimizations_latest/disable_battery_optimizations_latest.dart';
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:get/get.dart';
-import 'package:mix_music/constant.dart';
-import 'package:mix_music/route/routes.dart';
-import 'package:mix_music/utils/db.dart';
-import 'package:mix_music/widgets/hyper/hyper_background.dart';
-import 'package:mix_music/widgets/hyper/hyper_group.dart';
-import 'package:mix_music/widgets/hyper/hyper_icon.dart';
-import 'package:mix_music/widgets/hyper/hyper_list_tile.dart';
-import 'package:mix_music/widgets/hyper/hyper_trailing.dart';
-import 'package:mix_music/widgets/message.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lemon_ui/lemon_ui.dart';
+import 'package:lemon_x/lemon_x.dart';
 
-class SettingPage extends StatefulWidget {
-  const SettingPage({super.key});
+import 'setting_controller.dart';
+import 'extension/plugin_logs.dart';
+import '../../common/player/player_controller.dart';
+import '../../common/plugin/plugin_controller.dart';
+import '../../common/download/download_controller.dart';
+import '../../common/entity/quality.dart';
+import '../app_playing/quality_dialog.dart';
 
-  @override
-  State<SettingPage> createState() => _SettingPageState();
-}
-
-class _SettingPageState extends State<SettingPage> {
-  @override
-  void initState() {
-    super.initState();
-  }
+class SettingPage extends StatelessWidget {
+  const SettingPage({super.key, required this.controller});
+  final SettingController controller;
 
   @override
-  Widget build(BuildContext context) {
-    // 获取状态栏的高度
-    return Scaffold(
-      body: HyperBackground(
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar.large(title: Text("设置")),
-            HyperGroup(
-              children: [
-                HyperListTile(
-                  leading: HyperIcon(color: Colors.blue, icon: Icons.auto_awesome),
-                  title: "关于",
-                  subtitle: "插件化音乐播放器",
-                  onTap: () {
-                     Get.toNamed(id: Routes.key,Routes.about);
-                  },
-                ),
-                HyperListTile(
-                  leading: HyperIcon(color: Colors.blue, icon: Icons.light_mode),
-                  title: "主题",
-                  subtitle: "切换日间夜间主题",
-                  trailing: HyperTrailing(),
-                  onTap: () {
-                    if (Theme.of(context).brightness == Brightness.dark) {
-                      Get.changeThemeMode(ThemeMode.light);
-                    } else {
-                      Get.changeThemeMode(ThemeMode.dark);
-                    }
-                  },
-                ),
-              ],
+  Widget build(BuildContext context) => HyperScaffold(
+    appBar: HyperAppBar.large(
+      title: const Text('设置'),
+      automaticallyImplyLeading: false,
+      leading: HyperDeviceDetector.of(context) == HyperDeviceType.desktop
+          ? null
+          : HyperIconButton.ghost(
+              key: const ValueKey('page-back'),
+              tooltip: '返回',
+              onPressed: () => context.go('/'),
+              icon: const HyperIcon(Icons.arrow_back_rounded),
             ),
-            SliverGap(12),
-            HyperGroup(
-              title: Text("插件"),
-              children: [
-                HyperListTile(
-                  leading: HyperIcon(color: Colors.blue, icon: Icons.extension_rounded),
-                  title: "插件",
-                  subtitle: "安装插件，获取资源",
-                  trailing: HyperTrailing(),
-                  onTap: () {
-                     Get.toNamed(id: Routes.key,Routes.extension);
-                  },
-                ),
-                HyperListTile(
-                  leading: HyperIcon(color: Colors.blue, icon: Icons.track_changes_rounded),
-                  title: "音源匹配",
-                  subtitle: "在其他站点搜索同名歌曲",
-                  trailing: HyperTrailing(),
-                  onTap: () {
-                     Get.toNamed(id: Routes.key,Routes.matchSite);
-                  },
-                ),
-                HyperListTile(
-                  leading: HyperIcon(color: Colors.blue, icon: Icons.home_work_rounded),
-                  title: "首页展示",
-                  subtitle: "配置首页显示的数据",
-                  trailing: HyperTrailing(),
-                  onTap: () {
-                     Get.toNamed(id: Routes.key,Routes.homeSite);
-                  },
-                ),
-                HyperListTile(
-                  leading: HyperIcon(color: Colors.blue, icon: Icons.cookie),
-                  title: "站点登录",
-                  subtitle: "登录获取更多资源",
-                  trailing: HyperTrailing(),
-                  onTap: () {
-                     Get.toNamed(id: Routes.key,Routes.loginListSetting);
-                  },
-                ),
-              ],
+    ),
+    body: ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        Text('外观', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 12),
+        HyperCard(
+          child: Obx(
+            () => HyperListTile(
+              title: const Text('深色模式'),
+              subtitle: const Text('切换应用整体主题'),
+              leading: const Icon(Icons.dark_mode_outlined),
+              trailing: HyperSwitch(
+                value: controller.darkMode.value,
+                onChanged: controller.setDarkMode,
+              ),
             ),
-            SliverGap(12),
-            HyperGroup(
-              title: Text("播放与下载"),
-              children: [
-                HyperListTile(
-                  leading: HyperIcon(color: Colors.blue, icon: Icons.play_arrow_rounded),
-                  title: "播放设置",
-                  subtitle: "音质选择，缓存设置",
-                  trailing: HyperTrailing(),
-                  onTap: () {
-                     Get.toNamed(id: Routes.key,Routes.playSetting);
-                  },
-                ),
-                HyperListTile(
-                  leading: HyperIcon(color: Colors.blue, icon: Icons.folder_rounded),
-                  title: "下载设置",
-                  subtitle: "保存路径，命名方式",
-                  trailing: HyperTrailing(),
-                  onTap: () {
-                     Get.toNamed(id: Routes.key,Routes.downloadSetting);
-                  },
-                ),
-              ],
-            ),
-            SliverGap(12),
-            HyperGroup(
-              title: Text("电源"),
-              children: [
-                HyperListTile(
-                  leading: HyperIcon(color: Colors.blue, icon: Icons.battery_unknown_rounded),
-                  title: "电源策略",
-                  subtitle: "音乐通知显示异常使用",
-                  trailing: HyperTrailing(),
-                  onTap: () {
-                    openBattery();
-                  },
-                ),
-              ],
-            ),
-            SliverGap(12),
-            HyperGroup(
-              title: Text("调试"),
-              children: [
-                HyperListTile(
-                  leading: HyperIcon(color: Colors.blue, icon: Icons.bug_report_rounded),
-                  title: "调试弹窗",
-                  subtitle: "供调试使用，可以响应alert方法",
-                  trailing: HyperTrailing(),
-                  onTap: () {
-                    var alert = AppDB.getBool(Constant.KEY_APP_DEBUG_ALERT) ?? false;
-
-                    AppDB.setBool(Constant.KEY_APP_DEBUG_ALERT, !alert);
-
-                    showInfo(alert ? "已关闭弹窗" : "已开启弹窗");
-                  },
-                ),
-              ],
-            ),
-            SliverGap(12),
-          ],
+          ),
         ),
-      ),
-    );
-  }
+        const SizedBox(height: 24),
+        Text('音乐与插件', style: Theme.of(context).textTheme.titleLarge),
+        HyperListTile(
+          title: const HyperText('插件日志'),
+          leading: const HyperIcon(Icons.bug_report_outlined),
+          onTap: () => showPluginLogs(context),
+        ),
+        const SizedBox(height: 12),
+        HyperCard(
+          child: Column(
+            children: [
+              Obx(() {
+                final plugins = context.lx.find<PluginController>();
+                final names = {
+                  for (final entry in plugins.homeSources)
+                    entry.id: entry.record.name,
+                };
+                return HyperListTile(
+                  title: const HyperText('默认首页音源'),
+                  subtitle: HyperText(
+                    names[plugins.selectedId.value] ?? '尚未选择',
+                  ),
+                  leading: const HyperIcon(Icons.home_outlined),
+                  onTap: () async {
+                    await plugins.restored;
+                    if (!context.mounted) return;
+                    final sources = plugins.homeSources;
+                    final id = await showHyperDialog<String>(
+                      context: context,
+                      builder: (context) => HyperDialog(
+                        title: const HyperText('默认首页音源'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (sources.isEmpty) const HyperText('请先安装并启用音源插件'),
+                            for (final entry in sources)
+                              HyperListTile(
+                                title: HyperText(entry.record.name),
+                                onTap: () => context.pop(entry.id),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                    if (id != null) await plugins.selectSource(id);
+                  },
+                );
+              }),
+              HyperListTile(
+                title: const HyperText('音乐目录'),
+                subtitle: const HyperText('管理本地音乐文件夹'),
+                leading: const HyperIcon(Icons.folder_outlined),
+                onTap: () => context.go('/settings/local'),
+              ),
+              HyperListTile(
+                title: const HyperText('存储与缓存'),
+                subtitle: const HyperText('音乐缓存开关、容量与清理'),
+                leading: const HyperIcon(Icons.storage_outlined),
+                onTap: () => context.go('/settings/cache'),
+              ),
+              HyperListTile(
+                title: const HyperText('下载'),
+                subtitle: const HyperText('下载任务、进度与重试'),
+                leading: const HyperIcon(Icons.download_outlined),
+                onTap: () => context.go('/settings/downloads'),
+              ),
+              HyperListTile(
+                title: const HyperText('插件管理'),
+                subtitle: const HyperText('安装、更新、启停与卸载'),
+                leading: const HyperIcon(Icons.extension_outlined),
+                onTap: () => context.go('/settings/extensions'),
+              ),
+              Obx(() {
+                final player = context.lx.find<PlayerController>();
+                return HyperListTile(
+                  title: const HyperText('默认播放音质'),
+                  subtitle: HyperText(
+                    Quality.levels[player.defaultQuality.value] ??
+                        '${player.defaultQuality.value}',
+                  ),
+                  leading: const HyperIcon(Icons.tune_rounded),
+                  onTap: () async {
+                    final value = await selectQuality(
+                      context,
+                      _qualities,
+                      showSize: false,
+                    );
+                    if (value != null) await player.setDefaultQuality(value);
+                  },
+                );
+              }),
+              Obx(() {
+                final downloads = context.lx.find<DownloadController>();
+                return HyperListTile(
+                  title: const HyperText('默认下载音质'),
+                  subtitle: HyperText(
+                    Quality.levels[downloads.defaultQuality.value] ??
+                        '${downloads.defaultQuality.value}',
+                  ),
+                  leading: const HyperIcon(Icons.audio_file_outlined),
+                  onTap: () async {
+                    final value = await selectQuality(
+                      context,
+                      _qualities,
+                      showSize: false,
+                    );
+                    if (value != null) await downloads.setDefaultQuality(value);
+                  },
+                );
+              }),
+              const HyperListTile(
+                title: HyperText('音质策略'),
+                subtitle: HyperText('音质不可用时选择不高于预设的可用音质；播放页切换只对当前歌曲临时生效。'),
+              ),
+              HyperListTile(
+                title: const HyperText('音源匹配'),
+                subtitle: const HyperText('自动匹配、参与音源与优先级'),
+                leading: const HyperIcon(Icons.compare_arrows),
+                onTap: () => context.go('/settings/matching'),
+              ),
+              HyperListTile(
+                title: const HyperText('歌词匹配'),
+                subtitle: const HyperText('独立歌词来源、自动匹配与优先级'),
+                leading: const HyperIcon(Icons.lyrics_outlined),
+                onTap: () => context.go('/settings/lyric-matching'),
+              ),
+              Obx(() {
+                final player = context.lx.find<PlayerController>();
+                return HyperListTile(
+                  title: const HyperText('与其他应用同时播放'),
+                  subtitle: const HyperText('允许音频共存，实际行为取决于系统和其他应用'),
+                  trailing: HyperSwitch(
+                    value: player.allowConcurrentPlayback.value,
+                    onChanged: player.setAllowConcurrentPlayback,
+                  ),
+                );
+              }),
+              Obx(() {
+                final player = context.lx.find<PlayerController>();
+                return HyperListTile(
+                  title: const HyperText('标题歌词（蓝牙歌词）'),
+                  subtitle: const HyperText('将当前歌词同步为系统媒体标题；需要设备支持，也会影响媒体通知标题'),
+                  trailing: HyperSwitch(
+                    value: player.titleLyrics.value,
+                    onChanged: player.setTitleLyrics,
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        const HyperCard(
+          child: HyperListTile(
+            title: Text('关于 MixMusic'),
+            subtitle: Text('v2 · 基础验证阶段'),
+            leading: Icon(Icons.info_outline_rounded),
+          ),
+        ),
+      ],
+    ),
+  );
 
-  openBattery() async {
-    if (Platform.isAndroid) {
-      bool? isBatteryOptimizationDisabled = await DisableBatteryOptimizationLatest.isBatteryOptimizationDisabled;
-      if (isBatteryOptimizationDisabled != true) {
-        await DisableBatteryOptimizationLatest.showDisableBatteryOptimizationSettings();
-      } else {
-        showInfo('已关闭电池优化');
-      }
-    }
-  }
+  List<Quality> get _qualities => [
+    for (final entry in Quality.levels.entries)
+      Quality(
+        pluginId: '',
+        id: entry.key,
+        title: entry.value,
+        value: entry.key,
+      ),
+  ];
 }

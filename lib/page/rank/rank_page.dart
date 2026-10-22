@@ -1,102 +1,203 @@
-import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:mix_music/common/api/api_factory.dart';
-import 'package:mix_music/common/entity/plugins_info.dart';
-import 'package:mix_music/page/app_playing/play_bar.dart';
-import 'package:mix_music/widgets/hyper/hyper_appbar.dart';
-import 'package:sliver_tools/sliver_tools.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lemon_ui/lemon_ui.dart';
+import 'package:lemon_x/lemon_x.dart';
 
-import 'rank_tab_page.dart';
+import '../../common/plugin/plugin_controller.dart';
+import '../../common/entity/rank.dart';
+import '../setting/extension/plugin_logs.dart';
+import 'rank_controller.dart';
 
 class RankPage extends StatefulWidget {
-  const RankPage({super.key});
-
+  const RankPage({super.key, required this.plugins});
+  final PluginController plugins;
   @override
-  _RankPageState createState() => _RankPageState();
+  State<RankPage> createState() => _RankPageState();
 }
 
-class _RankPageState extends State<RankPage> with TickerProviderStateMixin {
-  RankPageController controller = RankPageController();
-
-  late TabController tabController;
-  final double bottomBarHeight = 46;
-  List<PluginsInfo> plugins = [];
-
+class _RankPageState extends State<RankPage> {
+  late final controller = RankController(widget.plugins);
+  late final ready = controller.initializeSource();
   @override
   void initState() {
     super.initState();
-    plugins = ApiFactory.getRankPlugins();
-
-    tabController = TabController(length: plugins.length, vsync: this);
+    ready;
   }
 
   @override
-  Widget build(BuildContext context) {
-    final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final double pinnedHeaderHeight = 62 + bottomBarHeight;
-
-    return Scaffold(
-      floatingActionButton: PlayBar(),
-      body: ExtendedNestedScrollView(
-        headerSliverBuilder: (BuildContext c, bool f) {
-          return [
-            SliverAppBar.large(
-              title: Text('榜单'),
-              forceElevated: f,
-              // toolbarHeight: 62,
-            ),
-            PinnedHeaderSliver(
-              child: Container(
-                  width: double.infinity,
-                  height: bottomBarHeight,
-                  color: Theme.of(context).colorScheme.surface,
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  child: TabBar(
-                    dividerHeight: 0,
-                    tabAlignment: TabAlignment.start,
-                    indicator: BoxDecoration(
-                      color: Colors.white, // 指示器的背景颜色
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    // 控制指示器的宽度是否和标签文字一样宽
-                    indicatorPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-                    isScrollable: true,
-                    controller: tabController,
-                    overlayColor: WidgetStateProperty.resolveWith<Color>((states) {
-                      // 当标签被点击时，显示半透明的蓝色背景
-                      if (states.contains(WidgetState.selected)) {
-                        return Colors.transparent; // 设置选中时的覆盖颜色
-                      }
-                      return Colors.transparent; // 未选中时，覆盖层是透明的
-                    }),
-                    tabs: plugins
-                        .map((item) => Tab(
-                              text: item.name,
-                              // icon: AppImage(url: '${item.icon}', width: 15, height: 15),
-                            ))
-                        .toList(),
-                  )),
-            ),
-          ];
-        },
-        pinnedHeaderSliverHeightBuilder: () {
-          return pinnedHeaderHeight;
-        },
-        onlyOneScrollInBody: true,
-        // physics: NeverScrollableScrollPhysics(),
-        body: Column(
-          children: <Widget>[Expanded(child: _buildTabBarView())],
-        ),
-      ),
-    );
+  void dispose() {
+    controller.disposeController();
+    super.dispose();
   }
 
-  Widget _buildTabBarView() {
-    return TabBarView(
-      controller: tabController,
-      children: plugins.map((element) => RankTabPage(plugin: element, controller: controller)).toList(),
+  @override
+  Widget build(BuildContext context) => HyperScaffold(
+    appBar: HyperAppBar(
+      title: const HyperText('排行榜'),
+      automaticallyImplyLeading: false,
+      leading: HyperDeviceDetector.of(context) == HyperDeviceType.desktop
+          ? null
+          : HyperIconButton.ghost(
+              tooltip: '返回',
+              icon: const HyperIcon(Icons.arrow_back),
+              onPressed: () =>
+                  context.canPop() ? context.pop() : context.go('/'),
+            ),
+    ),
+    body: FutureBuilder<void>(
+      future: ready,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return HyperResult.empty(
+            title: '插件恢复失败',
+            description: '${snapshot.error}',
+          );
+        }
+        return Obx(() {
+          final sources = controller.sources;
+          if (sources.isEmpty) {
+            return const HyperResult.empty(title: '没有支持排行榜的音源');
+          }
+          return Column(
+            children: [
+              DefaultTabController(
+                key: ValueKey(controller.source.value),
+                length: sources.length,
+                initialIndex: sources
+                    .indexWhere((entry) => entry.id == controller.source.value)
+                    .clamp(0, sources.length - 1),
+                child: HyperTabBar.separated(
+                  isScrollable: true,
+                  tabs: [
+                    for (final entry in sources)
+                      HyperTab(text: entry.record.name),
+                  ],
+                  onTap: (index) => controller.load(sources[index].id),
+                ),
+              ),
+              Expanded(
+                child: controller.ranks.when(
+                  loading: () => const Center(child: HyperText('正在加载…')),
+                  error: (error, stack) => HyperResult.empty(
+                    title: '排行榜加载失败',
+                    description: '$error',
+                    actions: [
+                      HyperButton.text(
+                        onPressed: () =>
+                            controller.load(controller.source.value),
+                        label: const HyperText('重试'),
+                      ),
+                      HyperButton.text(
+                        onPressed: () => showPluginLogs(
+                          context,
+                          pluginId: controller.source.value,
+                        ),
+                        label: const HyperText('查看插件日志'),
+                      ),
+                    ],
+                  ),
+                  data: (ranks) => ranks.isEmpty
+                      ? const HyperResult.empty(title: '暂无排行榜')
+                      : CustomScrollView(
+                          slivers: [
+                            for (final group in ranks.where(
+                              (rank) => rank.isGroup,
+                            ))
+                              _group(context, group),
+                            if (ranks.any((rank) => !rank.isGroup))
+                              _grid(
+                                context,
+                                ranks.where((rank) => !rank.isGroup).toList(),
+                              ),
+                          ],
+                        ),
+                ),
+              ),
+            ],
+          );
+        });
+      },
+    ),
+  );
+
+  Widget _group(BuildContext context, Rank group) => SliverMainAxisGroup(
+    slivers: [
+      PinnedHeaderSliver(
+        child: HyperCard(
+          style: HyperCardStyle(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          ),
+          child: HyperText(group.title, variant: HyperTextVariant.sectionTitle),
+        ),
+      ),
+      if (group.ranks.isEmpty)
+        const SliverToBoxAdapter(
+          child: Padding(padding: EdgeInsets.all(16), child: HyperText('暂无榜单')),
+        ),
+      if (group.ranks.any((rank) => !rank.isGroup))
+        _grid(context, group.ranks.where((rank) => !rank.isGroup).toList()),
+      for (final child in group.ranks.where((rank) => rank.isGroup))
+        _group(context, child),
+    ],
+  );
+
+  Widget _grid(BuildContext context, List<Rank> ranks) {
+    final desktop = HyperDeviceDetector.of(context) == HyperDeviceType.desktop;
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      sliver: SliverGrid(
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: desktop ? 160 : 150,
+          childAspectRatio: desktop ? 160 / 182 : 1,
+          crossAxisSpacing: desktop ? 4 : 16,
+          mainAxisSpacing: desktop ? 8 : 16,
+        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          final rank = ranks[index];
+          return HyperCard(
+            style: HyperCardStyle(
+              background: const HyperFill.none(),
+              padding: const EdgeInsets.all(4),
+              border: Border.all(color: Colors.transparent),
+              boxShadow: const [],
+            ),
+            onTap: () => context.push('/rank', extra: rank),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: rank.cover == null || rank.cover!.isEmpty
+                          ? const Center(
+                              child: HyperIcon(Icons.leaderboard_outlined),
+                            )
+                          : Image.network(
+                              rank.cover!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, error, stack) => const Center(
+                                child: HyperIcon(Icons.leaderboard_outlined),
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 22,
+                  child: HyperText(
+                    rank.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }, childCount: ranks.length),
+      ),
     );
   }
 }

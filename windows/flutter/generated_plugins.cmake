@@ -4,19 +4,14 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   audio_service_win
-  flutter_acrylic
-  flutter_inappwebview_windows
-  flutter_js
-  media_kit_libs_windows_video
-  media_kit_video
-  permission_handler_windows
-  screen_retriever_windows
-  url_launcher_windows
-  vclibs
-  window_manager
+  lemon_audio
+  lemon_js
+  mpv_audio_kit
+  webview_all_windows
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
+  jni
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

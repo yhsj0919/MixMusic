@@ -1,285 +1,107 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:get/get.dart';
-import 'package:mix_music/common/api/api_factory.dart';
-import 'package:mix_music/common/entity/mix_play_list.dart';
-import 'package:mix_music/common/entity/plugins_info.dart';
-import 'package:mix_music/constant.dart';
-import 'package:mix_music/page/app_playing/play_bar.dart';
-import 'package:mix_music/utils/db.dart';
-import 'package:mix_music/widgets/app_image.dart';
-import 'package:mix_music/widgets/hyper/hyper_group.dart';
-import 'package:mix_music/widgets/hyper/hyper_trailing.dart';
-import 'package:mix_music/widgets/message.dart';
-import 'package:tiny_db/tiny_db.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lemon_ui/lemon_ui.dart';
+import 'package:lemon_x/lemon_x.dart';
 
-import '../../route/routes.dart';
+import '../../common/plugin/plugin_controller.dart';
+import 'parse_controller.dart';
 
 class ParsePlayList extends StatefulWidget {
-  const ParsePlayList({super.key});
-
+  const ParsePlayList({super.key, required this.plugins});
+  final PluginController plugins;
   @override
   State<ParsePlayList> createState() => _ParsePlayListState();
 }
 
 class _ParsePlayListState extends State<ParsePlayList> {
-  RxString keyWord = RxString("");
-  final double bottomBarHeight = 46;
-  var controller = TextEditingController(text: "");
-  RxList<MixPlaylist> playlist = RxList();
-  List<PluginsInfo> plugins = [];
-
-  RxList<MixPlaylist> historyList = RxList();
+  late final ParseController controller;
+  final input = TextEditingController();
+  late final ready = widget.plugins.restored;
 
   @override
   void initState() {
     super.initState();
-    plugins = ApiFactory.getParsePlugins();
-    getHistory();
-  }
-
-  Future<void> getHistory() async {
-    var list = await AppDB.getList<MixPlaylist>(Constant.KEY_APP_HISTORY_PARSE_PLAYLIST);
-
-    historyList.clear();
-    historyList.addAll(list);
-  }
-
-  void cleanHistory() {
-    AppDB.kvRemove(Constant.KEY_APP_HISTORY_PARSE_PLAYLIST);
-    getHistory();
+    controller = ParseController(widget.plugins);
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: PlayBar(),
-      body: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return CustomScrollView(
-            slivers: [
-              SliverAppBar(title: Text("歌单导入")),
-              HyperGroup(
-                title: SizedBox(
-                  width: constraints.maxWidth - 64,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text("支持:"),
-                      Container(width: 8),
-                      Expanded(
-                        child: ListView.separated(
-                          // padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                          itemBuilder: (BuildContext context, int index) {
-                            var item = plugins[index];
-                            return Container(alignment: Alignment.center, child: Text(item.name ?? ""));
-                          },
-                          separatorBuilder: (BuildContext context, int index) {
-                            return Container(width: 8);
-                          },
-                          itemCount: plugins.length,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+  void dispose() {
+    input.dispose();
+    controller.disposeController();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => HyperScaffold(
+    appBar: HyperAppBar(
+      title: const HyperText('导入歌单'),
+      automaticallyImplyLeading: false,
+      leading: HyperDeviceDetector.of(context) == HyperDeviceType.desktop
+          ? null
+          : HyperIconButton.ghost(
+              tooltip: '返回',
+              icon: const HyperIcon(Icons.arrow_back),
+              onPressed: () =>
+                  context.canPop() ? context.pop() : context.go('/'),
+            ),
+    ),
+    body: FutureBuilder<void>(
+      future: ready,
+      builder: (context, snapshot) => Obx(
+        () => Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.all(8),
-                    child: TextField(
-                      controller: controller,
-                      decoration: InputDecoration(
-                        hintText: "请输入链接",
-                        border: OutlineInputBorder(
-                          // 设置边框
-                          borderRadius: BorderRadius.circular(12), // 圆角
-                          // borderSide: BorderSide(color: Colors.blue, width: 2), // 边框颜色和宽度
-                        ),
-                      ),
-                      maxLines: 3,
-                      onSubmitted: (value) {
-                        keyWord.value = value;
-                        parsePlayList(url: value);
-                      },
-                    ),
+                  HyperText(
+                    controller.sources.isEmpty
+                        ? '没有支持歌单解析的插件'
+                        : '支持：${controller.sources.map((entry) => entry.record.name).join('、')}',
                   ),
-                  SizedBox(
-                    height: 40,
-                    child: FilledButton(
-                      style: ButtonStyle(
-                        shape: WidgetStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0), // 设置圆角
-                          ),
-                        ),
-                        padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: 20)),
-                      ),
-                      onPressed: () {
-                        keyWord.value = controller.text;
-                        parsePlayList(url: controller.text);
-                      },
-                      child: Text("解析"),
+                  const SizedBox(height: 8),
+                  HyperTextField(controller: input, hintText: '粘贴歌单链接或分享内容'),
+                  const SizedBox(height: 8),
+                  HyperButton.filled(
+                    onPressed:
+                        controller.result.isLoading ||
+                            controller.sources.isEmpty
+                        ? null
+                        : () => controller.parse(input.text),
+                    label: HyperText(
+                      controller.result.isLoading ? '正在解析…' : '解析',
                     ),
-                  ),
-                  Gap(8),
-                ],
-              ),
-              HyperGroup(
-                title: Text("解析结果"),
-                children: <Widget>[
-                  Obx(
-                    () => playlist.isEmpty
-                        ? SizedBox(height: 100, child: Center(child: Text("暂无数据")))
-                        : ListView.builder(
-                            shrinkWrap: true,
-                            padding: EdgeInsets.zero,
-                            itemCount: playlist.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              var item = playlist[index];
-
-                              var plugin = ApiFactory.getPlugin(item.package);
-                              return ListTile(
-                                leading: Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    AppImage(url: item.pic ?? ""),
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                                      child: Container(
-                                        color: Colors.white,
-                                        child: AppImage(url: plugin?.icon ?? "", width: 20, height: 20),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                title: Text("${item.title}", maxLines: 1),
-                                subtitle: Text("${item.subTitle}", maxLines: 1),
-                                onTap: () {
-                                   Get.toNamed(id: Routes.key,Routes.playListDetail, arguments: item);
-                                },
-                              );
-                            },
-                          ),
                   ),
                 ],
               ),
-              HyperGroup(
-                title: Text("历史记录"),
-                trailing: InkWell(
-                  child: Text("清空"),
-                  onTap: () {
-                    showDialog<void>(
-                      context: context,
-                      barrierDismissible: false, // 用户必须点击按钮来关闭对话框
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('提示'),
-                          content: SingleChildScrollView(child: Text('确定清空列表？')),
-                          actions: <Widget>[
-                            TextButton(
-                              child: Text('确定'),
-                              onPressed: () {
-                                cleanHistory();
-                                Navigator.of(context).pop(); // 关闭对话框
-                              },
+            ),
+            Expanded(
+              child: controller.result.when(
+                loading: () => const Center(child: HyperText('正在解析…')),
+                error: (error, stack) =>
+                    HyperResult.empty(title: '解析失败', description: '$error'),
+                data: (items) => items.isEmpty
+                    ? const HyperResult.empty(title: '暂无解析结果')
+                    : ListView(
+                        children: [
+                          for (final item in items)
+                            HyperListTile(
+                              leading: const HyperIcon(Icons.queue_music),
+                              title: HyperText(item.title),
+                              subtitle: HyperText(
+                                item.subtitle ?? item.pluginId,
+                              ),
+                              onTap: () =>
+                                  context.push('/playlist', extra: item),
                             ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                ),
-                children: <Widget>[
-                  Obx(
-                    () => historyList.isEmpty
-                        ? SizedBox(height: 100, child: Center(child: Text("暂无数据")))
-                        : ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: historyList.length,
-                            padding: EdgeInsets.zero,
-                            itemBuilder: (BuildContext context, int index) {
-                              var item = historyList[index];
-
-                              var plugin = ApiFactory.getPlugin(item.package);
-                              return ListTile(
-                                leading: Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    AppImage(url: item.pic ?? ""),
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                                      child: Container(
-                                        color: Colors.white,
-                                        child: AppImage(url: plugin?.icon ?? "", width: 20, height: 20),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                title: Text("${item.title}", maxLines: 1),
-                                subtitle: Text("${item.subTitle}", maxLines: 1),
-                                onTap: () {
-                                   Get.toNamed(id: Routes.key,Routes.playListDetail, arguments: item);
-                                },
-                                trailing: InkWell(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Padding(
-                                    padding: EdgeInsets.all(8),
-                                    child: HyperTrailing(icon: Icons.clear),
-                                  ),
-                                  onTap: () async {
-                                    await AppDB.remove(
-                                      table: Constant.KEY_APP_HISTORY_PARSE_PLAYLIST,
-                                      queryCondition: where("package").equals(item.package).and(where("id").equals(item.id.toString())),
-                                    );
-                                    getHistory();
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                  ),
-                ],
+                        ],
+                      ),
               ),
-            ],
-          );
-        },
+            ),
+          ],
+        ),
       ),
-    );
-  }
-
-  ///获取歌单
-  void parsePlayList({String? url}) {
-    if (plugins.isEmpty) {
-      showError("暂无插件支持");
-    }
-    if (url?.isNotEmpty != true) {
-      showError("链接不可为空");
-    }
-
-    ApiFactory.parsePlayList(packages: plugins.map((element) => element.package!).toList(), url: url)
-        .then((value) {
-          if (value.isEmpty) {
-            showInfo("没有匹配到数据");
-          }
-          playlist.clear();
-
-          value.forEach((element) {
-            playlist.add(element!);
-            AppDB.insertOrUpdateWithIndex(
-              Constant.KEY_APP_HISTORY_PARSE_PLAYLIST,
-              element,
-              index: 0,
-              check: (oldValue, newValue) {
-                return oldValue.package == newValue.package && oldValue.id.toString() == newValue.id.toString();
-              },
-            );
-          });
-          getHistory();
-        })
-        .catchError((e) {
-          showError(e);
-        });
-  }
+    ),
+  );
 }

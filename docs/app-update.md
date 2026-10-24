@@ -10,11 +10,14 @@
 
 ## 发布约定
 
-- 仓库：`yhsj0919/MixMusic`。正式渠道使用 `GET /repos/yhsj0919/MixMusic/releases/latest`，读取仓库标记为 Latest 的正式 Release，不按分支筛选，也不自行选取版本号最高的发布。
-- 测试渠道使用 `GET /repos/yhsj0919/MixMusic/releases?per_page=100`，从最近 100 条正式与预发行 Release 中选取版本号最高的版本，忽略草稿和无效版本标签。正式版本优先于同版本的 beta/rc，beta.10 正确高于 beta.2。
-- 创建正式 Release 并标记为 Latest，标签如 `v0.2.0`，与该次构建的 pubspec 版本对应。只推 Git 标签而未创建 Release 不会被检测。
-- 接口 404 或渠道无有效发布时显示“暂未获取到所选渠道的发布版本”，可打开发布页确认；GitHub 对没有 Latest 和仓库不可访问都可能返回 404，界面不宣称已是最新。同版本或较旧版本不提示更新。正式 Latest 响应若异常包含草稿、预发行或无效版本标签，按检查失败处理。
-- Release 正文作为更新说明。已上传的附件显示名称、大小和 browser_download_url，用户选择对应平台附件，通过浏览器下载；无附件时可打开发布页。
+- 仓库：`yhsj0919/MixMusic`。App 直接读取 `https://raw.githubusercontent.com/yhsj0919/MixMusic/updates/stable.json` 或 `preview.json`，不调用 GitHub REST API，不需要 Token。
+- 正式清单保存仓库标记为 Latest 的正式 Release，暂无正式版本时为 JSON `null`。
+- 测试清单保存最近 100 条非草稿 Release，客户端过滤无效版本标签并选择最高版本，含正式与预发布版本。
+- JSON 保留 Release 的标签、说明、附件名称、大小和下载地址。raw 返回 text/plain 时也按 JSON 解码。
+- Actions 先完成安装包上传和正式发布，再通过一次 Git 提交同时更新两个清单；独立 `updates` 分支不触发构建。发布作业串行执行，避免并发覆盖清单。
+- 修改、删除 Release 或手动切换 Latest 后需重新生成清单；只推标签或只构建不发布，不更新清单。
+- 清单缺失、正式版为 null 或测试列表为空时提示暂无发布；网络及解析失败按错误显示，不宣称已是最新。
+- 同版本或较旧版本不提示更新；附件继续通过系统浏览器下载。
 
 本轮实现检查、说明及外部下载入口，尚未实现应用内下载进度、下载校验、安装和重启替换程序。
 
@@ -22,6 +25,4 @@
 
 ## 验证
 
-11 项本机 HTTP 功能测试覆盖 Latest 端点及非 v2 分支响应、测试渠道的 beta 数字排序和草稿过滤、渠道保存与恢复、切换后清除旧结果、附件读取、同版与降级排除、同版本构建号、缺失发布、限流失败后重试、异常版本及响应、重复检查合并、销毁中断和链接协议检查。静态检查通过，此前新增原生依赖已通过 Android Release Kotlin 编译。直连 GitHub 时当前出口触发 API 限流，尚未取得真实 Release 成功响应；没有把模拟数据当作真实发布。系统浏览器跳转及 Android/Windows 页面仍待设备验证，未打包。
-
-接口依据：[GitHub Latest Release REST 文档](https://docs.github.com/en/rest/releases/releases#get-the-latest-release)。
+12 项本机 HTTP 功能测试覆盖静态渠道路径、text/plain JSON 解码、空清单、版本排序、渠道保存、错误恢复及生命周期。发布脚本 14 项测试覆盖渠道清单、草稿过滤、首次创建分支和非强制更新、附件上传失败不发布。

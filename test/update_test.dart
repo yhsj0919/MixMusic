@@ -42,9 +42,10 @@ Map<String, dynamic> release(
 void main() {
   late HttpServer server;
   late UpdateController controller;
-  Object body = {};
+  Object? body = {};
   var status = 200;
   var requests = 0;
+  var plainText = false;
   Completer<void>? gate;
   Completer<void>? arrived;
 
@@ -60,21 +61,23 @@ void main() {
     body = release('v0.2.0');
     status = 200;
     requests = 0;
+    plainText = false;
     gate = null;
     arrived = null;
     server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
     server.listen((request) async {
       requests++;
-      expect(request.uri.path, startsWith('/repos/yhsj0919/MixMusic/releases'));
-      if (request.uri.path.endsWith('/latest')) {
-        expect(request.uri.queryParameters, isEmpty);
-      } else {
-        expect(request.uri.queryParameters['per_page'], '100');
-      }
+      expect(
+        request.uri.path,
+        '/yhsj0919/MixMusic/updates/${controller.channel.value == UpdateChannel.stable ? 'stable' : 'preview'}.json',
+      );
+      expect(request.uri.queryParameters, isEmpty);
       arrived?.complete();
       await gate?.future;
       request.response.statusCode = status;
-      request.response.headers.contentType = ContentType.json;
+      request.response.headers.contentType = plainText
+          ? ContentType.text
+          : ContentType.json;
       request.response.write(jsonEncode(body));
       await request.response.close();
     });
@@ -89,7 +92,7 @@ void main() {
   });
 
   test(
-    'manual check uses GitHub Latest regardless of its target branch',
+    'manual check reads stable manifest regardless of release target branch',
     () async {
       expect(requests, 0);
       expect(controller.result.isLoading, isFalse);
@@ -157,6 +160,23 @@ void main() {
     body = release('v0.1.0+2');
     await controller.check();
     expect(controller.result.value!.available, isTrue);
+  });
+
+  test('raw GitHub text content is decoded as JSON', () async {
+    plainText = true;
+    await controller.check();
+    expect(controller.result.value!.release!.version.toString(), '0.2.0');
+    await controller.setChannel(UpdateChannel.preview);
+    body = [release('v0.3.0-beta.1', preview: true)];
+    await controller.check();
+    expect(
+      controller.result.value!.release!.version.toString(),
+      '0.3.0-beta.1',
+    );
+    await controller.setChannel(UpdateChannel.stable);
+    body = null;
+    await controller.check();
+    expect(controller.result.value!.release, isNull);
   });
 
   test('missing Latest is distinct from network failure', () async {

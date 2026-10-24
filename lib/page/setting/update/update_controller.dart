@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:lemon_net/lemon_net.dart';
 import 'package:lemon_x/lemon_x.dart';
@@ -59,13 +61,10 @@ class UpdateController extends LxController {
     : net =
           net ??
           LemonNet(
-            'https://api.github.com',
+            'https://raw.githubusercontent.com',
             connectTimeout: const Duration(seconds: 15),
             receiveTimeout: const Duration(seconds: 20),
-            headers: {
-              'Accept': 'application/vnd.github+json',
-              'User-Agent': 'MixMusic',
-            },
+            headers: {'Accept': 'application/json', 'User-Agent': 'MixMusic'},
           ) {
     result.data(null);
     restored = _restore();
@@ -114,22 +113,29 @@ class UpdateController extends LxController {
       );
       final stable = channel.value == UpdateChannel.stable;
       final response = await net.get<dynamic>(
-        '/repos/$repository/releases${stable ? '/latest' : ''}',
-        queryParameters: stable ? null : {'per_page': 100},
+        '/$repository/updates/${stable ? 'stable' : 'preview'}.json',
       );
       if (isDisposed) return;
       if (response.statusCode == 403 || response.statusCode == 429) {
         throw StateError('GitHub 暂时限制了访问，请稍后重试');
       }
-      if (response.statusCode == 404) {
+      if (response.statusCode == 404 ||
+          (response.statusCode == 200 && response.data == null)) {
         result.data(UpdateCheck(current, null));
         return;
       }
       if (response.statusCode != 200) {
         throw StateError('更新服务请求失败（HTTP ${response.statusCode}）');
       }
+      final payload = response.data is String
+          ? jsonDecode(response.data as String)
+          : response.data;
+      if (payload == null) {
+        result.data(UpdateCheck(current, null));
+        return;
+      }
       UpdateRelease? latest;
-      for (final data in stable ? [response.data] : response.data as List) {
+      for (final data in stable ? [payload] : payload as List) {
         if (data['draft'] == true || (stable && data['prerelease'] == true)) {
           if (stable) throw StateError('GitHub Latest 未提供正式版本');
           continue;

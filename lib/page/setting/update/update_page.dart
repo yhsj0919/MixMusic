@@ -85,7 +85,7 @@ class _UpdatePageState extends State<UpdatePage> {
             );
           },
         ),
-        const HyperText('更新渠道：正式版使用 GitHub Latest；测试版包含预发行版。'),
+        const HyperText('更新渠道：读取发布版本清单，测试版包含预发行版。'),
         const SizedBox(height: 12),
         HyperButton.tonal(
           onPressed: controller.check,

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import {releaseConfig, releaseNotes, prepare, packageAndroid, packageWindows, checksums, publish} from './release.mjs';
+import {releaseConfig, releaseNotes, prepare, packageAndroid, packageWindows, checksums, publish, updateManifests} from './release.mjs';
 
 const installerTemplate = new URL('../windows/packaging/exe/setup.iss', import.meta.url);
 const installerIcon = new URL('../windows/runner/resources/app_icon.ico', import.meta.url);
@@ -137,6 +137,39 @@ test('existing tag fails before checking out or publishing anything', async t =>
     assert.equal(fs.existsSync('build/release-metadata/release.json'), false);
 });
 
+function manifestApi(stable, releases, exists = true) {
+    const calls = [];
+    return {calls, repos: {
+        getLatestRelease: async () => { if (!stable) throw {status: 404}; return {data: stable}; },
+        listReleases: async () => ({data: releases}),
+    }, git: {
+        getRef: async () => { if (!exists) throw {status: 404}; return {data: {object: {sha: 'parent'}}}; },
+        getCommit: async data => {calls.push(['parent', data.commit_sha]); return {data: {tree: {sha: 'tree'}}};},
+        createTree: async data => {calls.push(['tree', data]); return {data: {sha: 'new-tree'}};},
+        createCommit: async data => {calls.push(['commit', data]); return {data: {sha: 'new-commit'}};},
+        createRef: async data => calls.push(['create', data]),
+        updateRef: async data => calls.push(['update', data]),
+    }};
+}
+
+test('manifests preserve Latest, exclude drafts, and create the initial branch atomically', async () => {
+    const stable = {tag_name: 'v0.2.0', draft: false};
+    const api = manifestApi(stable, [stable, {draft: true}, {tag_name: 'v0.3.0-beta.1', draft: false}], false);
+    await updateManifests({github: {rest: api}, context: {repo: {owner: 'test', repo: 'test'}}}, 'fallback');
+    assert.deepEqual(api.calls[0], ['parent', 'fallback']);
+    const files = api.calls.find(x => x[0] === 'tree')[1].tree;
+    assert.equal(JSON.parse(files[0].content).tag_name, 'v0.2.0');
+    assert.equal(JSON.parse(files[1].content).length, 2);
+    assert.equal(api.calls.at(-1)[1].ref, 'refs/heads/updates');
+});
+
+test('missing stable release writes null and existing manifest branch advances without force', async () => {
+    const api = manifestApi(null, []);
+    await updateManifests({github: {rest: api}, context: {repo: {owner: 'test', repo: 'test'}}}, 'fallback');
+    assert.equal(api.calls.find(x => x[0] === 'tree')[1].tree[0].content.trim(), 'null');
+    assert.equal(api.calls.at(-1)[1].force, false);
+});
+
 for (const preview of [false, true]) {
     test(`${preview ? 'preview' : 'stable'} publishes only after every asset, with correct Latest flag`, async t => {
         fixture(t);
@@ -144,7 +177,8 @@ for (const preview of [false, true]) {
         const installer = `MixMusic-windows-x64-${config.tag}-setup.exe`;
         fs.writeFileSync(path.join('dist', installer), 'installer fixture');
         const events = [];
-        const github = {rest: {repos: {
+        const manifests = manifestApi({tag_name: config.tag}, []);
+        const github = {rest: {git: manifests.git, repos: {...manifests.repos,
             createRelease: async data => { events.push(['create', data]); return {data: {id: 1, html_url: 'https://github.com/release'}}; },
             uploadReleaseAsset: async data => events.push(['upload', data.name]),
             updateRelease: async data => events.push(['publish', data]),

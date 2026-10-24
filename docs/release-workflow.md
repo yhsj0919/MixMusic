@@ -33,7 +33,7 @@
 | `MixMusic-windows-x64-v0.2.0.zip` | Windows x64，含 exe、DLL、VC++ 运行库和 data 完整目录 |
 | `SHA256SUMS` | 安装包 SHA-256 校验值 |
 
-所有选中平台构建成功后才进入发布作业：先创建草稿，上传全部安装包和校验文件，再公开发布。构建失败不会发布半成品；`publish` 取消勾选时只保留 Actions 附件。
+所有选中平台构建成功后才进入发布作业：先创建草稿，上传全部安装包和校验文件，再公开发布，再更新独立 `updates` 分支的 `stable.json` 与 `preview.json`，供 App 直接读取静态版本信息。构建失败不会发布半成品；`publish` 取消勾选时只保留 Actions 附件。
 
 Windows 安装器参考 V1 使用的 Flutter Distributor（现名 [Fastforge](https://github.com/fastforgedev/fastforge)）调用 Inno Setup 的流程。当前 Actions 直接使用 `windows/packaging/exe/setup.iss` 调用 ISCC，不依赖旧名称的 CLI。打包完整 Release 目录及 VC++ 运行库，生成 EXE 与 ZIP 两种格式。V2 的安装标识为 `MixMusic.v2`，安装目录为 `MixMusic v2`，独立于 V1 的安装标识；后续 V2 安装器沿用该标识进行覆盖升级。安装器提供桌面/开始菜单快捷方式及卸载入口，不默认启动程序，不配置开机自启。
 

@@ -101,6 +101,40 @@ export function checksums(directory) {
     return [...files, 'SHA256SUMS'];
 }
 
+export async function updateManifests({github, context}, fallbackSha) {
+    let stable = null;
+    try {
+        stable = (await github.rest.repos.getLatestRelease(context.repo)).data;
+    } catch (error) {
+        if (error.status !== 404) throw error;
+    }
+    const {data: releases} = await github.rest.repos.listReleases({...context.repo, per_page: 100});
+    const preview = releases.filter(release => !release.draft);
+    let parent = fallbackSha;
+    let exists = true;
+    try {
+        parent = (await github.rest.git.getRef({...context.repo, ref: 'heads/updates'})).data.object.sha;
+    } catch (error) {
+        if (error.status !== 404) throw error;
+        exists = false;
+    }
+    const commit = (await github.rest.git.getCommit({...context.repo, commit_sha: parent})).data;
+    const tree = (await github.rest.git.createTree({
+        ...context.repo, base_tree: commit.tree.sha,
+        tree: Object.entries({stable, preview}).map(([name, data]) => ({
+            path: `${name}.json`, mode: '100644', type: 'blob', content: JSON.stringify(data, null, 2) + '\n',
+        })),
+    })).data;
+    const next = (await github.rest.git.createCommit({
+        ...context.repo, message: '更新正式版和测试版版本清单', tree: tree.sha, parents: [parent],
+    })).data;
+    if (exists) {
+        await github.rest.git.updateRef({...context.repo, ref: 'heads/updates', sha: next.sha, force: false});
+    } else {
+        await github.rest.git.createRef({...context.repo, ref: 'refs/heads/updates', sha: next.sha});
+    }
+}
+
 export async function publish({github, context, core}) {
     const config = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
     const directory = 'dist';
@@ -121,6 +155,7 @@ export async function publish({github, context, core}) {
         ...context.repo, release_id: release.id, draft: false,
         prerelease: config.prerelease, make_latest: config.prerelease ? 'false' : 'true',
     });
+    await updateManifests({github, context}, config.sha);
     core.notice(`发布完成：${release.html_url}`);
     await core.summary.addHeading('发布完成').addLink(config.tag, release.html_url).write();
 }

@@ -88,13 +88,13 @@ New-Item -ItemType Directory -Force "$env:USERPROFILE\.mixmusic" | Out-Null
 
 当前已安装的 V2 测试版若是 debug 签名，首次换成 V1 密钥后不能直接覆盖，需要卸载后安装；卸载会清除该应用数据。之后持续使用 V1 密钥即可签名一致。V1 包名为 `site.mix.mix_music`，当前 V2 包名为 `com.example.mix_music.v2`，复用密钥并不改变包名，两者仍会并存。可用 `android/gradlew signingReport` 确认实际签名配置。
 
-## 路径依赖
+## Git 仓库依赖
 
-App 使用同级目录的 `lemon_ui`、`lemon_x`、`lemon_net`、`lemon_lyric`、`lemon_audio`、`quickjs`。工作流会获取这些 GitHub 仓库，先固定各自远端分支的提交，再让 Android 与 Windows 使用同一组提交构建。
+App 的 Lemon 系列依赖直接从 GitHub 获取，`pubspec.yaml` 使用完整提交 SHA，`pubspec.lock` 记录解析结果。本机与 Actions 使用相同配置，不再要求克隆依赖到相邻目录。
 
-- `lemon_ui` 默认取 `main`，其余默认取 `master`，配置集中在发布脚本 `dependencies`。
-- 云端只会获得已推送代码。本机这些仓库的未提交修改不会进入构建；本机当前 `lemon_audio` 与 `quickjs` 仍有未提交的功能修改，发布这些功能前需先在各自仓库提交、推送。
-- 若依赖仓库私有，配置 `DEPENDENCIES_TOKEN`，使用能只读访问这些仓库的令牌。公开仓库可使用默认 `GITHUB_TOKEN`。
+- 更新依赖时，先在对应仓库提交推送，再更新 `pubspec.yaml` 的 `ref`，执行 `flutter pub get` 并提交锁文件。
+- `quickjs` 的四个包使用同一提交；`lemon_js` 和 `lemon_js_ui` 的 Git overrides 用于统一其传递依赖来源。
+- `lemon_audio` 仓库自带 Windows 修复依赖，无需本机额外目录或宿主 override。
 - `flutter pub get --enforce-lockfile` 保持 pubspec.lock 的依赖版本；依赖仓库变更了约束时需先在本机更新锁文件再提交，CI 不静默升级。
 - 本轮固定 Flutter `3.47.7`，与本机版本及 Dart `3.13.5` 约束一致。
 

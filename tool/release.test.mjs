@@ -109,7 +109,7 @@ test('Inno Setup compiles actual installer script for a prerelease fixture', {sk
     assert.equal(fs.readFileSync(file).subarray(0, 2).toString(), 'MZ');
 });
 
-test('prepare fixes all dependency revisions without publishing in build-only mode', async t => {
+test('prepare generates build metadata without querying dependency repositories', async t => {
     fixture(t);
     fs.writeFileSync('pubspec.yaml', pubspec);
     fs.writeFileSync('CHANGELOG.md', '## [Unreleased]\n- 测试更新\n');
@@ -120,8 +120,8 @@ test('prepare fixes all dependency revisions without publishing in build-only mo
         return {data: {sha: 'a'.repeat(40)}};
     }}}};
     await prepare({github, context: {payload: {inputs: {...inputs, platforms: 'windows', publish: 'false'}}, runNumber: 20, sha: 'b'.repeat(40)}, core: {setOutput: (name, value) => outputs[name] = value}});
-    assert.equal(revisions.length, 6);
-    assert.equal(JSON.parse(outputs.dependencies).quickjs.ref, 'a'.repeat(40));
+    assert.equal(revisions.length, 0);
+    assert.equal(outputs.dependencies, undefined);
     assert.equal(JSON.parse(outputs.matrix).include[0].platform, 'windows');
     assert.equal(outputs.publish, false);
     assert.match(fs.readFileSync('build/release-metadata/notes.md', 'utf8'), /测试更新/);

@@ -5,14 +5,6 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 
 const metadataPath = 'build/release-metadata/release.json';
-const dependencies = [
-    ['lemon_ui', 'main'],
-    ['lemon_x', 'master'],
-    ['lemon_net', 'master'],
-    ['lemon_lyric', 'master'],
-    ['lemon_audio', 'master'],
-    ['quickjs', 'master'],
-];
 
 export function releaseConfig(inputs, pubspec, runNumber) {
     const declared = pubspec.match(/^version:\s*([^\s#]+)/m)?.[1];
@@ -67,18 +59,11 @@ export async function prepare({github, context, core}) {
         const missing = required.filter(name => !process.env[name]);
         if (missing.length) throw new Error(`请先配置 Android 固定签名 Secrets：${missing.join(', ')}`);
     }
-    const refs = {};
-    for (const [name, ref] of dependencies) {
-        const repository = `yhsj0919/${name}`;
-        const {data} = await github.rest.repos.getCommit({owner: 'yhsj0919', repo: name, ref});
-        refs[name] = {repository, ref: data.sha};
-    }
-    config.dependencies = refs;
     fs.mkdirSync(path.dirname(metadataPath), {recursive: true});
     fs.writeFileSync(metadataPath, JSON.stringify(config, null, 2) + '\n');
     const changelog = fs.readFileSync('CHANGELOG.md', 'utf8');
     fs.writeFileSync('build/release-metadata/notes.md', releaseNotes(changelog, inputs.notes, config));
-    for (const name of ['version', 'build', 'tag', 'sha', 'matrix', 'dependencies', 'publish']) {
+    for (const name of ['version', 'build', 'tag', 'sha', 'matrix', 'publish']) {
         core.setOutput(name, typeof config[name] === 'object' ? JSON.stringify(config[name]) : config[name]);
     }
 }

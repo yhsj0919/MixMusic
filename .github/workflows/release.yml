@@ -39,7 +39,7 @@ env:
 
 jobs:
   prepare:
-    name: 校验发布参数并固定依赖版本
+    name: 校验发布参数
     runs-on: ubuntu-24.04
     outputs:
       version: ${{ steps.prepare.outputs.version }}
@@ -47,7 +47,6 @@ jobs:
       tag: ${{ steps.prepare.outputs.tag }}
       sha: ${{ steps.prepare.outputs.sha }}
       matrix: ${{ steps.prepare.outputs.matrix }}
-      dependencies: ${{ steps.prepare.outputs.dependencies }}
       publish: ${{ steps.prepare.outputs.publish }}
     steps:
       - uses: actions/checkout@v7
@@ -62,7 +61,6 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         with:
-          github-token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
           script: |
             const {prepare} = await import(`${process.env.GITHUB_WORKSPACE}/tool/release.mjs`);
             await prepare({github, context, core});
@@ -92,48 +90,6 @@ jobs:
         with:
           ref: ${{ needs.prepare.outputs.sha }}
           path: app
-          persist-credentials: false
-      - uses: actions/checkout@v7
-        with:
-          repository: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_ui.repository }}
-          ref: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_ui.ref }}
-          path: lemon_ui
-          token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
-          persist-credentials: false
-      - uses: actions/checkout@v7
-        with:
-          repository: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_x.repository }}
-          ref: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_x.ref }}
-          path: lemon_x
-          token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
-          persist-credentials: false
-      - uses: actions/checkout@v7
-        with:
-          repository: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_net.repository }}
-          ref: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_net.ref }}
-          path: lemon_net
-          token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
-          persist-credentials: false
-      - uses: actions/checkout@v7
-        with:
-          repository: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_lyric.repository }}
-          ref: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_lyric.ref }}
-          path: lemon_lyric
-          token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
-          persist-credentials: false
-      - uses: actions/checkout@v7
-        with:
-          repository: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_audio.repository }}
-          ref: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_audio.ref }}
-          path: lemon_audio
-          token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
-          persist-credentials: false
-      - uses: actions/checkout@v7
-        with:
-          repository: ${{ fromJSON(needs.prepare.outputs.dependencies).quickjs.repository }}
-          ref: ${{ fromJSON(needs.prepare.outputs.dependencies).quickjs.ref }}
-          path: quickjs
-          token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
           persist-credentials: false
       - uses: actions/download-artifact@v8
         with:

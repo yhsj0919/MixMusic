@@ -68,9 +68,11 @@ packages:
   audio_service_win:
     dependency: transitive
     description:
-      path: "../lemon_audio/packages/audio_service_win"
-      relative: true
-    source: path
+      path: "packages/audio_service_win"
+      ref: fb4e4f7a40aedcd2c0283acce5f230338a137bc4
+      resolved-ref: fb4e4f7a40aedcd2c0283acce5f230338a137bc4
+      url: "https://github.com/yhsj0919/lemon_audio.git"
+    source: git
     version: "0.0.3"
   audio_session:
     dependency: transitive
@@ -503,65 +505,83 @@ packages:
   lemon_audio:
     dependency: "direct main"
     description:
-      path: "../lemon_audio"
-      relative: true
-    source: path
+      path: "."
+      ref: fb4e4f7a40aedcd2c0283acce5f230338a137bc4
+      resolved-ref: fb4e4f7a40aedcd2c0283acce5f230338a137bc4
+      url: "https://github.com/yhsj0919/lemon_audio.git"
+    source: git
     version: "0.0.1"
   lemon_js:
     dependency: "direct main"
     description:
-      path: "../quickjs/packages/lemon_js"
-      relative: true
-    source: path
+      path: "packages/lemon_js"
+      ref: ea61cb1c12a8787f9462847714280343ad752c61
+      resolved-ref: ea61cb1c12a8787f9462847714280343ad752c61
+      url: "https://github.com/yhsj0919/quickjs.git"
+    source: git
     version: "0.3.1"
   lemon_js_extensions:
     dependency: "direct main"
     description:
-      path: "../quickjs/packages/lemon_js_extensions"
-      relative: true
-    source: path
+      path: "packages/lemon_js_extensions"
+      ref: ea61cb1c12a8787f9462847714280343ad752c61
+      resolved-ref: ea61cb1c12a8787f9462847714280343ad752c61
+      url: "https://github.com/yhsj0919/quickjs.git"
+    source: git
     version: "0.3.1"
   lemon_js_ui:
     dependency: "direct main"
     description:
-      path: "../quickjs/packages/lemon_js_ui"
-      relative: true
-    source: path
+      path: "packages/lemon_js_ui"
+      ref: ea61cb1c12a8787f9462847714280343ad752c61
+      resolved-ref: ea61cb1c12a8787f9462847714280343ad752c61
+      url: "https://github.com/yhsj0919/quickjs.git"
+    source: git
     version: "0.3.1"
   lemon_js_ui_webview:
     dependency: "direct main"
     description:
-      path: "../quickjs/packages/lemon_js_ui_webview"
-      relative: true
-    source: path
+      path: "packages/lemon_js_ui_webview"
+      ref: ea61cb1c12a8787f9462847714280343ad752c61
+      resolved-ref: ea61cb1c12a8787f9462847714280343ad752c61
+      url: "https://github.com/yhsj0919/quickjs.git"
+    source: git
     version: "0.3.1"
   lemon_lyric:
     dependency: "direct main"
     description:
-      path: "../lemon_lyric"
-      relative: true
-    source: path
+      path: "."
+      ref: "40c7c8eb9399921959f720115bee42f4300bb0e3"
+      resolved-ref: "40c7c8eb9399921959f720115bee42f4300bb0e3"
+      url: "https://github.com/yhsj0919/lemon_lyric.git"
+    source: git
     version: "0.0.1"
   lemon_net:
     dependency: "direct main"
     description:
-      path: "../lemon_net"
-      relative: true
-    source: path
+      path: "."
+      ref: "9dfab0d8ee9258e557c62af59da54664d4d171dd"
+      resolved-ref: "9dfab0d8ee9258e557c62af59da54664d4d171dd"
+      url: "https://github.com/yhsj0919/lemon_net.git"
+    source: git
     version: "0.2.0"
   lemon_ui:
     dependency: "direct main"
     description:
-      path: "../lemon_ui"
-      relative: true
-    source: path
+      path: "."
+      ref: d9990419403420b67bb1bfc5ab007442c3209a6b
+      resolved-ref: d9990419403420b67bb1bfc5ab007442c3209a6b
+      url: "https://github.com/yhsj0919/lemon_ui.git"
+    source: git
     version: "0.0.1"
   lemon_x:
     dependency: "direct main"
     description:
-      path: "../lemon_x"
-      relative: true
-    source: path
+      path: "."
+      ref: b6f715b357ab28ca3e60cbcb307ca4a0dd425d71
+      resolved-ref: b6f715b357ab28ca3e60cbcb307ca4a0dd425d71
+      url: "https://github.com/yhsj0919/lemon_x.git"
+    source: git
     version: "0.2.0"
   lints:
     dependency: transitive

@@ -107,18 +107,7 @@ jobs:
           cache: true
       - name: 安装依赖并验证发布脚本
         shell: bash
-        env:
-          DEPENDENCIES_TOKEN: ${{ secrets.DEPENDENCIES_TOKEN }}
         run: |
-          if [[ -z "$DEPENDENCIES_TOKEN" ]]; then
-            echo '::error::请配置 DEPENDENCIES_TOKEN，对私有依赖仓库 lemon_audio 授予 Contents 只读权限。'
-            exit 1
-          fi
-          export GIT_CONFIG_COUNT=2
-          export GIT_CONFIG_KEY_0=credential.https://github.com.helper
-          export GIT_CONFIG_VALUE_0=''
-          export GIT_CONFIG_KEY_1=credential.https://github.com.helper
-          export GIT_CONFIG_VALUE_1='!f() { printf "%s\n" "username=x-access-token" "password=$DEPENDENCIES_TOKEN"; }; f'
           flutter pub get --enforce-lockfile
           node --test tool/release.test.mjs
       - name: 准备 Android 固定签名

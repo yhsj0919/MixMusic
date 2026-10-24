@@ -95,7 +95,7 @@ App 的 Lemon 系列依赖直接从 GitHub 获取，`pubspec.yaml` 使用完整�
 - 更新依赖时，先在对应仓库提交推送，再更新 `pubspec.yaml` 的 `ref`，执行 `flutter pub get` 并提交锁文件。
 - `quickjs` 的四个包使用同一提交；`lemon_js` 和 `lemon_js_ui` 的 Git overrides 用于统一其传递依赖来源。
 - `lemon_audio` 仓库自带 Windows 修复依赖，无需本机额外目录或宿主 override。
-- `lemon_audio` 当前为私有仓库。配置仓库 Secret `DEPENDENCIES_TOKEN`，使用仅选择 `lemon_audio`、授予 Contents 只读权限的 fine-grained PAT。当前仓库的 `GITHUB_TOKEN` 无法读取另一私有仓库。安装依赖步骤通过进程环境中的 Git credential helper 使用令牌，不写入 Git 配置或依赖 URL；令牌不传给后续编译步骤。
+- 所有 Git 依赖仓库均已公开，可匿名拉取，不需要配置 `DEPENDENCIES_TOKEN`。
 - `flutter pub get --enforce-lockfile` 保持 pubspec.lock 的依赖版本；依赖仓库变更了约束时需先在本机更新锁文件再提交，CI 不静默升级。
 - 本轮固定 Flutter `3.47.7`，与本机版本及 Dart `3.13.5` 约束一致。
 

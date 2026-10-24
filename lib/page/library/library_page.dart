@@ -99,9 +99,21 @@ class _LibraryPageState extends State<LibraryPage> {
           : HyperIconButton.ghost(
               tooltip: '返回',
               icon: const HyperIcon(Icons.arrow_back),
-              onPressed: () => context.go('/'),
+              onPressed: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/');
+                }
+              },
             ),
       actions: [
+        HyperButton.text(
+          onPressed: () {
+            context.push('/history');
+          },
+          label: const HyperText('播放历史'),
+        ),
         HyperIconButton.ghost(
           tooltip: '刷新',
           icon: const HyperIcon(Icons.refresh),
@@ -125,7 +137,9 @@ class _LibraryPageState extends State<LibraryPage> {
             description: '${snapshot.error}',
           );
         }
-        if (sources.isEmpty) return const HyperResult.empty(title: '没有支持“我的”的插件');
+        if (sources.isEmpty) {
+          return const HyperResult.empty(title: '没有支持“我的”的插件');
+        }
         final sections = controller.sections;
         if (sections.isEmpty) return const Center(child: HyperText('正在加载…'));
         final data = controller.state.value;

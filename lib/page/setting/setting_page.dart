@@ -199,11 +199,12 @@ class SettingPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
-        const HyperCard(
+        HyperCard(
           child: HyperListTile(
-            title: Text('关于 MixMusic'),
-            subtitle: Text('v2 · 基础验证阶段'),
-            leading: Icon(Icons.info_outline_rounded),
+            title: const Text('关于 MixMusic'),
+            subtitle: const Text('版本信息与检查更新'),
+            leading: const Icon(Icons.info_outline_rounded),
+            onTap: () => context.go('/settings/update'),
           ),
         ),
       ],

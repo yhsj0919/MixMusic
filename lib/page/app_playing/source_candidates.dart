@@ -38,7 +38,12 @@ Future<void> showSourceCandidates(
                       Song.fromJson(original.toJson())..matchedSong = null,
                     ),
                   ),
-                  if (items.isEmpty) const HyperText('暂无候选，请先在音源匹配设置中选择音源'),
+                  if (items.isEmpty)
+                    HyperText(
+                      player.plugins.matcher.sources.value.isEmpty
+                          ? '请先在音源匹配设置中选择音源'
+                          : '暂无候选，可以重新搜索或检查音源状态',
+                    ),
                   for (final item in items)
                     HyperListTile(
                       title: HyperText(item.title),

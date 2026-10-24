@@ -1,0 +1,230 @@
+name: 在线打包并发布
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 发布类型（stable 正式，prerelease 预发布）
+        type: choice
+        options: [prerelease, stable]
+        default: prerelease
+      version:
+        description: 版本号，如 0.2.0 或 0.2.0-beta.1；留空读取 pubspec
+        type: string
+      build_number:
+        description: 构建号，留空使用本次工作流序号
+        type: string
+      platforms:
+        description: 构建平台
+        type: choice
+        options: ['android,windows', android, windows]
+        default: 'android,windows'
+      notes:
+        description: 补充更新说明，留空使用 CHANGELOG.md 的 Unreleased
+        type: string
+      publish:
+        description: 构建成功后发布 Release；取消勾选则只上传 Actions 产物
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}-${{ inputs.version || 'pubspec' }}-${{ inputs.release_type }}
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: '3.47.7'
+
+jobs:
+  prepare:
+    name: 校验发布参数并固定依赖版本
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.prepare.outputs.version }}
+      build: ${{ steps.prepare.outputs.build }}
+      tag: ${{ steps.prepare.outputs.tag }}
+      sha: ${{ steps.prepare.outputs.sha }}
+      matrix: ${{ steps.prepare.outputs.matrix }}
+      dependencies: ${{ steps.prepare.outputs.dependencies }}
+      publish: ${{ steps.prepare.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: 生成发布信息
+        id: prepare
+        uses: actions/github-script@v9
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        with:
+          github-token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
+          script: |
+            const {prepare} = await import(`${process.env.GITHUB_WORKSPACE}/tool/release.mjs`);
+            await prepare({github, context, core});
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-metadata
+          path: build/release-metadata/
+          if-no-files-found: error
+          retention-days: 14
+
+  build:
+    name: 构建 ${{ matrix.platform }}
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: app
+    env:
+      BUILD_VERSION: ${{ needs.prepare.outputs.version }}
+      BUILD_NUMBER: ${{ needs.prepare.outputs.build }}
+      RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          path: app
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_ui.repository }}
+          ref: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_ui.ref }}
+          path: lemon_ui
+          token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_x.repository }}
+          ref: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_x.ref }}
+          path: lemon_x
+          token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_net.repository }}
+          ref: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_net.ref }}
+          path: lemon_net
+          token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_lyric.repository }}
+          ref: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_lyric.ref }}
+          path: lemon_lyric
+          token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_audio.repository }}
+          ref: ${{ fromJSON(needs.prepare.outputs.dependencies).lemon_audio.ref }}
+          path: lemon_audio
+          token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ fromJSON(needs.prepare.outputs.dependencies).quickjs.repository }}
+          ref: ${{ fromJSON(needs.prepare.outputs.dependencies).quickjs.ref }}
+          path: quickjs
+          token: ${{ secrets.DEPENDENCIES_TOKEN || github.token }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-metadata
+          path: app/build/release-metadata
+      - uses: actions/setup-java@v4
+        if: matrix.platform == 'android'
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: 安装依赖并验证发布脚本
+        run: |
+          flutter pub get --enforce-lockfile
+          node --test tool/release.test.mjs
+      - name: 准备 Android 固定签名
+        if: matrix.platform == 'android'
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import path from 'node:path';
+          const file = path.join(process.env.RUNNER_TEMP, 'mixmusic-release.jks');
+          fs.writeFileSync(file, Buffer.from(process.env.ANDROID_KEYSTORE_BASE64, 'base64'), {mode: 0o600});
+          fs.appendFileSync(process.env.GITHUB_ENV, `ANDROID_KEYSTORE_PATH=${file}\n`);
+          JS
+      - name: 构建 Android 分架构 APK
+        if: matrix.platform == 'android'
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          flutter build apk --release --split-per-abi --target-platform android-arm,android-arm64,android-x64 --build-name "$BUILD_VERSION" --build-number "$BUILD_NUMBER" --no-pub
+          node tool/release.mjs android
+      - name: 构建 Windows 并生成 EXE 与便携包
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          flutter build windows --release --build-name $env:BUILD_VERSION --build-number $env:BUILD_NUMBER --no-pub
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $vswhere = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
+          $vs = & $vswhere -latest -version '[17.0,18.0)' -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          $runtime = Get-Item "$vs/VC/Redist/MSVC/*/x64/Microsoft.VC143.CRT" -ErrorAction Stop | Sort-Object FullName -Descending | Select-Object -First 1
+          Copy-Item "$($runtime.FullName)/*.dll" build/windows/x64/runner/Release/
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath "dist/MixMusic-windows-x64-$env:RELEASE_TAG.zip"
+          if (-not (Test-Path 'C:/Program Files (x86)/Inno Setup 6/ISCC.exe')) {
+            choco install innosetup --yes --no-progress
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          node tool/release.mjs windows
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v7
+        with:
+          name: packages-${{ matrix.platform }}
+          path: app/dist/
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: 上传附件后发布 Release
+    needs: [prepare, build]
+    if: needs.prepare.outputs.publish == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-metadata
+          path: build/release-metadata
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: packages-*
+          path: dist
+          merge-multiple: true
+      - name: 生成校验值并发布
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const {publish} = await import(`${process.env.GITHUB_WORKSPACE}/tool/release.mjs`);
+            await publish({github, context, core});

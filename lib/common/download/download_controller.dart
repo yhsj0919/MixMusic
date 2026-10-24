@@ -17,6 +17,8 @@ import 'download_files.dart';
 import '../queue/hyper_queue.dart';
 import '../plugin/collection_controller.dart';
 import 'download_collection.dart';
+import 'download_session.dart';
+import 'download_store.dart';
 import '../entity/quality.dart';
 import '../queue/hyper_queue_entry.dart';
 
@@ -27,20 +29,38 @@ class DownloadController extends LxController {
     DownloadFiles? files,
     this.cache,
     this.preferences,
+    DownloadStore? store,
     int retryCount = 2,
     this.retryDelay = const Duration(seconds: 1),
   }) : files = files ?? DownloadFiles() {
     this.retryCount = own(
       (preferences?.getInt('downloadRetries') ?? retryCount).obs,
     );
-    restored = _restoreDirectory();
+    if (store != null) {
+      session = DownloadSession(this, store, onCollection: _collections.add);
+    }
+    restored = _restore();
   }
   final PluginController plugins;
   final DownloadFiles files;
   final MusicCache? cache;
   final SharedPreferences? preferences;
   late final Future<void> restored;
+  DownloadSession? session;
+  bool _closing = false;
   late final directoryError = own(''.obs);
+  late final restoreError = own(''.obs);
+
+  Future<void> _restore() async {
+    await _restoreDirectory();
+    if (session == null) return;
+    try {
+      await session!.restore();
+    } catch (error, stack) {
+      restoreError.value = '下载记录恢复失败，请查看下载日志';
+      plugins.addLog('download', 'error', '恢复下载记录失败：$error\n$stack');
+    }
+  }
 
   Future<void> _restoreDirectory() async {
     try {
@@ -259,7 +279,7 @@ class DownloadController extends LxController {
 
   Future<MusicDownload?> _nextTask() async {
     hyperQueue.index.value = -1;
-    while (!isDisposed) {
+    while (!isDisposed && !_closing) {
       final position = await hyperQueue.nextIndex(retry: true);
       if (isDisposed) return null;
       final source = hyperQueue.blockedSource;
@@ -352,6 +372,7 @@ class DownloadController extends LxController {
 
   void _update() {
     if (!isDisposed) tasks.refresh();
+    session?.changed();
   }
 
   MusicDownload add(Song song, {int? quality}) {
@@ -376,14 +397,16 @@ class DownloadController extends LxController {
   }
 
   void _start() {
-    if (_running != null || isDisposed) return;
+    if (_running != null || isDisposed || _closing) return;
     _running = _drain().whenComplete(() => _running = null);
   }
 
   Future<void> _drain() async {
-    while (!isDisposed) {
+    await restored;
+    if (restoreError.value.isNotEmpty) return;
+    while (!isDisposed && !_closing) {
       final task = await _nextTask();
-      if (task == null || isDisposed) return;
+      if (task == null || isDisposed || _closing) return;
       _active = task;
       final token = _cancel = CancelToken();
       File? temporary;
@@ -697,9 +720,21 @@ class DownloadController extends LxController {
 
   @override
   Future<void> onDispose() async {
+    for (final group in _collections) {
+      await group.dispose();
+    }
+  }
+
+  @override
+  Future<void> disposeController() async {
+    if (isDisposed || _closing) return;
+    _closing = true;
     _cancel?.cancel();
     _sourceCancel?.cancel();
     net.close(force: true);
     await _running;
+    await restored;
+    await session?.dispose();
+    await super.disposeController();
   }
 }

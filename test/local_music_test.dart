@@ -2,11 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:android_file_picker/android_file_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mix_music/common/api/music_api.dart';
 import 'package:mix_music/common/local/local_files.dart';
 import 'package:mix_music/common/local/local_music_api.dart';
 import 'package:mix_music/common/local/local_music_controller.dart';
+import 'package:mix_music/common/download/download_files.dart';
 import 'package:mix_music/common/plugin/plugin_controller.dart';
 
 class PendingFiles extends LocalFiles {
@@ -28,6 +32,54 @@ void main() {
     root = await Directory.systemTemp.createTemp('mixmusic-local-');
   });
   tearDown(() => root.delete(recursive: true));
+
+  test(
+    'picked SAF directories retain permissions before returning or saving',
+    () async {
+      final previous = FilePickerPlatform.instance;
+      final picker = FilePickerAndroid();
+      FilePickerPlatform.instance = picker;
+      addTearDown(() => FilePickerPlatform.instance = previous);
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      const uri = 'content://provider/tree/primary%3AMixMusic';
+      messenger.setMockMethodCallHandler(
+        picker.methodChannel,
+        (call) async => uri,
+      );
+      var reject = false;
+      final grants = <bool>[];
+      messenger.setMockMethodCallHandler(LocalFiles.channel, (call) async {
+        expect(call.method, 'retainDirectory');
+        expect(call.arguments['uri'], uri);
+        if (reject) {
+          throw PlatformException(
+            code: 'directory_operation_failed',
+            message: '授权失败',
+          );
+        }
+        grants.add(call.arguments['write'] as bool);
+        return null;
+      });
+      addTearDown(() {
+        messenger.setMockMethodCallHandler(picker.methodChannel, null);
+        messenger.setMockMethodCallHandler(LocalFiles.channel, null);
+      });
+      expect(await LocalFiles().pickDirectory(), uri);
+      expect(await DownloadFiles().pickDirectory(), uri);
+      expect(grants, [false, true]);
+      reject = true;
+      final local = LocalMusicController(
+        configFile: File('${root.path}/dirs.json'),
+      );
+      addTearDown(local.disposeController);
+      await expectLater(() async {
+        final picked = await local.files.pickDirectory();
+        if (picked != null) await local.addDirectory(picked);
+      }, throwsA(isA<PlatformException>()));
+      expect(local.directories.value, isEmpty);
+    },
+  );
 
   test(
     'multiple directories persist, normalize duplicates and never delete audio',

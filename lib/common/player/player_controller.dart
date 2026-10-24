@@ -15,6 +15,7 @@ import '../plugin/plugin_controller.dart';
 import 'player_lyric.dart';
 import 'sleep_timer.dart';
 import 'equalizer_controller.dart';
+import 'player_session.dart';
 import 'music_cache.dart';
 import '../queue/hyper_queue.dart';
 import '../queue/hyper_queue_source.dart';
@@ -46,7 +47,9 @@ class PlayerController extends LxController {
     );
     hyperQueue.items.addListener(syncQueue);
     mode.addListener(() => preferences?.setString('playMode', mode.value.name));
+    session = own(PlayerSession(this));
   }
+  late final PlayerSession session;
   late final PlayerLyric lyrics;
   late final SleepTimer sleepTimer;
   late final EqualizerController equalizer;
@@ -123,6 +126,8 @@ class PlayerController extends LxController {
   final _random = Random();
 
   bool _completed = false;
+  Object? _failure;
+  bool get _failed => _failure != null;
   bool _loadingTrack = false;
   bool _playWhenReady = true;
   MpvPlayer? engine;
@@ -140,6 +145,7 @@ class PlayerController extends LxController {
       onQueueItem: playAt,
       queueIndex: () => currentIndex.value,
       onPlaybackIntent: (play) => _playWhenReady = play,
+      onRetry: play,
     );
     await adapter.player.setSourceResolver(
       resolve,
@@ -212,6 +218,7 @@ class PlayerController extends LxController {
         androidNotificationChannelName: '音乐播放',
         androidNotificationOngoing: true,
         allowConcurrentPlayback: allowConcurrentPlayback.value,
+        resumeAfterInterruption: true,
       ),
     );
     await audio!.setAllowConcurrentPlayback(allowConcurrentPlayback.value);
@@ -410,6 +417,7 @@ class PlayerController extends LxController {
     _history.clear();
     syncQueue();
     await stopPlayback();
+    await session.save();
   }
 
   Future<void> removeCollection(Object key) async {
@@ -447,8 +455,8 @@ class PlayerController extends LxController {
 
   void updateState(LemonPlayerState state) {
     if (isDisposed) return;
-    playing.value = state.playing;
-    position.value = state.position;
+    playing.value = !_failed && state.playing;
+    if (!_failed) position.value = state.position;
     final length = engine?.player.state.duration;
     // 同时长重播可能没有新的 duration 事件，恢复清空或换曲时归零的总时长。
     if (state.processingState == LemonProcessingState.ready &&
@@ -490,6 +498,8 @@ class PlayerController extends LxController {
     bool play = true,
     bool keepLyric = false,
   }) async {
+    session.pending = false;
+    _failure = null;
     final loadId = ++_loadId;
     _loadingTrack = true;
     _playWhenReady = play;
@@ -574,6 +584,8 @@ class PlayerController extends LxController {
             : (Song.fromJson(selected.toJson())
                 ..matchedSong = resolved
                 ..playQuality = resolved.playQuality);
+        _failure = null;
+        engine!.resetFailure();
         status.value = '';
       }
       return resolved.url == request.media.uri
@@ -628,7 +640,18 @@ class PlayerController extends LxController {
   }
 
   void reportError(Object error, [StackTrace? stack]) {
-    status.value = '播放失败：$error';
+    // 没有解析出地址时，MPV 的后续加载错误不能覆盖音源失败原因。
+    if (error is! mpv.MpvEndFileError || _failure == null) _failure = error;
+    final cause = _failure!;
+    var message = cause is StateError ? cause.message : '$cause';
+    if (message.contains('QuickJS fetch network error:')) {
+      message = '网络连接失败，请检查网络后重试';
+    } else if (message.contains('QuickJS fetch timed out after')) {
+      message = '网络请求超时，请稍后重试';
+    }
+    status.value = '播放失败：$message';
+    playing.value = false;
+    engine?.fail(message);
     plugins.addLog(
       song.value?.pluginId ?? 'player',
       'error',
@@ -637,7 +660,7 @@ class PlayerController extends LxController {
   }
 
   Future<void> toggle() async {
-    if (playing.value) {
+    if (playing.value && !_failed) {
       await pause();
     } else {
       await play();
@@ -646,6 +669,14 @@ class PlayerController extends LxController {
 
   Future<void> play() async {
     _playWhenReady = true;
+    final current = song.value;
+    if (current != null && (session.pending || _failed)) {
+      final selected = Song.fromJson(current.toJson())..url = null;
+      selected.matchedSong?.url = null;
+      if (session.pending) unawaited(loadLyric(selected));
+      await reloadSong(selected, start: position.value, keepLyric: true);
+      return;
+    }
     try {
       await audio?.play();
     } catch (error, stack) {
@@ -715,13 +746,27 @@ class PlayerController extends LxController {
     _playWhenReady = false;
     try {
       await audio?.pause();
-      if (!isDisposed) playing.value = false;
+      if (!isDisposed) {
+        playing.value = false;
+        await session.save();
+      }
     } catch (error, stack) {
       if (!isDisposed) reportError(error, stack);
     }
   }
 
   Future<void> seek(Duration value) async {
+    if (session.pending) {
+      position.value = duration.value > Duration.zero
+          ? Duration(
+              milliseconds: value.inMilliseconds.clamp(
+                0,
+                duration.value.inMilliseconds,
+              ),
+            )
+          : (value < Duration.zero ? Duration.zero : value);
+      return;
+    }
     try {
       await audio!.seek(value);
     } catch (error, stack) {
@@ -741,6 +786,8 @@ class PlayerController extends LxController {
   }
 
   Future<void> stopPlayback() async {
+    _failure = null;
+    session.pending = false;
     _lyricRequest++;
     if (sleepTimer.waiting.value) sleepTimer.cancel();
     final loadId = ++_loadId;
@@ -775,6 +822,7 @@ class PlayerController extends LxController {
 }
 
 class MpvPlayer extends LemonAudioPlayer {
+  final Future<void> Function()? onRetry;
   final void Function(bool)? onPlaybackIntent;
   final Future<void> Function()? onNext, onPrevious;
   final Future<void> Function(int)? onQueueItem;
@@ -790,6 +838,7 @@ class MpvPlayer extends LemonAudioPlayer {
   final _subscriptions = <StreamSubscription<dynamic>>[];
   LemonPlayerState _state = const LemonPlayerState.idle();
   bool _loaded = false;
+  String? get _error => _state.errorMessage;
   mpv.Media? _pendingMedia;
 
   MpvPlayer({
@@ -798,6 +847,7 @@ class MpvPlayer extends LemonAudioPlayer {
     this.onQueueItem,
     this.queueIndex,
     this.onPlaybackIntent,
+    this.onRetry,
   }) {
     _subscriptions.addAll([
       player.stream.playbackState.listen((_) => _emit()),
@@ -824,8 +874,11 @@ class MpvPlayer extends LemonAudioPlayer {
   void _emit() {
     final state = player.state;
     _state = LemonPlayerState(
-      playing: state.playWhenReady && !state.completed,
-      processingState: !_loaded
+      playing: _error == null && state.playWhenReady && !state.completed,
+      errorMessage: _error,
+      processingState: _error != null
+          ? LemonProcessingState.error
+          : !_loaded
           ? LemonProcessingState.idle
           : state.completed
           ? LemonProcessingState.completed
@@ -834,7 +887,7 @@ class MpvPlayer extends LemonAudioPlayer {
           : state.duration == Duration.zero
           ? LemonProcessingState.loading
           : LemonProcessingState.ready,
-      position: state.position,
+      position: _error == null ? state.position : _state.position,
       bufferedPosition: state.buffer,
       speed: state.rate,
       queueIndex: queueIndex?.call(),
@@ -844,10 +897,32 @@ class MpvPlayer extends LemonAudioPlayer {
 
   @override
   LemonPlayerState get currentState => _state;
+  void fail(Object error) {
+    _state = _state.copyWith(errorMessage: '$error');
+    _emit();
+  }
+
+  void resetFailure() {
+    if (_error == null) return;
+    // 解析成功不代表解码完成，先解除失败锁定，等待底层报告就绪。
+    _state = LemonPlayerState(
+      playing: false,
+      processingState: LemonProcessingState.loading,
+      position: _state.position,
+      speed: _state.speed,
+      queueIndex: _state.queueIndex,
+    );
+    _states.add(_state);
+  }
+
   @override
   Stream<LemonPlayerState> get stateStream => _states.stream;
   @override
   Future<void> play() async {
+    if (_error != null) {
+      await onRetry?.call();
+      return;
+    }
     onPlaybackIntent?.call(true);
     final media = _pendingMedia;
     if (media != null) {
@@ -877,6 +952,7 @@ class MpvPlayer extends LemonAudioPlayer {
     onPlaybackIntent?.call(false);
     _pendingMedia = null;
     _loaded = false;
+    _state = const LemonPlayerState.idle();
     await player.stop();
     _emit();
   }
@@ -905,16 +981,22 @@ class MpvPlayer extends LemonAudioPlayer {
   }
 
   Future<void> setMuted(bool value) => player.setMute(value);
+  static mpv.FirequalizerSettings equalizerSettings(
+    bool enabled,
+    List<double> gains,
+  ) => mpv.FirequalizerSettings(
+    enabled: enabled,
+    gain_entry: [
+      for (var i = 0; i < EqualizerController.frequencies.length; i++)
+        'entry(${EqualizerController.frequencies[i]},${gains[i]})',
+    ].join(';'),
+  );
+
   Future<void> setEqualizer(bool enabled, List<double> gains) =>
       player.updateAudioEffects(
         (effects) => effects.copyWith(
-          superequalizer: mpv.SuperequalizerSettings(
-            enabled: enabled,
-            params: {
-              for (var i = 0; i < gains.length; i++)
-                '${i + 1}b': pow(10, gains[i] / 20).toDouble(),
-            },
-          ),
+          // gain_entry 支持 af-command；预设和频段变化不再重建整条 af。
+          firequalizer: equalizerSettings(enabled, gains),
         ),
       );
   @override

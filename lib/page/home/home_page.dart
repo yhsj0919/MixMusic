@@ -25,7 +25,9 @@ class HomePage extends StatelessWidget {
             HyperIconButton.ghost(
               tooltip: '我的',
               icon: const HyperIcon(Icons.library_music_outlined),
-              onPressed: () => context.push('/library'),
+              onPressed: () {
+                context.push('/library');
+              },
             ),
           if (!desktop)
             HyperIconButton.ghost(
@@ -37,13 +39,17 @@ class HomePage extends StatelessWidget {
             HyperIconButton.ghost(
               tooltip: '每日推荐',
               icon: const HyperIcon(Icons.today_outlined),
-              onPressed: () => context.push('/recommend'),
+              onPressed: () {
+                context.push('/recommend');
+              },
             ),
           if (!desktop)
             HyperIconButton.ghost(
               tooltip: '排行榜',
               icon: const HyperIcon(Icons.leaderboard_outlined),
-              onPressed: () => context.push('/ranks'),
+              onPressed: () {
+                context.push('/ranks');
+              },
             ),
           if (!desktop)
             HyperIconButton.ghost(
@@ -90,84 +96,105 @@ class HomePage extends StatelessWidget {
             ),
         ],
       ),
-      body: FutureBuilder<void>(
-        future: plugins.homeReady,
-        builder: (context, snapshot) => Obx(() {
-          if (snapshot.hasError) {
-            return HyperResult.empty(
-              title: '插件恢复失败',
-              description: '${snapshot.error}',
-            );
-          }
-          if (plugins.home.isLoading ||
-              (snapshot.connectionState != ConnectionState.done &&
-                  plugins.selectedId.value.isEmpty)) {
-            return const Center(child: HyperText('正在加载…'));
-          }
-          if (plugins.home.hasError) {
-            return HyperResult.empty(
-              title: '首页加载失败',
-              description: '${plugins.home.errorValue}',
-              actions: [
-                HyperButton.text(
-                  onPressed: () => showPluginLogs(context),
-                  label: const HyperText('查看插件日志'),
-                ),
-              ],
-            );
-          }
-          return ListView(
-            padding: EdgeInsets.fromLTRB(
-              desktop ? 24 : 12,
-              8,
-              desktop ? 24 : 12,
-              32,
-            ),
-            children: [
-              if (!desktop)
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    HyperButton.text(
-                      onPressed: () => context.push('/artists'),
-                      label: const HyperText('全部歌手'),
-                    ),
-                    HyperButton.text(
-                      onPressed: () => context.push('/parse'),
-                      label: const HyperText('导入歌单'),
-                    ),
-                  ],
-                ),
-              if (const String.fromEnvironment('EXTENSION_MANIFEST').isNotEmpty)
-                HyperButton.text(
-                  onPressed: () => plugins.loadExternal(
-                    const String.fromEnvironment('EXTENSION_MANIFEST'),
+      body: Column(
+        children: [
+          if (!desktop)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  HyperButton.tonal(
+                    onPressed: () {
+                      context.push('/local');
+                    },
+                    icon: const HyperIcon(Icons.folder_outlined),
+                    label: const HyperText('本地音乐'),
                   ),
-                  label: const HyperText('加载外部验证插件'),
-                ),
-              if (plugins.selectedId.value.isEmpty)
-                HyperResult.empty(
-                  title: '选择首页音源',
-                  description: '在设置中安装插件并选择默认首页音源',
-                  actions: [
-                    HyperButton.tonal(
-                      onPressed: () => context.go('/settings'),
-                      label: const HyperText('前往设置'),
-                    ),
+                  HyperButton.text(
+                    onPressed: () {
+                      context.push('/artists');
+                    },
+                    label: const HyperText('全部歌手'),
+                  ),
+                  HyperButton.text(
+                    onPressed: () {
+                      context.push('/parse');
+                    },
+                    label: const HyperText('导入歌单'),
+                  ),
+                ],
+              ),
+            ),
+          Expanded(
+            child: FutureBuilder<void>(
+              future: plugins.homeReady,
+              builder: (context, snapshot) => Obx(() {
+                if (snapshot.hasError) {
+                  return HyperResult.empty(
+                    title: '插件恢复失败',
+                    description: '${snapshot.error}',
+                  );
+                }
+                if (plugins.home.isLoading ||
+                    (snapshot.connectionState != ConnectionState.done &&
+                        plugins.selectedId.value.isEmpty)) {
+                  return const Center(child: HyperText('正在加载…'));
+                }
+                if (plugins.home.hasError) {
+                  return HyperResult.empty(
+                    title: '首页加载失败',
+                    description: '${plugins.home.errorValue}',
+                    actions: [
+                      HyperButton.text(
+                        onPressed: () => showPluginLogs(context),
+                        label: const HyperText('查看插件日志'),
+                      ),
+                    ],
+                  );
+                }
+                return ListView(
+                  padding: EdgeInsets.fromLTRB(
+                    desktop ? 24 : 12,
+                    8,
+                    desktop ? 24 : 12,
+                    32,
+                  ),
+                  children: [
+                    if (const String.fromEnvironment('EXTENSION_MANIFEST')
+                        .isNotEmpty)
+                      HyperButton.text(
+                        onPressed: () => plugins.loadExternal(
+                          const String.fromEnvironment('EXTENSION_MANIFEST'),
+                        ),
+                        label: const HyperText('加载外部验证插件'),
+                      ),
+                    if (plugins.selectedId.value.isEmpty)
+                      HyperResult.empty(
+                        title: '选择首页音源',
+                        description: '在设置中安装插件并选择默认首页音源',
+                        actions: [
+                          HyperButton.tonal(
+                            onPressed: () => context.go('/settings'),
+                            label: const HyperText('前往设置'),
+                          ),
+                        ],
+                      ),
+                    for (final (key, title, route) in [
+                      ('playlists', '歌单', '/playlist'),
+                      ('albums', '专辑', '/album'),
+                      ('mvs', 'MV', '/mv'),
+                    ])
+                      if (plugins.availableSections.contains(key))
+                        _section(context, plugins, desktop, key, title, route),
+                    if (plugins.availableSections.contains('songs'))
+                      _songs(context, plugins, desktop),
                   ],
-                ),
-              for (final (key, title, route) in [
-                ('playlists', '歌单', '/playlist'),
-                ('albums', '专辑', '/album'),
-                ('mvs', 'MV', '/mv'),
-              ])
-                if (plugins.availableSections.contains(key))
-                  _section(context, plugins, desktop, key, title, route),
-              if (plugins.availableSections.contains('songs'))
-                _songs(context, plugins, desktop),
-            ],
-          );
-        }),
+                );
+              }),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -198,7 +225,9 @@ class HomePage extends StatelessWidget {
               ),
               if (key == 'playlists' || key == 'albums' || key == 'mvs')
                 HyperButton.text(
-                  onPressed: () => context.push('/$key'),
+                  onPressed: () {
+                    context.push('/$key');
+                  },
                   label: const HyperText('查看'),
                 ),
             ],

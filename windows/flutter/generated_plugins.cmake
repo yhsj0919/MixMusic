@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   lemon_audio
   lemon_js
   mpv_audio_kit
+  url_launcher_windows
   webview_all_windows
 )
 

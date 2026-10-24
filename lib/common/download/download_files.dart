@@ -1,8 +1,5 @@
 import 'dart:io';
 
-import 'package:android_file_picker/android_file_picker.dart';
-import 'package:file_picker/file_picker.dart';
-
 import '../local/local_files.dart';
 
 class DownloadFiles {
@@ -57,14 +54,7 @@ class DownloadFiles {
     return null;
   }
 
-  Future<String?> pickDirectory() => FilePicker.getDirectoryPath(
-    androidOptions: const FilePickerAndroidOptions(
-      safOptions: AndroidSAFOptions(
-        grant: AndroidSAFGrant.lifetime,
-        accessMode: AndroidSAFAccessMode.readWrite,
-      ),
-    ),
-  );
+  Future<String?> pickDirectory() => LocalFiles().pickDirectory(write: true);
 
   Future<String> save(
     File file,

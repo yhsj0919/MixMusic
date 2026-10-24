@@ -14,6 +14,8 @@ import 'package:mix_music/common/entity/quality.dart';
 import 'package:mix_music/common/download/download_collection.dart';
 import 'package:mix_music/common/entity/album.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mix_music/common/database/app_database.dart';
+import 'package:mix_music/common/download/download_store.dart';
 
 class DownloadApi extends MusicApi {
   DownloadApi(
@@ -152,6 +154,108 @@ void main() {
     addTearDown(result.dispose);
     return result;
   }
+
+  test('persistent retry resolves fresh URL; completed record survives and does not redownload', () async {
+    await controller.disposeController();
+    final database = AppDatabase('${directory.path}/downloads.sqlite');
+    final store = DownloadStore(database);
+    DownloadController create() => DownloadController(
+      plugins,
+      directory: directory,
+      store: store,
+      retryCount: 0,
+    );
+    try {
+      controller = create();
+      await controller.restored;
+      status = 503;
+      final first = controller.add(song('persistent'));
+      await until(() => first.state == DownloadState.failed);
+      expect(api.calls.length, 1);
+      await controller.disposeController();
+      controller = create();
+      await controller.restored;
+      expect(api.calls.length, 1);
+      expect(controller.tasks.value.single.state, DownloadState.failed);
+      status = 200;
+      final resumed = controller.tasks.value.single;
+      controller.retry(resumed);
+      await until(() => resumed.state == DownloadState.complete);
+      expect(api.calls.length, 2);
+      final path = resumed.path;
+      final count = requests;
+      await controller.disposeController();
+      controller = create();
+      await controller.restored;
+      final completed = controller.tasks.value.single;
+      expect(completed.path, path);
+      expect(completed.state, DownloadState.complete);
+      expect(identical(controller.add(song('persistent')), completed), isTrue);
+      expect(requests, count);
+      controller.remove(completed);
+      final again = controller.add(song('persistent'));
+      await until(() => again.state == DownloadState.complete);
+      expect(File(again.path!).absolute.uri, File(path!).absolute.uri);
+      expect(requests, count);
+      expect(api.calls.length, 2);
+    } finally {
+      await controller.disposeController();
+      await database.dispose();
+      controller = DownloadController(plugins, directory: directory);
+    }
+  });
+
+  test(
+    'persistent batch resumes at the next page only after manual retry',
+    () async {
+      await controller.disposeController();
+      final database = AppDatabase('${directory.path}/batch.sqlite');
+      final store = DownloadStore(database);
+      DownloadController create() =>
+          DownloadController(plugins, directory: directory, store: store);
+      try {
+        controller = create();
+        await controller.restored;
+        final source = collection('A');
+        source.page = 1;
+        source.hasMore.value = true;
+        source.songs.value = [song('A-0')];
+        final group = DownloadCollection(
+          source,
+          320,
+          directory: directory.path,
+        );
+        addTearDown(group.dispose);
+        controller.hyperQueue.appendCollection(group.source);
+        group.items.value.single.state = DownloadState.complete;
+        await controller.disposeController();
+        controller = create();
+        await controller.restored;
+        expect(api.calls, isEmpty);
+        expect(api.pageCalls, isEmpty);
+        final resumed =
+            controller.hyperQueue.roots.value.single.source!.key
+                as DownloadCollection;
+        controller.retryCollection(resumed);
+        await until(
+          () =>
+              controller.tasks.value.length == 2 &&
+              controller.tasks.value.last.state == DownloadState.complete,
+        );
+        expect(api.calls, ['A-1']);
+        expect(api.pageCalls, [('A', 1)]);
+        expect(controller.tasks.value.map((task) => task.song.id), [
+          'A-0',
+          'A-1',
+        ]);
+        expect(resumed.items.value.last, same(controller.tasks.value.last));
+      } finally {
+        await controller.disposeController();
+        await database.dispose();
+        controller = DownloadController(plugins, directory: directory);
+      }
+    },
+  );
 
   test('viewing loads metadata ahead of a blocked download without resolving more URLs', () async {
     api.gate = Completer<void>();

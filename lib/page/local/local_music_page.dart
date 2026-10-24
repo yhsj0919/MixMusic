@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lemon_ui/lemon_ui.dart';
 import 'package:lemon_x/lemon_x.dart';
@@ -101,12 +102,32 @@ class _LocalMusicPageState extends State<LocalMusicPage> {
                     loading: () => const Center(child: HyperText('正在读取文件…')),
                     error: (error, stack) => HyperResult.empty(
                       title: '目录读取失败',
-                      description: '$error',
+                      description: error is PlatformException
+                          ? error.message ?? '无法读取目录，请重新选择文件夹'
+                          : '$error',
                       actions: [
                         HyperButton.tonal(
                           onPressed: () =>
                               local.openDirectory(local.selected.value),
                           label: const HyperText('重试'),
+                        ),
+                        HyperButton.text(
+                          onPressed: () async {
+                            final directory = await local.files.pickDirectory();
+                            if (directory == null) return;
+                            await local.addDirectory(directory);
+                            if (mounted) {
+                              open(
+                                LocalEntry(
+                                  directory,
+                                  LocalFiles.name(directory),
+                                  true,
+                                ),
+                                root: true,
+                              );
+                            }
+                          },
+                          label: const HyperText('重新选择文件夹'),
                         ),
                       ],
                     ),

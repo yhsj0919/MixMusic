@@ -140,12 +140,12 @@ void main() {
       await controller.equalizer.setEnabled(true);
       expect(controller.controlError.value, isEmpty);
       expect(
-        adapter.player.state.audioEffects.superequalizer!.params['1b'],
-        closeTo(1.995, .001),
+        adapter.player.state.audioEffects.firequalizer!.gain_entry,
+        contains('entry(65,6.0)'),
       );
       expect(
         await adapter.player.getRawProperty('af'),
-        contains('superequalizer'),
+        contains('firequalizer'),
       );
       final uri = File('E:/lemon_audio/example/assets/test-tone.wav').uri
           .toString();
@@ -171,7 +171,7 @@ void main() {
       expect(adapter.currentState.speed, 1.5);
       expect(
         await adapter.player.getRawProperty('af'),
-        contains('superequalizer'),
+        contains('firequalizer'),
       );
       await adapter.pause();
       await adapter.open(
@@ -194,10 +194,7 @@ void main() {
       expect(controller.status.value, isEmpty);
       await controller.equalizer.setEnabled(false);
       expect(controller.controlError.value, isEmpty);
-      expect(
-        adapter.player.state.audioEffects.superequalizer!.enabled,
-        isFalse,
-      );
+      expect(adapter.player.state.audioEffects.firequalizer!.enabled, isFalse);
       expect(controller.volume.value, .4);
     },
     skip: !const bool.fromEnvironment('MPV_SMOKE'),

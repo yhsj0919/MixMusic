@@ -31,6 +31,7 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/android/build/
 /coverage/
 
 # Symbolication related
@@ -53,6 +54,7 @@ app.*.map.json
 
 # Local attachments, temporary login images and release artifacts.
 /.codex-remote-attachments/
+/.codex-attachments/
 /qq-login-temporary*.png
 /dist/
 

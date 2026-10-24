@@ -29,6 +29,57 @@ class QualityPlayer extends PlayerController {
 
 void main() {
   test(
+    'network errors show Chinese messages and keep original diagnostics',
+    () async {
+      final plugins = PluginController();
+      final player = QualityPlayer(plugins);
+      addTearDown(plugins.disposeController);
+      addTearDown(player.disposeController);
+      final cases = {
+        "QuickJS fetch network error: Failed host lookup: 'www.kuwo.cn'":
+            '网络连接失败，请检查网络后重试',
+        'QuickJS fetch timed out after 0:00:30.000000': '网络请求超时，请稍后重试',
+      };
+      final stack = StackTrace.fromString('network diagnostic stack');
+      for (final entry in cases.entries) {
+        final error = StateError(entry.key);
+        player.reportError(error, stack);
+        expect(player.status.value, '播放失败：${entry.value}');
+        expect(plugins.logs.value.last.message, '$error\n$stack');
+      }
+    },
+  );
+
+  test('failed playback retries fresh source at the last position instead of unpausing', () async {
+    final plugins = PluginController();
+    final player = QualityPlayer(plugins);
+    addTearDown(plugins.disposeController);
+    addTearDown(player.disposeController);
+    player.song.value = Song(
+      pluginId: 'original',
+      id: {'mid': 'song'},
+      title: '歌曲',
+      url: 'https://expired.invalid',
+      matchedSong: Song(
+        pluginId: 'matched',
+        id: 2,
+        title: '匹配',
+        url: 'https://expired.invalid/matched',
+      ),
+    );
+    player.position.value = const Duration(seconds: 15);
+    player.playing.value = true;
+    player.reportError(StateError('loading failed'));
+    expect(player.playing.value, isFalse);
+    await player.toggle();
+    expect(player.reloads, 1);
+    expect(player.reloaded!.id, {'mid': 'song'});
+    expect(player.reloaded!.url, isNull);
+    expect(player.reloaded!.matchedSong!.url, isNull);
+    expect(player.start, const Duration(seconds: 15));
+    expect(player.preserved, isTrue);
+  });
+  test(
     'manual source switch retains identity, position, pause and original queue',
     () async {
       final plugins = PluginController();

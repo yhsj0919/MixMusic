@@ -28,6 +28,7 @@ class MatchApi extends MusicApi {
   MatchApi(super.manager, super.pluginId, this.items);
   final List<Song> items;
   int searches = 0;
+  bool failSearch = false;
   @override
   Future<List<Song>> searchMusic(
     String keyword, [
@@ -35,11 +36,99 @@ class MatchApi extends MusicApi {
     int size = 20,
   ]) async {
     searches++;
+    if (failSearch) throw StateError('temporary network failure');
     return items;
   }
 }
 
 void main() {
+  test('artist arrays match combined names with different separators', () {
+    final original = track('a', title: '探故知', artist: '浅影阿');
+    original.details['artist'] = [
+      {'title': '浅影阿'},
+      {'title': '汐音社'},
+    ];
+    for (final separator in [
+      ',',
+      '，',
+      '、',
+      '&',
+      '＆',
+      '/',
+      '／',
+      ';',
+      '；',
+      '|',
+      '｜',
+    ]) {
+      final names = ['浅影阿', '汐音社'].join(separator);
+      final candidate = track('b', title: '探故知', artist: names);
+      expect(SongMatcher.score(original, candidate), 100, reason: separator);
+      expect(SongMatcher.score(candidate, original), 100, reason: separator);
+      expect(candidate.details['artist'], [
+        {'title': names},
+      ]);
+    }
+    final subtitle = track('c', title: '探故知')
+      ..details = {}
+      ..subtitle = '浅影阿 & 汐音社';
+    expect(SongMatcher.score(original, subtitle), 100);
+    expect(
+      SongMatcher.matches(
+        original,
+        track('d', title: '探故知', artist: '其他歌手&另一歌手'),
+      ),
+      false,
+    );
+    expect(
+      SongMatcher.matches(
+        original,
+        track('e', title: '探故知 (DJ版)', artist: '浅影阿&汐音社'),
+      ),
+      false,
+    );
+  });
+
+  test('failed or empty searches recover without switching songs', () async {
+    final plugins = PluginController(
+      store: JsExtensionMemoryStore(),
+      storage: JsMemoryKvStore(),
+    );
+    addTearDown(plugins.disposeController);
+    final api = MatchApi(plugins.manager, 'next', [])..failSearch = true;
+    plugins.builtins['next'] = api;
+    await plugins.matcher.setSources(['next']);
+    await plugins.matcher.setEnabled(true);
+    final original = track('a');
+    Future<Song> load(Song song) async =>
+        Song.fromJson(song.toJson())
+          ..url = song.pluginId == 'next' ? 'https://example.test/audio' : null;
+    await expectLater(
+      plugins.matcher.resolve(original, load),
+      throwsStateError,
+    );
+    api.failSearch = false;
+    expect(await plugins.matcher.candidates(original), isEmpty);
+    api.items.add(track('b', plugin: 'next'));
+    expect((await plugins.matcher.resolve(original, load)).pluginId, 'next');
+    expect(api.searches, 3);
+  });
+
+  test('unavailable source does not leave an empty candidate cache', () async {
+    final plugins = PluginController(
+      store: JsExtensionMemoryStore(),
+      storage: JsMemoryKvStore(),
+    );
+    addTearDown(plugins.disposeController);
+    await plugins.matcher.setSources(['next']);
+    final original = track('a');
+    expect(await plugins.matcher.candidates(original), isEmpty);
+    final api = MatchApi(plugins.manager, 'next', [track('b', plugin: 'next')]);
+    plugins.builtins['next'] = api;
+    expect(await plugins.matcher.candidates(original), hasLength(1));
+    expect(api.searches, 1);
+  });
+
   test('scoring normalizes width, case, punctuation and preserves version differences', () {
     expect(
       SongMatcher.score(
@@ -50,11 +139,16 @@ void main() {
     );
     for (final suffix in ['Live', '伴奏', '翻唱', 'Remix', '加速']) {
       expect(
-        SongMatcher.score(track('a'), track('b', title: '示例歌曲 ($suffix)')),
-        0,
+        SongMatcher.matches(track('a'), track('b', title: '示例歌曲 ($suffix)')),
+        false,
       );
     }
-    expect(SongMatcher.score(track('a'), track('b', artist: '另一歌手')), 0);
+    final sameTitle = track('b', artist: '另一歌手');
+    expect(SongMatcher.score(track('a'), sameTitle), 85);
+    expect(SongMatcher.matches(track('a'), sameTitle), isFalse);
+    expect(SongMatcher.rank(track('a'), [sameTitle]), isEmpty);
+    expect(SongMatcher.rank(track('a'), [sameTitle], minimum: 0), [sameTitle]);
+    expect(SongMatcher.score(track('a'), track('c', artist: '完全不同')), 70);
     expect(SongMatcher.similarity('', ''), 0);
     expect(
       SongMatcher.rank(track('a'), [

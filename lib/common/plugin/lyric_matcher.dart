@@ -99,8 +99,7 @@ class LyricMatcher extends LxController implements LxDisposable {
         found
             .where(
               (item) =>
-                  item.pluginId == id &&
-                  SongMatcher.score(original, item) >= SongMatcher.threshold,
+                  item.pluginId == id && SongMatcher.matches(original, item),
             )
             .toList(),
     ];

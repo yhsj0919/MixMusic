@@ -59,6 +59,8 @@ class DownloadPage extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (controller.restoreError.value.isNotEmpty)
+                  HyperText(controller.restoreError.value),
                 HyperListTile(
                   title: const HyperText('下载目录'),
                   subtitle: HyperText(

@@ -28,6 +28,19 @@ class SongMatcher {
     _ => song.subtitle ?? '',
   };
 
+  static List<String> _artists(Song song) {
+    final names = switch (song.details['artist']) {
+      List items when items.isNotEmpty => [
+        for (final item in items) (item as Map)['title']?.toString() ?? '',
+      ],
+      _ => [song.subtitle ?? ''],
+    };
+    return names
+        .expand((name) => name.split(RegExp(r'[,，、&＆/／;；|｜]')))
+        .where((name) => normalize(name).isNotEmpty)
+        .toList();
+  }
+
   static double similarity(String left, String right) {
     final a = normalize(left).runes.toList(),
         b = normalize(right).runes.toList();
@@ -48,29 +61,29 @@ class SongMatcher {
     return 1 - row.last / max(a.length, b.length);
   }
 
-  static double score(Song original, Song candidate) {
-    for (final version in _versions) {
-      if (version.hasMatch(original.title) !=
-          version.hasMatch(candidate.title)) {
-        return 0;
-      }
-    }
-    final title = similarity(original.title, candidate.title);
-    if (title < .85) return 0;
-    final singer = artist(original);
-    if (normalize(singer).isEmpty) return title * 100;
-    final artists = switch (candidate.details['artist']) {
-      List items when items.isNotEmpty => [
-        for (final item in items) (item as Map)['title']?.toString() ?? '',
-      ],
-      _ => [candidate.subtitle ?? ''],
-    };
-    final artistScore = artists
-        .map((item) => similarity(singer, item))
-        .fold(0.0, max);
-    if (artistScore < .8) return 0;
-    return title * 70 + artistScore * 30;
+  static double? _artistScore(Song original, Song candidate) {
+    final singers = _artists(original);
+    if (singers.isEmpty) return null;
+    return _artists(candidate)
+        .map((item) => similarity(singers.first, item))
+        .fold<double>(0.0, max);
   }
+
+  static double score(Song original, Song candidate) {
+    final title = similarity(original.title, candidate.title);
+    final artist = _artistScore(original, candidate);
+    return artist == null ? title * 100 : title * 70 + artist * 30;
+  }
+
+  static bool matches(Song original, Song candidate) =>
+      similarity(original.title, candidate.title) >= .85 &&
+      (_artistScore(original, candidate) ?? 1) >= .8 &&
+      _versions.every(
+        (version) =>
+            version.hasMatch(original.title) ==
+            version.hasMatch(candidate.title),
+      ) &&
+      score(original, candidate) >= threshold;
 
   static List<Song> rank(
     Song original,
@@ -86,7 +99,11 @@ class SongMatcher {
                 index: i,
               ),
           ]
-          ..removeWhere((item) => item.score < minimum)
+          ..removeWhere(
+            (item) =>
+                item.score < minimum ||
+                (minimum > 0 && !matches(original, item.song)),
+          )
           ..sort(
             (a, b) => a.score == b.score
                 ? a.index.compareTo(b.index)

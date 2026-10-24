@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:lemon_x/lemon_x.dart';
 import 'package:lemon_js_extensions/lemon_js_extensions.dart';
 
@@ -32,13 +34,17 @@ class SourceMatcher extends LxController implements LxDisposable {
 
   Future<List<Song>> candidates(Song song, {bool refresh = false}) async {
     final original = Song.fromJson(song.toJson())..matchedSong = null;
-    final key = MusicCache.keyFor(
-      Song.fromJson(original.toJson())..playQuality = null,
-    );
-    if (!refresh && _candidates.containsKey(key)) return _candidates[key]!;
     final ids = sources.value
         .where((id) => id != original.pluginId && available(id))
         .toList();
+    final key = jsonEncode([
+      MusicCache.keyFor(Song.fromJson(original.toJson())..playQuality = null),
+      ids,
+    ]);
+    if (refresh) _candidates.remove(key);
+    if (_candidates.containsKey(key)) return _candidates[key]!;
+    if (ids.isEmpty) return [];
+    Object? failure;
     final keyword = '${original.title} ${SongMatcher.artist(original)}'.trim();
     final lists = await Future.wait(
       ids.map((id) async {
@@ -49,12 +55,22 @@ class SourceMatcher extends LxController implements LxDisposable {
             minimum: 0,
           );
         } catch (error) {
+          failure = error;
           plugins.addLog('match', 'warn', '搜索失败 [$id]：$error');
           return <Song>[];
         }
       }),
     );
-    return _candidates[key] = [for (final list in lists) ...list];
+    final result = [for (final list in lists) ...list];
+    plugins.addLog(
+      'match',
+      'log',
+      '[Match] sources=${ids.join(',')} candidates=${result.length} searchFailed=${failure != null}',
+    );
+    if (result.isEmpty && failure != null) throw failure!;
+    // 空结果和部分搜索失败都允许下次重新搜索。
+    if (result.isNotEmpty && failure == null) _candidates[key] = result;
+    return result;
   }
 
   bool available(String id) {
@@ -108,8 +124,7 @@ class SourceMatcher extends LxController implements LxDisposable {
         found
             .where(
               (song) =>
-                  song.pluginId == id &&
-                  SongMatcher.score(original, song) >= SongMatcher.threshold,
+                  song.pluginId == id && SongMatcher.matches(original, song),
             )
             .toList(),
     ];

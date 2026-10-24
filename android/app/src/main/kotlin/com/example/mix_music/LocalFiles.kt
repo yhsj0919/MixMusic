@@ -1,10 +1,12 @@
 package com.example.mix_music
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.DocumentsContract
+import android.util.Log
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
 import java.util.concurrent.Executors
@@ -17,13 +19,19 @@ class LocalFiles(private val context: Context, messenger: BinaryMessenger) {
 
     init {
         channel.setMethodCallHandler { call, result ->
-            if (call.method != "listDirectory" && call.method != "saveDownload" && call.method != "checkDownloadDirectory" && call.method != "createDownloadFolder") {
+            if (call.method != "listDirectory" && call.method != "retainDirectory" && call.method != "saveDownload" && call.method != "checkDownloadDirectory" && call.method != "createDownloadFolder") {
                 result.notImplemented()
             } else {
                 val uri = Uri.parse(call.argument<String>("uri")!!)
                 executor.execute {
                     try {
-                        val value = if (call.method == "checkDownloadDirectory") {
+                        val value = if (call.method == "retainDirectory") {
+                            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                                (if (call.argument<Boolean>("write") == true) Intent.FLAG_GRANT_WRITE_URI_PERMISSION else 0)
+                            context.contentResolver.takePersistableUriPermission(uri, flags)
+                            list(uri)
+                            null
+                        } else if (call.method == "checkDownloadDirectory") {
                             check(context.contentResolver.persistedUriPermissions.any {
                                 it.uri == uri && it.isReadPermission && it.isWritePermission
                             }) { "目录授权已失效，请重新选择文件夹" }
@@ -41,6 +49,7 @@ class LocalFiles(private val context: Context, messenger: BinaryMessenger) {
                         } else list(uri)
                         main.post { result.success(value) }
                     } catch (error: Exception) {
+                        Log.e("MixMusic.LocalFiles", "${call.method} failed for $uri", error)
                         val message = if (error is SecurityException) "目录授权已失效，请重新选择文件夹" else error.message
                         main.post { result.error("directory_operation_failed", message, null) }
                     }

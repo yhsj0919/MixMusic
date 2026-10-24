@@ -37,6 +37,54 @@ class HyperQueue<T> extends LxController implements LxDisposable {
   _QueueNode<T>? get _current => index.value < 0 ? null : _flat[index.value];
   bool get hasMore => _sequence().any((node) => node.source != null);
 
+  Map<String, dynamic> toSnapshot({
+    required Object? Function(T) item,
+    required Object? Function(HyperQueueSource<T>) source,
+  }) {
+    Map<String, dynamic> encode(_QueueNode<T> node) => node.item != null
+        ? {'item': item(node.item as T)}
+        : {
+            'source': source(node.source!),
+            'children': node.children.map(encode).toList(),
+            'read': node.read,
+            'suspended': node.suspended,
+          };
+    return {'roots': _roots.map(encode).toList(), 'index': index.value};
+  }
+
+  void restoreSnapshot(
+    Map data, {
+    required T Function(Map) item,
+    required HyperQueueSource<T> Function(Map) source,
+  }) {
+    _QueueNode<T> decode(Map value) {
+      if (value.containsKey('item')) {
+        return _QueueNode(item: item(value['item'] as Map));
+      }
+      final node = _QueueNode<T>(source: source(value['source'] as Map));
+      node.read = value['read'] as int;
+      node.suspended = value['suspended'] == true;
+      node.children.addAll(
+        (value['children'] as List).map((child) => decode(child as Map)),
+      );
+      return node;
+    }
+
+    final restored = (data['roots'] as List)
+        .map((value) => decode(value as Map))
+        .toList();
+    clear();
+    _roots.addAll(restored);
+    for (final node in _walk(_roots)) {
+      if (node.source != null) _listen(node);
+    }
+    _refresh();
+    final selected = data['index'] as int;
+    index.value = selected >= 0 && selected < items.value.length
+        ? selected
+        : -1;
+  }
+
   void _refresh([_QueueNode<T>? current]) {
     current ??= _current;
     final rows = <HyperQueueEntry<T>>[];
@@ -136,15 +184,19 @@ class HyperQueue<T> extends LxController implements LxDisposable {
           : parent.length,
       node,
     );
+    _listen(node);
+    _sync(node);
+  }
+
+  void _listen(_QueueNode<T> node) {
     void changed() {
       if (!isDisposed) _sync(node);
     }
 
     node.listener = changed;
-    source.items.addListener(changed);
-    source.hasMore.addListener(changed);
-    source.error.addListener(changed);
-    _sync(node);
+    node.source!.items.addListener(changed);
+    node.source!.hasMore.addListener(changed);
+    node.source!.error.addListener(changed);
   }
 
   void insertNextCollection(HyperQueueSource<T> source) =>

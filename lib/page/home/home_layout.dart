@@ -66,6 +66,7 @@ class HomeLayout extends StatelessWidget {
                               '/settings/local' => '/settings',
                               '/settings/cache' => '/settings',
                               '/settings/downloads' => '/settings',
+                              '/settings/update' => '/settings',
                               _ => '/',
                             }),
               ),

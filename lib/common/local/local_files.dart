@@ -46,11 +46,26 @@ class LocalFiles {
     return title.isEmpty ? segment : title;
   }
 
-  Future<String?> pickDirectory() => FilePicker.getDirectoryPath(
-    androidOptions: const FilePickerAndroidOptions(
-      safOptions: AndroidSAFOptions(grant: AndroidSAFGrant.lifetime),
-    ),
-  );
+  Future<String?> pickDirectory({bool write = false}) async {
+    final uri = await FilePicker.getDirectoryPath(
+      androidOptions: FilePickerAndroidOptions(
+        safOptions: AndroidSAFOptions(
+          grant: AndroidSAFGrant.lifetime,
+          accessMode: write
+              ? AndroidSAFAccessMode.readWrite
+              : AndroidSAFAccessMode.readOnly,
+        ),
+      ),
+    );
+    if (uri != null && uri.startsWith('content:')) {
+      // 选择器返回 URI 后，明确保存授权并验证能读取目录。
+      await channel.invokeMethod<void>('retainDirectory', {
+        'uri': uri,
+        'write': write,
+      });
+    }
+    return uri;
+  }
 
   Future<List<LocalEntry>> list(String uri) async {
     final entries = <LocalEntry>[];

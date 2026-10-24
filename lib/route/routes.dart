@@ -19,6 +19,8 @@ import '../page/library/library_page.dart';
 import '../page/parse/parse_play_list.dart';
 import '../page/comment/comment_page.dart';
 import '../common/entity/song.dart';
+import '../common/history/playback_history_store.dart';
+import '../page/app_music_history/app_history_music_list.dart';
 
 import '../common/plugin/plugin_controller.dart';
 import '../common/plugin/collection_controller.dart';
@@ -33,6 +35,7 @@ import '../page/home/home_layout.dart';
 import '../page/search/search_page.dart';
 import '../page/setting/setting_controller.dart';
 import '../page/setting/setting_page.dart';
+import '../page/setting/update/update_page.dart';
 import '../page/setting/match_setting_page.dart';
 import '../page/setting/lyric_match_setting_page.dart';
 import '../page/setting/extension/extension_page.dart';
@@ -44,6 +47,12 @@ GoRouter createRouter(SettingController settings) => GoRouter(
       builder: (context, state, child) =>
           HomeLayout(path: state.uri.path, child: child),
       routes: [
+        GoRoute(
+          path: '/history',
+          builder: (context, state) => AppHistoryMusicList(
+            store: context.lx.find<PlaybackHistoryStore>(),
+          ),
+        ),
         GoRoute(
           path: '/comments',
           builder: (context, state) => CommentPage(
@@ -165,6 +174,10 @@ GoRouter createRouter(SettingController settings) => GoRouter(
         GoRoute(
           path: '/settings',
           builder: (context, state) => SettingPage(controller: settings),
+        ),
+        GoRoute(
+          path: '/settings/update',
+          builder: (context, state) => const UpdatePage(),
         ),
         GoRoute(
           path: '/settings/lyric-matching',

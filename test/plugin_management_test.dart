@@ -37,6 +37,46 @@ Future<JsExtensionPackage> zipPackage(int version) async {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  test('playback candidates require enabled plugins with devices', () async {
+    final controller = PluginController(
+      store: JsExtensionMemoryStore(),
+      storage: JsMemoryKvStore(),
+    );
+    addTearDown(controller.disposeController);
+    for (final id in ['ready', 'empty', 'failed']) {
+      await controller.install(
+        JsExtensionPackage(
+          manifestSource: jsonEncode({
+            'schemaVersion': 2,
+            'id': 'test.$id',
+            'name': '播放终端',
+            'description': '设备候选测试',
+            'version': '1.0.0',
+            'versionCode': 1,
+            'compatibilityCode': 'mixmusic-playback-v1',
+            'service': {
+              'entry': 'main.mjs',
+              'contract': 'mixmusic-playback/v1',
+              'publicExports': ['getDevices'],
+            },
+          }),
+          serviceModules: {
+            'main.mjs':
+                'export function getDevices() { ${id == 'ready'
+                    ? 'return [{id: "one"}];'
+                    : id == 'empty'
+                    ? 'return [];'
+                    : 'throw Error("fixture");'} }',
+          },
+        ),
+      );
+    }
+    expect((await controller.playbackCandidates()).map((entry) => entry.id), [
+      'test.ready',
+    ]);
+    await controller.setEnabled('test.ready', false);
+    expect(await controller.playbackCandidates(), isEmpty);
+  });
   test('playback plugin installs without becoming a source', () async {
     final controller = PluginController(
       store: JsExtensionMemoryStore(),

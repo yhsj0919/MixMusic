@@ -47,6 +47,7 @@ class PluginController extends LxController {
         JsExtensionConstraint(
           compatibilityCode: 'mixmusic-playback-v1',
           optionalPublicExports: const {
+            'getDevices',
             'getAccount',
             'play',
             'pause',
@@ -173,6 +174,33 @@ class PluginController extends LxController {
   MusicApi music(String pluginId) =>
       builtins[pluginId] ?? MusicApi(manager, pluginId);
 
+  Future<List<JsExtensionManagerEntry>> playbackCandidates() async {
+    await restored;
+    return _playbackCandidates();
+  }
+
+  Future<List<JsExtensionManagerEntry>> _playbackCandidates() async {
+    final candidates = <JsExtensionManagerEntry>[];
+    for (final entry in manager.extensions) {
+      if (entry.state != JsExtensionManagerState.enabled ||
+          entry.installed?.extension.manifest.compatibilityCode !=
+              'mixmusic-playback-v1' ||
+          !(entry.installed?.extension.service?.publicExports.contains(
+                'getDevices',
+              ) ??
+              false)) {
+        continue;
+      }
+      try {
+        final devices = await manager.call(entry.id, 'getDevices');
+        if (devices is List && devices.isNotEmpty) candidates.add(entry);
+      } catch (error) {
+        addLog(entry.id, 'error', '播放设备加载失败，不加入候选：$error');
+      }
+    }
+    return candidates;
+  }
+
   String? authenticationRoute(String pluginId) => manager
       .find(pluginId)
       ?.installed
@@ -255,6 +283,7 @@ class PluginController extends LxController {
   Future<void> _restore() async {
     await manager.restore();
     refresh();
+    await _playbackCandidates();
   }
 
   Future<void> _restoreHome() async {
